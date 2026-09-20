@@ -853,13 +853,20 @@ function attemptWrite() {
   if (strokeInProgress) { saveTimer = setTimeout(attemptWrite, 200); return; }
   writeVault();
 }
-async function writeVault() {
+let writeChain = Promise.resolve();
+function writeVault() {       // writes run one after another, so an older write can never land after a newer one
+  const p = writeChain.then(writeVaultNow, writeVaultNow);
+  writeChain = p.catch(() => { });
+  return p;
+}
+async function writeVaultNow() {
   try {
     syncVert();               // vertical mode: split the stacked document back into pages before saving
     let rec;
-    if (cryptoKey) {
-      const { iv, cipher } = await encryptVault(cryptoKey, db);
-      rec = { v: 2, enc: true, salt: vaultSalt, iv, cipher };
+    const key = cryptoKey, salt = vaultSalt;      // snapshot: key and salt must always belong together
+    if (key) {
+      const { iv, cipher } = await encryptVault(key, db);
+      rec = { v: 2, enc: true, salt, iv, cipher };
     } else {
       rec = { v: 2, enc: false, data: db };
     }
@@ -894,38 +901,108 @@ const docH = () => (vertMode ? PAGE_H * vertPages : PAGE_H);   // height of what
 const note = () => db.notes.find(n => n.id === noteId);
 const page = () => (vertMode && vpage ? vpage : note().pages[pageIndex]);
 
-/* ---------- access switch ----------
+/* ---------- access switch + personal code ----------
    The owner controls who may use a HOSTED copy of the app with one small file, status.json, that sits next to it:
-     { "enabled": true, "message": "", "codes": [] }
+     { "v": 2, "enabled": true, "message": "", "users": [ { "name": "...", "on": true, "hash": "...", "prev": "..." } ] }
    - enabled:false  -> everybody sees "closed" (their notes stay untouched on their own device, nothing is deleted)
-   - users: [...]   -> person-by-person: [{ "name": "...", "on": true, "hash": "<sha-256 of that person's code>" }].
-                       Only people who typed one of these personal codes get in (the file holds hashes, never the
-                       codes); set "on": false to switch ONE person off, back to true to switch them on again.
-                       (the older "codes": [hash, ...] list still works too)
-   The app re-reads the file when it opens, every few minutes and whenever the tab is shown again.
+   - users: []      -> nobody needs a code (anyone who has the link gets in)
+   - users: [...]   -> everybody needs THEIR OWN code, and that same code is also the password that locks their notes:
+                       one code opens the app AND unlocks the notes. The file holds only a slow hash of each code, never the
+                       code itself. "on": false switches ONE person off, back to true switches them on again.
+   - prev           -> when the owner changes somebody's code, the old code(s) are kept here encrypted WITH THE NEW CODE.
+                       Notes locked with the old code therefore still open with the new one, and are re-locked with it
+                       automatically - nothing is lost when a code is changed.
+   Checking: the app reads status.json through GitHub's API (a change shows up within seconds) and falls back to the hosted
+   file. It re-checks every ACCESS.recheckMs while the tab is visible and whenever the tab is shown / back online.
    Offline: the last answer is trusted for ACCESS.graceDays days. Not hosted (opened from a file / no URL): no check at all.
+   The typed code lives in memory only (never in localStorage) because it is also the key to the notes.
    This is a client-side switch — it stops normal users, but it is not a lock against someone who edits the app's code. */
-const ACCESS = { statusUrl: 'status.json', appId: 'noteflow', graceDays: 7, recheckMs: 5 * 60 * 1000 };
-const ACCESS_CACHE = 'noteflow.access.status', ACCESS_CODE = 'noteflow.access.code';
-let accessOk = true, accessBusy = false, accessMode = 'retry';
-const accessOn = () => !!ACCESS.statusUrl && (/^https?:/i.test(ACCESS.statusUrl) || /^https?:$/.test(location.protocol));
+const ACCESS = { statusUrl: 'status.json', repo: '', ref: '', appId: 'noteflow', graceDays: 7, recheckMs: 30 * 1000 };
+/* ACCESS.repo: 'owner/name' of the GitHub repo that holds status.json. Left empty it is worked out from a *.github.io address;
+   with a custom domain set it here (or leave it empty and the hosted file is used, which is a little slower to update). */
+const ACCESS_CACHE = 'noteflow.access.status', ACCESS_HASH = 'noteflow.access.hash';
+const APP_ID = ACCESS.appId;                                  // must match APP_ID in noteflow_admin.html
+
+/*SHARED-CRYPTO-START (identical in noteflow_admin.html — keep the two copies in sync)*/
 const normCode = c => String(c || '').trim().toLowerCase();
-async function hashCode(code) {
-  const bytes = new TextEncoder().encode(ACCESS.appId + ':' + normCode(code));
-  const h = await crypto.subtle.digest('SHA-256', bytes);
-  return [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, '0')).join('');
+const _te = new TextEncoder();
+const _hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+const _b64 = u8 => { let s = ''; u8.forEach(b => { s += String.fromCharCode(b); }); return btoa(s); };
+const _unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function hashCode(code) {                               // what status.json publishes for a person (slow on purpose)
+  const base = await crypto.subtle.importKey('raw', _te.encode(normCode(code)), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: _te.encode('access:' + APP_ID), iterations: 200000, hash: 'SHA-256' }, base, 256);
+  return _hex(bits);
+}
+async function _prevKey(code) {
+  const base = await crypto.subtle.importKey('raw', _te.encode(normCode(code)), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: _te.encode('previous:' + APP_ID), iterations: 100000, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function sealPrev(code, list) {                         // list of OLD codes, locked with the NEW code
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await _prevKey(code), _te.encode(JSON.stringify(list))));
+  const out = new Uint8Array(12 + ct.length); out.set(iv); out.set(ct, 12);
+  return _b64(out);
+}
+async function openPrev(code, s) {                            // -> array of old codes, or null if it can't be opened
+  try {
+    const raw = _unb64(s);
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: raw.slice(0, 12) }, await _prevKey(code), raw.slice(12));
+    const a = JSON.parse(new TextDecoder().decode(pt));
+    return Array.isArray(a) ? a.filter(x => typeof x === 'string') : [];
+  } catch (e) { return null; }
+}
+/*SHARED-CRYPTO-END*/
+
+let accessOk = true, accessBusy = false, accessMode = 'retry';
+let accessUser = null;          // status.json record of the person using this device (only in personal-code mode)
+let accessHash = '';            // hash of the code this device last entered (a hash, not the code)
+try { accessHash = localStorage.getItem(ACCESS_HASH) || ''; localStorage.removeItem('noteflow.access.code'); } catch (e) { }
+let sessionCode = null;         // the code typed in THIS session — memory only
+let keyIsAccessCode = false;    // true while the notes' key was made from sessionCode
+let vaultReady = false, reconciling = false, legacyPrompt = false;
+const accessOn = () => !!ACCESS.statusUrl && (/^https?:/i.test(ACCESS.statusUrl) || /^https?:$/.test(location.protocol));
+const codeMode = () => accessOn() && accessOk && !!accessUser;      // personal codes are in force for this person
+
+function accessRepo() {
+  if (ACCESS.repo) return ACCESS.repo;
+  const m = /^([a-z0-9-]+)\.github\.io$/i.exec(location.hostname);
+  if (!m) return '';
+  const first = location.pathname.split('/').filter(Boolean)[0];
+  return m[1] + '/' + (first && !/\.[a-z0-9]+$/i.test(first) ? first : location.hostname);
+}
+async function fetchJson(url, opts) {
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 6000);
+  try {
+    const r = await fetch(url, Object.assign({ signal: ctl.signal }, opts));
+    if (!r.ok) throw new Error('http ' + r.status);
+    return await r.json();
+  } finally { clearTimeout(timer); }
+}
+async function accessFetchStatus() {
+  const repo = accessRepo();
+  if (repo) {                                                  // 1) GitHub API: shows a change within seconds
+    try {
+      const path = ACCESS.statusUrl.replace(/^\.?\//, '');
+      const j = await fetchJson('https://api.github.com/repos/' + repo + '/contents/' + path +
+        (ACCESS.ref ? '?ref=' + encodeURIComponent(ACCESS.ref) : ''), { cache: 'no-cache' });
+      if (j && typeof j.content === 'string') {
+        const st = JSON.parse(new TextDecoder().decode(_unb64(j.content.replace(/\s/g, ''))));
+        if (st && typeof st === 'object') return st;
+      }
+    } catch (e) { /* rate-limited / private repo / offline: fall through to the hosted file */ }
+  }
+  const sep = ACCESS.statusUrl.includes('?') ? '&' : '?';       // 2) the hosted file itself
+  const st = await fetchJson(ACCESS.statusUrl + sep + 't=' + Date.now(), { cache: 'no-store' });
+  if (!st || typeof st !== 'object') throw new Error('bad status');
+  return st;
 }
 function accessReadCache() { try { return JSON.parse(localStorage.getItem(ACCESS_CACHE)); } catch (e) { return null; } }
 async function accessEvaluate() {
   let st = null;
   try {
-    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 6000);
-    const sep = ACCESS.statusUrl.includes('?') ? '&' : '?';
-    const r = await fetch(ACCESS.statusUrl + sep + 't=' + Date.now(), { cache: 'no-store', signal: ctl.signal });
-    clearTimeout(timer);
-    if (!r.ok) throw new Error('http ' + r.status);
-    st = await r.json();
-    if (!st || typeof st !== 'object') throw new Error('bad status');
+    st = await accessFetchStatus();
     try { localStorage.setItem(ACCESS_CACHE, JSON.stringify({ st, at: Date.now() })); } catch (e) { }
   } catch (e) {
     const c = accessReadCache();
@@ -933,16 +1010,15 @@ async function accessEvaluate() {
     if (Date.now() - c.at > ACCESS.graceDays * 864e5) return { ok: false, reason: 'stale' };
     st = c.st;                                   // offline: keep obeying the last answer we got
   }
+  accessUser = null;
   if (st.enabled === false) return { ok: false, reason: 'disabled', message: st.message };
-  const list = Array.isArray(st.codes) ? st.codes : [];
   const users = Array.isArray(st.users) ? st.users.filter(u => u && typeof u.hash === 'string') : [];
-  if (list.length || users.length) {                       // people-by-people mode: everybody needs a personal code
-    const code = localStorage.getItem(ACCESS_CODE) || '';
-    if (!code) return { ok: false, reason: 'needcode' };
-    const h = await hashCode(code);
-    const u = users.find(x => x.hash === h);
-    if (u) return u.on === false ? { ok: false, reason: 'useroff', message: u.message || st.message } : { ok: true };
-    if (!list.includes(h)) return { ok: false, reason: 'badcode' };
+  if (users.length) {                                      // personal-code mode: everybody needs their own code
+    if (!accessHash) return { ok: false, reason: 'needcode' };
+    const u = users.find(x => x.hash === accessHash);
+    if (!u) { sessionCode = null; return { ok: false, reason: 'badcode' }; }
+    if (u.on === false) return { ok: false, reason: 'useroff', message: u.message || st.message };
+    accessUser = u;
   }
   return { ok: true };
 }
@@ -951,8 +1027,8 @@ function accessShow(res) {
     checking: ['กำลังตรวจสอบสิทธิ์…', '', false, null],
     disabled: ['ปิดการใช้งานชั่วคราว', (res && res.message) || 'ผู้ดูแลปิดการใช้งานอยู่ โน้ตของคุณยังอยู่ครบในเครื่องนี้ กลับมาใหม่เมื่อเปิดใช้งาน', false, 'ลองอีกครั้ง'],
     useroff: ['ปิดการใช้งานสำหรับคุณ', (res && res.message) || 'ผู้ดูแลปิดสิทธิ์ของคุณไว้ชั่วคราว ติดต่อผู้ดูแลเพื่อขอเปิดใช้งาน โน้ตของคุณยังอยู่ครบในเครื่องนี้', false, 'ลองอีกครั้ง'],
-    needcode: ['กรอกรหัสเข้าใช้งาน', 'ขอรหัสได้จากผู้ดูแล', true, 'ยืนยัน'],
-    badcode: ['รหัสใช้ไม่ได้', 'รหัสนี้ไม่ถูกต้องหรือถูกยกเลิกแล้ว ลองกรอกใหม่หรือติดต่อผู้ดูแล', true, 'ยืนยัน'],
+    needcode: ['กรอกรหัสเข้าใช้งาน', 'ขอรหัสได้จากผู้ดูแล รหัสนี้ใช้ล็อกโน้ตของคุณด้วย', true, 'ยืนยัน'],
+    badcode: ['รหัสใช้ไม่ได้', 'รหัสนี้ไม่ถูกต้อง หรือผู้ดูแลเปลี่ยนรหัสของคุณแล้ว กรอกรหัสล่าสุดที่ได้รับ โน้ตเดิมของคุณจะยังเปิดได้ตามปกติ', true, 'ยืนยัน'],
     offline: ['ต้องเชื่อมต่ออินเทอร์เน็ต', 'เปิดใช้ครั้งแรกต้องเชื่อมต่อเพื่อยืนยันสิทธิ์ก่อน', false, 'ลองอีกครั้ง'],
     stale: ['ต้องยืนยันสิทธิ์อีกครั้ง', 'ไม่ได้เชื่อมต่อเพื่อยืนยันสิทธิ์มานานเกินไป ต่ออินเทอร์เน็ตแล้วลองอีกครั้ง', false, 'ลองอีกครั้ง'],
   };
@@ -968,31 +1044,99 @@ function accessShow(res) {
 }
 async function accessRun(silent) {
   if (!accessOn() || accessBusy) return;
-  if (silent && !accessOk) return;               // already showing a block screen: wait for the person to press the button
+  if (silent && !accessOk && accessMode === 'code') return;     // the person is typing a code: don't disturb
   accessBusy = true;
   if (!silent) accessShow('checking');
   let res;
   try { res = await accessEvaluate(); } catch (e) { res = { ok: false, reason: 'offline' }; }
   accessBusy = false;
-  if (res.ok) { accessOk = true; $('accessSheet').classList.add('hidden'); return; }
+  if (res.ok) {
+    accessOk = true; $('accessSheet').classList.add('hidden');
+    if (lockedRec) lockCopy(legacyPrompt);
+    reconcileVault();
+    return;
+  }
+  const wasOk = accessOk;
   accessOk = false;
-  if (noteId && !$('editor').classList.contains('hidden')) writeVault().catch(() => { });   // never lose what was being written
+  if (wasOk && noteId && !$('editor').classList.contains('hidden')) writeVault().catch(() => { });   // never lose what was being written
   accessShow(res);
 }
-function accessButton() {
+async function accessButton() {
+  if (accessBusy) return;
   if (accessMode === 'code') {
     const v = normCode($('accCode').value);
     if (!v) return;
-    try { localStorage.setItem(ACCESS_CODE, v); } catch (e) { }
     $('accCode').value = '';
+    accessBusy = true; accessShow('checking');
+    try {
+      const h = await hashCode(v);
+      accessHash = h;
+      try { localStorage.setItem(ACCESS_HASH, h); } catch (e) { }
+      if (sessionCode !== v) keyIsAccessCode = false;            // a different code: the notes must be re-locked with it
+      sessionCode = v;
+    } catch (e) { }
+    accessBusy = false;
   }
   accessRun(false);
 }
 function accessStart() {
   if (!accessOn()) return;
   accessRun(false);
-  setInterval(() => accessRun(true), ACCESS.recheckMs);
+  setInterval(() => { if (!document.hidden) accessRun(true); }, ACCESS.recheckMs);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) accessRun(true); });
+  window.addEventListener('online', () => accessRun(true));
+  window.addEventListener('focus', () => accessRun(true));
+}
+
+/* ---------- one code for both: entering the app and unlocking the notes ----------
+   After the code is accepted, make sure the notes are locked with THAT code:
+   - notes not encrypted yet          -> encrypt them with the code
+   - locked with the code             -> just unlock
+   - locked with an OLD code          -> unlock with the old code (found in status.json "prev"), re-lock with the new one
+   - locked with a private password   -> ask for that old password once, then re-lock with the code                      */
+async function adoptCode() {
+  if (!sessionCode) return;
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await deriveKey(sessionCode, salt);
+  vaultSalt = salt; cryptoKey = key; keyIsAccessCode = true;
+  await writeVault();
+  armIdleLock();
+}
+async function tryKeyOnVault(rec, pass) {
+  try {
+    const key = await deriveKey(pass, rec.salt);
+    return { key, data: await decryptVault(key, rec.iv, rec.cipher) };
+  } catch (e) { return null; }
+}
+async function reconcileVault() {
+  if (!vaultReady || reconciling || !sessionCode || !codeMode()) return;
+  reconciling = true;
+  try {
+    if (lockedRec) {                                            // notes are encrypted and still locked
+      const older = accessUser.prev ? (await openPrev(sessionCode, accessUser.prev)) || [] : [];
+      for (const c of [sessionCode, ...older]) {
+        const hit = await tryKeyOnVault(lockedRec, c);
+        if (!hit) continue;
+        db = hit.data; normalizeDb();
+        cryptoKey = hit.key; vaultSalt = lockedRec.salt; lockedRec = null; legacyPrompt = false;
+        keyIsAccessCode = (c === sessionCode);
+        if (!keyIsAccessCode) { await adoptCode(); toast('เปลี่ยนรหัสล็อกโน้ตเป็นรหัสใหม่แล้ว โน้ตเดิมยังอยู่ครบ'); }
+        showDashboard();
+        return;
+      }
+      legacyPrompt = true; lockCopy(true);                       // none of the codes fit: ask for the old private password once
+    } else if (!keyIsAccessCode) {                              // notes are open (or not encrypted): lock them with the code
+      await adoptCode();
+    }
+  } finally { reconciling = false; }
+}
+function lockCopy(legacy) {
+  const cm = codeMode();
+  $('lockLede').textContent = legacy
+    ? 'โน้ตนี้ยังล็อกด้วยรหัสผ่านเดิมที่คุณเคยตั้งไว้ ใส่รหัสผ่านเดิมครั้งเดียว ระบบจะเปลี่ยนเป็นรหัสเข้าใช้งานให้เอง โน้ตทั้งหมดยังอยู่ครบ'
+    : cm ? 'ใส่รหัสเข้าใช้งานของคุณ (รหัสเดียวกับที่ผู้ดูแลให้) โน้ตทั้งหมดถูกเข้ารหัสไว้ในเครื่องนี้'
+      : 'โน้ตทั้งหมดถูกเข้ารหัสไว้ในเครื่องนี้';
+  $('lockPass').placeholder = legacy ? 'รหัสผ่านเดิม' : cm ? 'รหัสเข้าใช้งาน' : 'รหัสผ่าน';
 }
 
 async function boot() {
@@ -1006,14 +1150,16 @@ async function boot() {
       if (raw) { db = JSON.parse(raw); db.notes.forEach(n => n.pages.forEach(p => p.bg = p.bg || null)); normalizeDb(); await writeVault(); }
     } catch (e) { }
     seed(); showDashboard();
-    initCloud(true); return;
+    initCloud(true); bootDone(); return;
   }
-  if (rec.enc) { vaultSalt = rec.salt; showLock(rec); return; }
+  if (rec.enc) { vaultSalt = rec.salt; showLock(rec); bootDone(); return; }
   db = rec.data || { notes: [] };
   normalizeDb();
   seed(); showDashboard();
   initCloud(false);
+  bootDone();
 }
+function bootDone() { vaultReady = true; reconcileVault(); }
 function seed() {
   if (db.notes.length) return;
   db.notes.push({
@@ -1040,27 +1186,49 @@ function showLock(rec) {
   $('lockSheet').classList.remove('hidden');
   $('lockPass').value = '';
   $('lockMsg').textContent = '';
+  lockCopy(legacyPrompt);
   setTimeout(() => $('lockPass').focus(), 60);
 }
 async function tryUnlock() {
-  const pass = $('lockPass').value;
-  if (!pass) return;
+  const raw = $('lockPass').value;
+  if (!raw) return;
   $('lockMsg').textContent = 'กำลังถอดรหัส…';
-  try {
-    const key = await deriveKey(pass, lockedRec.salt);
-    db = await decryptVault(key, lockedRec.iv, lockedRec.cipher);
-    normalizeDb();
-    cryptoKey = key; vaultSalt = lockedRec.salt; lockedRec = null;
-    showDashboard();
-    initCloud(false);
-  } catch (e) {
-    $('lockMsg').textContent = 'รหัสผ่านไม่ถูกต้อง';
+  const n = normCode(raw);
+  const tries = [...new Set(codeMode() ? [n, raw] : [raw, n])].filter(Boolean);   // the code is case-insensitive, old passwords are not
+  let hit = null, used = null;
+  for (const p of tries) {
+    const h = await tryKeyOnVault(lockedRec, p);
+    if (h) { hit = h; used = p; break; }
+  }
+  if (!hit) {
+    $('lockMsg').textContent = codeMode() && !legacyPrompt ? 'รหัสไม่ถูกต้อง' : 'รหัสผ่านไม่ถูกต้อง';
     $('lockPass').select();
+    return;
+  }
+  db = hit.data; normalizeDb();
+  cryptoKey = hit.key; vaultSalt = lockedRec.salt; lockedRec = null; legacyPrompt = false; keyIsAccessCode = false;
+  try { await afterManualUnlock(used); } catch (e) { }
+  showDashboard();
+  initCloud(false);
+}
+/* the notes were just opened by typing something: if personal codes are in force, make the notes' lock the code */
+async function afterManualUnlock(typed) {
+  if (!codeMode()) return;
+  const t = normCode(typed);
+  if (sessionCode) {
+    if (t === sessionCode) keyIsAccessCode = true;
+    else { await adoptCode(); toast('เปลี่ยนเป็นรหัสเข้าใช้งานแล้ว โน้ตเดิมยังอยู่ครบ'); }
+  } else if (await hashCode(t) === accessUser.hash) {
+    sessionCode = t; keyIsAccessCode = true;                      // what was typed IS the code
+  } else {                                                        // an old private password and we don't know the code yet: ask for it
+    accessHash = ''; try { localStorage.removeItem(ACCESS_HASH); } catch (e) { }
+    accessRun(false);
   }
 }
 function lockNow() {
   if (!cryptoKey) return toast('ยังไม่ได้ตั้งรหัสผ่าน');
   clearTimeout(saveTimer);
+  sessionCode = null; keyIsAccessCode = false; legacyPrompt = false;     // the code is asked for again to open the notes
   writeVault().then(async () => {
     cryptoKey = null; db = { notes: [] }; noteId = null;
     closeSecurity();
@@ -1078,13 +1246,15 @@ function armIdleLock() {
   document.addEventListener(ev, () => { if (cryptoKey) armIdleLock(); }, true));
 
 function openSecurity() {
-  const on = !!cryptoKey;
-  $('secState').innerHTML = on
+  const on = !!cryptoKey, cm = codeMode();
+  $('secState').innerHTML = cm
+    ? '<b>ล็อกด้วยรหัสเข้าใช้งานของคุณ</b> — โน้ตถูกเข้ารหัสด้วยรหัสที่ผู้ดูแลให้ (รหัสเดียวกับตอนเข้าแอป) และจะล็อกอัตโนมัติเมื่อไม่ได้ใช้งาน 10 นาที เปลี่ยนรหัสเองไม่ได้ ถ้าต้องการเปลี่ยนให้ขอจากผู้ดูแล'
+    : on
     ? '<b>เปิดการเข้ารหัสอยู่</b> — โน้ตถูกเก็บเป็นข้อมูลที่อ่านไม่ออกใน IndexedDB และจะล็อกอัตโนมัติเมื่อไม่ได้ใช้งาน 10 นาที'
     : '<b>ยังไม่ได้เข้ารหัส</b> — ใครเปิดเบราว์เซอร์นี้ก็อ่านโน้ตได้ ตั้งรหัสผ่านเพื่อป้องกัน';
-  $('secOnBtn').classList.toggle('hidden', on);
-  $('secForm').classList.toggle('hidden', on);
-  $('secOffBtn').classList.toggle('hidden', !on);
+  $('secOnBtn').classList.toggle('hidden', on || cm);
+  $('secForm').classList.toggle('hidden', on || cm);
+  $('secOffBtn').classList.toggle('hidden', !on || cm);
   $('secLockBtn').classList.toggle('hidden', !on);
   $('p1').value = ''; $('p2').value = ''; gradePass();
   $('secSheet').classList.remove('hidden');
@@ -1099,16 +1269,18 @@ function gradePass() {
   $('passBar').style.width = Math.min(Math.round(s), 100) + '%';
 }
 async function enableEncryption() {
+  if (codeMode()) return toast('โน้ตล็อกด้วยรหัสเข้าใช้งานอยู่แล้ว');
   const p1 = $('p1').value, p2 = $('p2').value;
   if (p1.length < 8) return toast('รหัสผ่านสั้นเกินไป');
   if (p1 !== p2) return toast('รหัสผ่านสองช่องไม่ตรงกัน');
   vaultSalt = crypto.getRandomValues(new Uint8Array(16));
-  cryptoKey = await deriveKey(p1, vaultSalt);
+  cryptoKey = await deriveKey(p1, vaultSalt); keyIsAccessCode = false;
   await writeVault();
   closeSecurity(); armIdleLock();
   toast('เข้ารหัสเรียบร้อย');
 }
 async function disableEncryption() {
+  if (codeMode()) return toast('ยกเลิกการเข้ารหัสไม่ได้ เพราะโน้ตล็อกด้วยรหัสเข้าใช้งาน');
   if (!confirm('ยกเลิกการเข้ารหัส? โน้ตจะถูกเก็บแบบอ่านได้ทันที')) return;
   cryptoKey = null;
   await writeVault();
