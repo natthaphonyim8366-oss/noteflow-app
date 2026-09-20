@@ -1,5 +1,8 @@
 {
+  "v": 2,
   "enabled": true,
   "message": "",
-  "users": []
+  "users": [
+    { "name": "วรี", "on": true, "hash": "ef018fc835d77454ce6ef3a4a026321128228cf786322ab63d6351afd16dc439" }
+  ]
 }
