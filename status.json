@@ -3,6 +3,6 @@
   "enabled": true,
   "message": "",
   "users": [
-    { "name": "ออ", "on": true, "hash": "1458bb6ed3764b79e8a47def0877e72119ba34e564efbaf79f123b1d2083b4d7" }
+    { "name": "ออ", "on": false, "hash": "1458bb6ed3764b79e8a47def0877e72119ba34e564efbaf79f123b1d2083b4d7" }
   ]
 }
