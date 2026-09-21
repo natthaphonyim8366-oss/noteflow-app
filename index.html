@@ -248,6 +248,8 @@ input.doc-title:hover{border-color:var(--line)}
 <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6 7l1 12.5a1 1 0 0 0 1 .9h8a1 1 0 0 0 1-.9L18 7"/><path d="M10 11v5M14 11v5"/></symbol>
 <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l1.2-4.2L16.6 4.4a2 2 0 0 1 2.8 0l.2.2a2 2 0 0 1 0 2.8L8.2 18.8z"/><path d="M14.5 6.5l3 3"/></symbol>
 <symbol id="i-highlighter" viewBox="0 0 24 24"><path d="M13 4.5l6.5 6.5-7 7H6v-6.5z"/><path d="M3 21h9"/></symbol>
+<symbol id="i-hl-free" viewBox="0 0 24 24"><path d="M3.5 15.5c2.5-6 4.5 3.5 8-2s5.500 1.500 9-3"/></symbol>
+<symbol id="i-hl-line" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M12 4v16"/><path d="M4 12l2.500-2M4 12l2.500 2M20 12l-2.500-2M20 12l-2.500 2M12 4l-2 2.500M12 4l2 2.500M12 20l-2-2.500M12 20l2-2.500"/></symbol>
 <symbol id="i-shape" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="10" height="10" rx="1.5"/><circle cx="15.5" cy="15.5" r="5"/></symbol>
 <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M9 20h11"/><path d="M5.2 15.6l9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11.6 20H8.4l-3.2-3.2a1.2 1.2 0 0 1 0-1.2z"/></symbol>
 <symbol id="i-eraser-dot" viewBox="0 0 24 24"><path d="M9 20h11"/><path d="M5.2 15.6l9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11.6 20H8.4l-3.2-3.2a1.2 1.2 0 0 1 0-1.2z"/><circle cx="9" cy="14.5" r="1.15" fill="currentColor" stroke="none"/></symbol>
@@ -369,6 +371,10 @@ input.doc-title:hover{border-color:var(--line)}
       <button class="tool" data-kind="rect" aria-pressed="false" title="สี่เหลี่ยม" aria-label="สี่เหลี่ยม" onclick="setShapeKind('rect')"><svg class="i"><use href="#i-rect"/></svg></button>
       <button class="tool" data-kind="ellipse" aria-pressed="false" title="วงรี" aria-label="วงรี" onclick="setShapeKind('ellipse')"><svg class="i"><use href="#i-ellipse"/></svg></button>
       <button class="tool" data-kind="triangle" aria-pressed="false" title="สามเหลี่ยม" aria-label="สามเหลี่ยม" onclick="setShapeKind('triangle')"><svg class="i"><use href="#i-triangle"/></svg></button>
+    </div>
+    <div class="toolset hidden" id="hlBar">
+      <button class="tool" data-hkind="free" aria-pressed="true" title="ไฮไลต์อิสระ" aria-label="ไฮไลต์อิสระ" onclick="setHlMode('free')"><svg class="i"><use href="#i-hl-free"/></svg></button>
+      <button class="tool" data-hkind="line" aria-pressed="false" title="ไฮไลต์เส้นตรง — ล็อกแนวนอน/แนวตั้งให้เอง (กด Shift ค้างตอนลากก็ได้)" aria-label="ไฮไลต์เส้นตรง ล็อกแนวนอนหรือแนวตั้ง" onclick="setHlMode('line')"><svg class="i"><use href="#i-hl-line"/></svg></button>
     </div>
     <div class="toolset hidden" id="eraserKindBar">
       <button class="tool" data-ekind="precise" aria-pressed="true" title="ลบละเอียด" aria-label="ลบละเอียด (ลบเฉพาะจุดที่ลาก)" onclick="setEraserKind('precise')"><svg class="i"><use href="#i-eraser-dot"/></svg></button>
@@ -627,6 +633,10 @@ let currentPaperDark = false;
 
 /* selection / shape / lasso state */
 let shapeKind = 'line';
+/* highlighter: 'free' = as drawn, 'line' = locked into a straight horizontal or vertical line (owner can switch this off per person) */
+let hlMode = 'free', hlLock = null;
+try { if (localStorage.getItem('noteflow.hlMode') === 'line') hlMode = 'line'; } catch (e) { }
+const HL_LOCK_DECIDE_PX = 10;     // how far (screen px) the pen must travel before the direction is picked
 let shapeDraftStart = null;
 let eraserCursor = null;   
 let eraserMode = 'precise';        // 'precise' | 'stroke' | 'loop'
@@ -913,11 +923,13 @@ const page = () => (vertMode && vpage ? vpage : note().pages[pageIndex]);
                        Notes locked with the old code therefore still open with the new one, and are re-locked with it
                        automatically - nothing is lost when a code is changed.
    Checking: the app reads status.json through GitHub's API (a change shows up within seconds) and falls back to the hosted
-   file. It re-checks every ACCESS.recheckMs while the tab is visible and whenever the tab is shown / back online.
+   file. It re-checks every ACCESS.recheckMs (2 s; 30 s on the fallback route) while the tab is visible and whenever the tab is shown / back online.
    Offline: the last answer is trusted for ACCESS.graceDays days. Not hosted (opened from a file / no URL): no check at all.
    The typed code lives in memory only (never in localStorage) because it is also the key to the notes.
    This is a client-side switch — it stops normal users, but it is not a lock against someone who edits the app's code. */
-const ACCESS = { statusUrl: 'status.json', repo: '', ref: '', appId: 'noteflow', graceDays: 7, recheckMs: 30 * 1000 };
+const ACCESS = { statusUrl: 'status.json', repo: '', ref: '', appId: 'noteflow', graceDays: 7, recheckMs: 2 * 1000, slowMs: 30 * 1000 };
+/* recheckMs: how often the tab asks while it is visible (cheap: an unchanged answer costs almost nothing). slowMs: used instead when the
+   fast GitHub-API route isn't available and the app has to read the hosted file, which GitHub Pages updates a bit later anyway. */
 /* ACCESS.repo: 'owner/name' of the GitHub repo that holds status.json. Left empty it is worked out from a *.github.io address;
    with a custom domain set it here (or leave it empty and the hosted file is used, which is a little slower to update). */
 const ACCESS_CACHE = 'noteflow.access.status', ACCESS_HASH = 'noteflow.access.hash';
@@ -962,6 +974,8 @@ try { accessHash = localStorage.getItem(ACCESS_HASH) || ''; localStorage.removeI
 let sessionCode = null;         // the code typed in THIS session — memory only
 let keyIsAccessCode = false;    // true while the notes' key was made from sessionCode
 let vaultReady = false, reconciling = false, legacyPrompt = false;
+let accessViaApi = false, accessLastAt = 0;
+      // which route answered last, and when
 const accessOn = () => !!ACCESS.statusUrl && (/^https?:/i.test(ACCESS.statusUrl) || /^https?:$/.test(location.protocol));
 const codeMode = () => accessOn() && accessOk && !!accessUser;      // personal codes are in force for this person
 
@@ -989,10 +1003,11 @@ async function accessFetchStatus() {
         (ACCESS.ref ? '?ref=' + encodeURIComponent(ACCESS.ref) : ''), { cache: 'no-cache' });
       if (j && typeof j.content === 'string') {
         const st = JSON.parse(new TextDecoder().decode(_unb64(j.content.replace(/\s/g, ''))));
-        if (st && typeof st === 'object') return st;
+        if (st && typeof st === 'object') { accessViaApi = true; return st; }
       }
     } catch (e) { /* rate-limited / private repo / offline: fall through to the hosted file */ }
   }
+  accessViaApi = false;
   const sep = ACCESS.statusUrl.includes('?') ? '&' : '?';       // 2) the hosted file itself
   const st = await fetchJson(ACCESS.statusUrl + sep + 't=' + Date.now(), { cache: 'no-store' });
   if (!st || typeof st !== 'object') throw new Error('bad status');
@@ -1049,7 +1064,7 @@ async function accessRun(silent) {
   if (!silent) accessShow('checking');
   let res;
   try { res = await accessEvaluate(); } catch (e) { res = { ok: false, reason: 'offline' }; }
-  accessBusy = false;
+  accessBusy = false; accessLastAt = Date.now();
   if (res.ok) {
     accessOk = true; $('accessSheet').classList.add('hidden');
     if (lockedRec) lockCopy(legacyPrompt);
@@ -1082,7 +1097,11 @@ async function accessButton() {
 function accessStart() {
   if (!accessOn()) return;
   accessRun(false);
-  setInterval(() => { if (!document.hidden) accessRun(true); }, ACCESS.recheckMs);
+  setInterval(() => {
+    if (document.hidden) return;
+    if (!accessViaApi && Date.now() - accessLastAt < ACCESS.slowMs) return;     // hosted-file route: no point asking every few seconds
+    accessRun(true);
+  }, ACCESS.recheckMs);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) accessRun(true); });
   window.addEventListener('online', () => accessRun(true));
   window.addEventListener('focus', () => accessRun(true));
@@ -1748,6 +1767,7 @@ function setTool(t) {
     .forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === t)));
   $('shapeKindBar').classList.toggle('hidden', t !== 'shape');
   $('eraserKindBar').classList.toggle('hidden', t !== 'eraser');
+  hlLock = null; applyFeatures();
   if (t !== 'lasso') { resetSelectionState(); }
   draft = null;
   if (t !== 'image') clearImageSelection();
@@ -1758,6 +1778,38 @@ function setTool(t) {
   const s = toolSizes[t] ?? size;
   setSize(s); $('size').value = s;
   render();
+}
+/* ---------- highlighter straight-line lock ----------
+   In 'line' mode (or with Shift held) a highlighter stroke becomes a perfectly horizontal or vertical straight line:
+   after a short travel the direction that was dragged most is picked and kept for the whole stroke, so a slightly
+   wobbly hand still gives a ruler-straight mark. Works the same in page mode and vertical (scroll) mode.
+   It is a basic tool: available to everybody, nothing to switch on in the admin page. */
+function hlLineActive() { return hlMode === 'line'; }
+function setHlMode(m) {
+  hlMode = m === 'line' ? 'line' : 'free';
+  try { localStorage.setItem('noteflow.hlMode', hlMode); } catch (e) { }
+  applyFeatures();
+}
+function applyFeatures() {                       // show the highlighter's little bar only for the highlighter
+  $('hlBar').classList.toggle('hidden', tool !== 'highlighter');
+  document.querySelectorAll('#hlBar .tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.hkind === hlMode)));
+}
+/* one pen movement while a locked highlighter stroke is being drawn; q = page point */
+function hlLockMove(q) {
+  const o = hlLock.origin;
+  if (!hlLock.axis) {
+    const dx = (q[0] - o[0]) * zoom, dy = (q[1] - o[1]) * zoom;
+    if (Math.hypot(dx, dy) < HL_LOCK_DECIDE_PX) {                       // not decided yet: draw normally
+      const last = draft.points[draft.points.length - 1];
+      if (!last || Math.hypot(q[0] - last[0], q[1] - last[1]) * zoom >= 0.4) draft.points.push(q);
+      return;
+    }
+    hlLock.axis = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+    draft.straight = true;
+  }
+  const end = hlLock.axis === 'h' ? [q[0], o[1]] : [o[0], q[1]];
+  draft.points = [o, end]; draft.baked = 0;                               // the whole stroke is just its two end points
+  draftMaskCtx.clearRect(0, 0, draftMaskCanvas.width, draftMaskCanvas.height);   // the preview is redrawn from scratch
 }
 function setShapeKind(k) {
   shapeKind = k;
@@ -3267,6 +3319,7 @@ canvas.addEventListener('pointerdown', e => {
 
   if (tool === 'pen' || tool === 'highlighter') {
     draft = { tool, color: curInk(), size, points: [p] };
+    hlLock = (tool === 'highlighter' && (hlLineActive() || e.shiftKey)) ? { origin: p, axis: null } : null;
     draftMaskCtx.clearRect(0, 0, draftMaskCanvas.width, draftMaskCanvas.height);
     penBakeCtx.clearRect(0, 0, penBakeCanvas.width, penBakeCanvas.height);
     if (tool === 'pen') armShapeHold(e);
@@ -3342,6 +3395,7 @@ canvas.addEventListener('pointermove', e => {
       const rect = canvas.getBoundingClientRect();
       for (const ce of coalescedOf(e)) {
         const q = getCanvasPoint(ce, rect), last = draft.points[draft.points.length - 1];
+        if (hlLock && draft.tool === 'highlighter') { hlLockMove(q); continue; }
         if (!last || Math.hypot(q[0] - last[0], q[1] - last[1]) * zoom >= 0.4) draft.points.push(q);
       }
       armShapeHold(e);
@@ -3391,7 +3445,7 @@ function handlePointerUpInner(e) {
       page().strokes.push(draft);
       touch();
     }
-    draft = null; shapeRecognized = false; lineLock = null;
+    draft = null; shapeRecognized = false; lineLock = null; hlLock = null;
     render();
   } else if (tool === 'shape' && draft) {
     commitShape();
