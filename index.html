@@ -272,6 +272,13 @@ input.doc-title:hover{border-color:var(--line)}
 .fp-t{min-width:0}
 .fp-t strong{display:block;font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .fp-t small{font-size:12px;color:var(--muted)}
+.prog{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:95;width:min(340px,92vw);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:12px 14px 12px;box-shadow:0 8px 28px rgba(0,0,0,.22)}
+.prog.hidden{display:none}
+.prog .pt{font-size:13px;font-weight:600;margin-bottom:2px}
+.prog .pd{font-size:12px;color:var(--muted);margin-top:6px;display:flex;justify-content:space-between;gap:8px}
+.prog .bar{margin-top:8px;height:6px}
+.prog .bar i{transition:width .15s linear}
+.prog.ok .bar i{background:#4c9a5a}
 .toast{position:fixed;left:50%;bottom:72px;transform:translateX(-50%);z-index:80;background:var(--ink);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:13px;font-weight:500;max-width:90vw;text-align:center}
 .lockwrap{text-align:center}
 .lockwrap .i{width:28px;height:28px;color:var(--muted);margin-bottom:6px}
@@ -656,6 +663,12 @@ input.doc-title:hover{border-color:var(--line)}
       <button class="btn" onclick="closeHandSheet()">เสร็จ</button>
     </div>
   </div>
+</div>
+
+<div id="progCard" class="prog hidden" role="status" aria-live="polite">
+  <div class="pt" id="progTitle"></div>
+  <div class="bar"><i id="progFill"></i></div>
+  <div class="pd"><span id="progDetail"></span><span id="progPct"></span></div>
 </div>
 
 <!-- ========== EXPORT SHEET ========== -->
@@ -4611,22 +4624,26 @@ function closeExport() { $('exportSheet').classList.add('hidden'); }
 
 async function exportPDF() {
   syncVert();
-  toast('กำลังเตรียมไฟล์ PDF…');
-  await loadLib('jspdf');
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-  const n = note();
-  await preloadPages(n.pages);
-  for (let i = 0; i < n.pages.length; i++) {
-    if (i > 0) doc.addPage();
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
-    drawPage(tempCanvas.getContext('2d'), n, n.pages[i], 2, PAGE_W * 2, PAGE_H * 2);
-    const imgData = tempCanvas.toDataURL('image/jpeg', 0.92);
-    doc.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
-  }
-  doc.save(n.title + '.pdf');
-  closeExport(); toast('ส่งออก PDF เรียบร้อย');
+  const n = note(), total = n.pages.length;
+  progShow('กำลังส่งออก PDF', 'เตรียมตัวสร้างไฟล์…');
+  try {
+    await loadLib('jspdf');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    progSet(0.03, 'โหลดรูปในโน้ต…');
+    await preloadPages(n.pages);
+    for (let i = 0; i < total; i++) {
+      progSet(0.05 + 0.9 * i / total, 'หน้า ' + i + ' / ' + total + ' ส่งออกแล้ว'); await tick();
+      if (i > 0) doc.addPage();
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+      drawPage(tempCanvas.getContext('2d'), n, n.pages[i], 2, PAGE_W * 2, PAGE_H * 2);
+      doc.addImage(tempCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 595.28, 841.89);
+    }
+    progSet(0.96, 'หน้า ' + total + ' / ' + total + ' · กำลังบันทึกไฟล์…'); await tick();
+    doc.save(n.title + '.pdf');
+    closeExport(); progDone('ส่งออกครบ ' + total + ' / ' + total + ' หน้า');
+  } catch (err) { progFail('ส่งออก PDF ไม่สำเร็จ'); }
 }
 
 async function exportPDFRange() {
@@ -4637,86 +4654,121 @@ async function exportPDFRange() {
   let to = parseInt($('pdfRangeTo').value, 10) || total;
   from = Math.max(1, Math.min(from, total));
   to = Math.max(from, Math.min(to, total));
-  toast('กำลังเตรียมไฟล์ PDF…');
-  await loadLib('jspdf');
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-  const pagesToExport = n.pages.slice(from - 1, to);
-  await preloadPages(pagesToExport);
-  pagesToExport.forEach((pg, i) => {
-    if (i > 0) doc.addPage();
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
-    drawPage(tempCanvas.getContext('2d'), n, pg, 2, PAGE_W * 2, PAGE_H * 2);
-    const imgData = tempCanvas.toDataURL('image/jpeg', 0.92);
-    doc.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
-  });
-  doc.save(n.title + '-หน้า' + from + '-' + to + '.pdf');
-  closeExport(); toast('ส่งออก PDF หน้า ' + from + '–' + to + ' เรียบร้อย');
+  const pagesToExport = n.pages.slice(from - 1, to), cnt = pagesToExport.length;
+  progShow('กำลังส่งออก PDF หน้า ' + from + '–' + to, 'เตรียมตัวสร้างไฟล์…');
+  try {
+    await loadLib('jspdf');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    progSet(0.03, 'โหลดรูปในโน้ต…');
+    await preloadPages(pagesToExport);
+    for (let i = 0; i < cnt; i++) {
+      progSet(0.05 + 0.9 * i / cnt, 'หน้า ' + i + ' / ' + cnt + ' ส่งออกแล้ว'); await tick();
+      if (i > 0) doc.addPage();
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+      drawPage(tempCanvas.getContext('2d'), n, pagesToExport[i], 2, PAGE_W * 2, PAGE_H * 2);
+      doc.addImage(tempCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 595.28, 841.89);
+    }
+    progSet(0.96, 'หน้า ' + cnt + ' / ' + cnt + ' · กำลังบันทึกไฟล์…'); await tick();
+    doc.save(n.title + '-หน้า' + from + '-' + to + '.pdf');
+    closeExport(); progDone('ส่งออกครบ ' + cnt + ' / ' + cnt + ' หน้า (หน้า ' + from + '–' + to + ')');
+  } catch (err) { progFail('ส่งออก PDF ไม่สำเร็จ'); }
 }
 
 async function exportPNG() {
   syncVert();
-  const pg = note().pages[pageIndex];      // the real page (in vertical mode: the one in the middle of the screen)
-  await preloadPages([pg]);
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
-  drawPage(tempCanvas.getContext('2d'), note(), pg, 2, PAGE_W * 2, PAGE_H * 2);
-  const a = document.createElement('a');
-  a.download = note().title + '-หน้า-' + (pageIndex + 1) + '.png';
-  a.href = tempCanvas.toDataURL('image/png');
-  a.click();
-  closeExport(); toast('ส่งออก PNG เรียบร้อย');
+  progShow('กำลังส่งออก PNG', 'โหลดรูปในหน้านี้…');
+  try {
+    const pg = note().pages[pageIndex];      // the real page (in vertical mode: the one in the middle of the screen)
+    await preloadPages([pg]);
+    progSet(0.35, 'กำลังวาดหน้า ' + (pageIndex + 1) + '…'); await tick();
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+    drawPage(tempCanvas.getContext('2d'), note(), pg, 2, PAGE_W * 2, PAGE_H * 2);
+    progSet(0.7, 'กำลังสร้างไฟล์ภาพ…'); await tick();
+    const blob = await new Promise(res => tempCanvas.toBlob(res, 'image/png'));
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.download = note().title + '-หน้า-' + (pageIndex + 1) + '.png';
+    a.href = url; a.click(); setTimeout(() => URL.revokeObjectURL(url), 15000);
+    closeExport(); progDone('ส่งออกแล้ว · ' + fmtBytes(blob.size));
+  } catch (err) { progFail('ส่งออก PNG ไม่สำเร็จ'); }
 }
 
-function exportBackup() {
+async function exportBackup() {
   syncVert();
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-  const a = document.createElement('a');
-  a.download = 'noteflow-backup-' + new Date().toISOString().slice(0, 10) + '.json';
-  a.href = dataStr;
-  a.click();
-  closeExport(); toast('สำรองข้อมูลเรียบร้อย');
+  progShow('กำลังสำรองข้อมูล', 'รวบรวมโน้ต…');
+  try {
+    await tick();
+    const json = JSON.stringify(db);
+    const notes = db.notes.length, pages = db.notes.reduce((t, x) => t + x.pages.length, 0);
+    progSet(0.5, notes + ' โน้ต · ' + pages + ' หน้า · ' + fmtBytes(json.length)); await tick();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.download = 'noteflow-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.href = url; a.click(); setTimeout(() => URL.revokeObjectURL(url), 15000);
+    closeExport(); progDone('สำรองแล้ว ' + notes + ' โน้ต · ' + pages + ' หน้า · ' + fmtBytes(blob.size));
+  } catch (err) { progFail('สำรองข้อมูลไม่สำเร็จ'); }
 }
 
+function readFileProgress(file, mode, label) {         // FileReader with a live "x of y MB" on the progress card
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onprogress = ev => { if (ev.lengthComputable) progSet(0.6 * ev.loaded / ev.total, label + ' ' + fmtBytes(ev.loaded) + ' / ' + fmtBytes(ev.total)); };
+    reader.onload = () => res(reader.result); reader.onerror = () => rej(reader.error);
+    mode === 'text' ? reader.readAsText(file) : reader.readAsDataURL(file);
+  });
+}
 async function handleImport(e) {
   const file = e.target.files[0];
   e.target.value = '';
   if (!file) return;
   if (file.name.endsWith('.json')) {
-    const reader = new FileReader();
-    reader.onload = async ev => {
-      try {
-        db = JSON.parse(ev.target.result);
-        normalizeDb();
-        await writeVault();
-        renderFilters(); renderBoard(); toast('นำเข้าข้อมูลสำเร็จ');
-      } catch (err) { toast('ไฟล์ JSON ไม่ถูกต้อง'); }
-    };
-    reader.readAsText(file);
+    progShow('กำลังนำเข้าข้อมูลสำรอง', 'อ่านไฟล์ 0 / ' + fmtBytes(file.size));
+    try {
+      const text = await readFileProgress(file, 'text', 'อ่านไฟล์');
+      progSet(0.65, 'กำลังอ่านโน้ตจากไฟล์…'); await tick();
+      db = JSON.parse(text);
+      normalizeDb();
+      const notes = db.notes.length, pages = db.notes.reduce((t, x) => t + x.pages.length, 0);
+      progSet(0.8, 'พบ ' + notes + ' โน้ต · ' + pages + ' หน้า · กำลังบันทึก…'); await tick();
+      await writeVault();
+      renderFilters(); renderBoard();
+      progDone('นำเข้าแล้ว ' + notes + ' โน้ต · ' + pages + ' หน้า');
+    } catch (err) { progFail('ไฟล์ JSON ไม่ถูกต้อง'); }
   } else if (file.type === 'application/pdf') {
-    toast('กำลังแปลงไฟล์ PDF…');
-    const arrayBuffer = await file.arrayBuffer();
-    await loadLib('pdfjs');
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    const pages = [];
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const p = await pdf.getPage(i);
-      const vp = p.getViewport({ scale: 3 });
-      const c = document.createElement('canvas');
-      c.width = vp.width; c.height = vp.height;
-      await p.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
-      pages.push({ strokes: [], bg: c.toDataURL('image/jpeg', 0.9) });
-    }
-    const n = blankNote(file.name.replace(/\.pdf$/i, ''), targetFolder(), 'blank', '#ffffff', pages);
-    db.notes.push(n); save(); renderBoard(); openEditor(n.id);
+    progShow('กำลังนำเข้า PDF', 'อ่านไฟล์ ' + fmtBytes(file.size) + '…');
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      progSet(0.03, 'โหลดตัวอ่าน PDF…');
+      await loadLib('pdfjs');
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pages = [], total = pdf.numPages;
+      for (let i = 1; i <= total; i++) {
+        progSet(0.05 + 0.9 * (i - 1) / total, 'หน้า ' + (i - 1) + ' / ' + total + ' นำเข้าแล้ว'); await tick();
+        const p = await pdf.getPage(i);
+        const vp = p.getViewport({ scale: 3 });
+        const c = document.createElement('canvas');
+        c.width = vp.width; c.height = vp.height;
+        await p.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+        pages.push({ strokes: [], bg: c.toDataURL('image/jpeg', 0.9) });
+      }
+      progSet(0.97, 'หน้า ' + total + ' / ' + total + ' · กำลังสร้างโน้ต…'); await tick();
+      const n = blankNote(file.name.replace(/\.pdf$/i, ''), targetFolder(), 'blank', '#ffffff', pages);
+      db.notes.push(n); save(); renderBoard();
+      progDone('นำเข้าครบ ' + total + ' / ' + total + ' หน้า'); openEditor(n.id);
+    } catch (err) { progFail('นำเข้า PDF ไม่สำเร็จ — ไฟล์อาจเสียหายหรือมีรหัสผ่าน'); }
   } else if (file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const n = blankNote(file.name.replace(/\.[^/.]+$/, ''), targetFolder(), 'blank', '#ffffff', [{ strokes: [], bg: ev.target.result }]);
-      db.notes.push(n); save(); renderBoard(); openEditor(n.id);
-    };
-    reader.readAsDataURL(file);
+    progShow('กำลังนำเข้ารูปภาพ', 'อ่านไฟล์ 0 / ' + fmtBytes(file.size));
+    try {
+      const data = await readFileProgress(file, 'url', 'อ่านรูป');
+      progSet(0.8, 'กำลังสร้างโน้ต…'); await tick();
+      const n = blankNote(file.name.replace(/\.[^/.]+$/, ''), targetFolder(), 'blank', '#ffffff', [{ strokes: [], bg: data }]);
+      db.notes.push(n); save(); renderBoard();
+      progDone('นำเข้ารูปแล้ว · ' + fmtBytes(file.size)); openEditor(n.id);
+    } catch (err) { progFail('นำเข้ารูปภาพไม่สำเร็จ'); }
   }
 }
 
@@ -5192,17 +5244,23 @@ async function handleInsert(e) {
   const kind = guessInsertKind(file);
   if (!kind) { input.value = ''; toast('ไฟล์นี้ไม่รองรับ — แทรกได้เฉพาะรูปภาพ (PNG, JPG, GIF, WEBP ฯลฯ) หรือ PDF'); return; }
   const ext = (file.name.match(/\.([a-z0-9]+)$/i) || [, ''])[1].toLowerCase();
+  progShow(kind === 'pdf' ? 'กำลังแทรก PDF' : 'กำลังแทรกรูปภาพ', 'อ่านไฟล์ ' + fmtBytes(file.size) + '…'); progSet(0.15);
   try {
     if (kind === 'pdf') {
       const res = await pdfFirstPageToImage(file);
+      progSet(0.9, 'กำลังวางลงหน้า…');
       placeInsertedImage(res);
+      progDone('แทรกแล้ว');
       toast(res.pageCount > 1 ? 'แทรกหน้าที่ 1 จาก PDF แล้ว (มีทั้งหมด ' + res.pageCount + ' หน้า)' : 'แทรกหน้า PDF แล้ว');
     } else {
       const img = await readImageFile(file, 3200);
+      progSet(0.9, 'กำลังวางลงหน้า…');
       placeInsertedImage(img);
+      progDone('แทรกแล้ว · ' + fmtBytes(file.size));
       toast('แทรกรูปภาพแล้ว');
     }
   } catch (err) {
+    progFail();
     if (kind === 'pdf' && typeof window.pdfjsLib === 'undefined') {
       toast('ตัวอ่าน PDF ยังไม่โหลด — ต่ออินเทอร์เน็ตแล้วเปิดแอปใหม่อีกครั้ง (แทรกรูปภาพทั่วไปไม่ต้องใช้อินเทอร์เน็ต)');
     } else if (kind === 'image' && (ext === 'heic' || ext === 'heif')) {
@@ -5340,6 +5398,27 @@ function openCloudSheet() { $('cloudState').innerHTML = '<b>โหมดออ�
 function closeCloudSheet() { $('cloudSheet').classList.add('hidden'); }
 function manualSync() { toast('ข้อมูลทั้งหมดเป็นปัจจุบันแล้ว'); closeCloudSheet(); }
 
+/* ---------- progress card for import / export: what has been done so far, out of how much ---------- */
+let _progHide = null;
+const fmtBytes = n => n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+const tick = () => new Promise(r => setTimeout(r, 0));            // lets the bar repaint between heavy steps
+function progShow(title, detail) {
+  clearTimeout(_progHide);
+  $('progCard').classList.remove('hidden', 'ok'); $('progTitle').textContent = title;
+  $('progFill').style.width = '0%'; $('progDetail').textContent = detail || ''; $('progPct').textContent = '0%';
+}
+function progSet(frac, detail) {
+  const pct = Math.max(0, Math.min(100, Math.round(frac * 100)));
+  $('progFill').style.width = pct + '%'; $('progPct').textContent = pct + '%';
+  if (detail !== undefined) $('progDetail').textContent = detail;
+}
+function progDone(detail, keepMs) {
+  progSet(1, detail); $('progCard').classList.add('ok');
+  clearTimeout(_progHide); _progHide = setTimeout(() => $('progCard').classList.add('hidden'), keepMs || 1800);
+}
+function progFail(msg) {
+  clearTimeout(_progHide); $('progCard').classList.add('hidden'); if (msg) toast(msg);
+}
 function toast(m) {
   let t = document.querySelector('.toast');
   if (!t) { t = document.createElement('div'); t.className = 'toast'; document.body.appendChild(t); }
