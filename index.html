@@ -195,6 +195,34 @@ input.doc-title:hover{border-color:var(--line)}
 .sb-deg{display:inline-flex;align-items:center;gap:2px;margin-left:2px;padding-left:4px;border-left:1px solid var(--line);font-size:12px;color:var(--muted)}
 .sb-deg input{width:48px;padding:5px 4px;font-size:12px;text-align:right;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
 .img-box.rotated .hd{display:none}
+.hand-sheet{max-width:480px}
+.hand-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.hand-tabs button{padding:5px 10px;font-size:12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--muted)}
+.hand-tabs button[aria-pressed=true]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.hand-chars{display:flex;flex-wrap:wrap;gap:3px;max-height:128px;overflow:auto;margin-bottom:10px;padding:2px}
+.hand-chars button{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);background:var(--panel);font-size:16px;color:var(--ink);position:relative;font-family:'IBM Plex Sans Thai',system-ui,sans-serif}
+.hand-chars button.done::after{content:"";position:absolute;right:3px;top:3px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.hand-chars button[aria-pressed=true]{outline:2px solid var(--accent);background:var(--accent-soft)}
+.hand-padwrap{position:relative;width:100%;max-width:320px;margin:0 auto 8px;aspect-ratio:1/1;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+#handPad{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair}
+.hand-cap{position:absolute;left:8px;top:6px;font-size:11px;color:#8a9288;pointer-events:none}
+.hand-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.hand-progress{text-align:center;font-size:12px;color:var(--muted);margin:8px 0 0}
+#handTry{width:100%;box-sizing:border-box;margin:6px 0}
+#handPreview{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;display:block}
+.hand-def{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:12px}
+.hand-tgl[aria-pressed=true]{background:var(--accent-soft);color:var(--accent)}
+.txt-ctl{display:none;gap:2px;align-items:center}
+.img-box.is-text .txt-ctl{display:flex}
+.img-box.is-text .img-ratio{display:none}
+.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{display:none}
+#txtEdit{position:absolute;z-index:6;margin:0;border:0;outline:0;background:transparent;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;caret-color:var(--accent);touch-action:manipulation;transform-origin:50% 50%}
+#txtEdit.hidden{display:none}
+#handCaretBox{position:absolute;z-index:7;pointer-events:none;transform-origin:50% 50%}
+#handCaretBox.hidden{display:none}
+#handCaretBox i{position:absolute;width:2px;border-radius:1px;background:var(--accent);animation:hcBlink 1s steps(1) infinite}
+@keyframes hcBlink{50%{opacity:0}}
+#txtEdit::placeholder{color:#9aa39a}
 .img-box{position:absolute;pointer-events:none;border:1.5px solid var(--accent);z-index:5}
 .img-bar{position:absolute;left:0;top:-8px;transform:translateY(-100%);display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--shadow);pointer-events:auto;white-space:nowrap}
 .img-bar button{padding:6px 10px;font-size:12px;border-radius:7px}
@@ -280,6 +308,7 @@ input.doc-title:hover{border-color:var(--line)}
 <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
 <symbol id="i-page-plus" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 12v6M9 15h6"/></symbol>
 <symbol id="i-page-minus" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 15h6"/></symbol>
+<symbol id="i-text" viewBox="0 0 24 24"><path d="M5 6V4.5h14V6M12 4.5V19.5M9 19.5h6"/></symbol>
 <symbol id="i-image" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.4"/><path d="M4 17l5-4 4 3 3-2 4 3"/></symbol>
 <symbol id="i-export" viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></symbol>
 <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 4v11M8 11l4 4 4-4"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></symbol>
@@ -408,6 +437,11 @@ input.doc-title:hover{border-color:var(--line)}
       <button class="tool" data-tool="lasso" aria-pressed="false" title="เลือก" aria-label="เลือก" onclick="setTool('lasso')"><svg class="i"><use href="#i-lasso"/></svg></button>
       <span class="tsep"></span>
       <button class="tool" data-tool="image" aria-pressed="false" title="รูปภาพ — เลือกรูปมาแทรก / ย้าย / ปรับขนาด" aria-label="รูปภาพ" onclick="imageToolClick()"><svg class="i"><use href="#i-image"/></svg></button>
+      <button class="tool" data-tool="text" aria-pressed="false" title="ข้อความ — แตะหน้ากระดาษแล้วพิมพ์ / แตะข้อความเพื่อแก้ไข ย้าย ปรับขนาด" aria-label="ข้อความ" onclick="setTool('text')"><svg class="i"><use href="#i-text"/></svg></button>
+    </div>
+    <div class="toolset hidden" id="textBar">
+      <button class="btn ghost hand-tgl" id="handDefBtn" aria-pressed="false" title="พิมพ์แล้วแสดงเป็นลายมือของฉัน" onclick="handDefToggle()">✍ ใช้ลายมือฉัน</button>
+      <button class="btn ghost" title="เขียนตัวอักษรด้วยมือตัวเอง เพื่อใช้เป็นฟอนต์" onclick="openHandSheet()">เขียนลายมือ</button>
     </div>
     <div class="toolset hidden" id="shapeKindBar">
       <button class="tool" data-kind="line" aria-pressed="true" title="เส้นตรง" aria-label="เส้นตรง" onclick="setShapeKind('line')"><svg class="i"><use href="#i-line"/></svg></button>
@@ -455,14 +489,24 @@ input.doc-title:hover{border-color:var(--line)}
         </div>
       </div>
       <div id="imgBox" class="img-box hidden">
-        <div class="img-bar">
-          <button class="btn ghost" onclick="resetImageRatio()">คืนสัดส่วน</button>
-          <button class="btn ghost danger" onclick="deleteImage()">ลบรูป</button>
+        <div class="img-bar" onmousedown="event.preventDefault()">
+          <span class="txt-ctl">
+            <button class="btn ghost" title="ตัวอักษรเล็กลง" onclick="textSizeStep(-1)">A−</button>
+            <button class="btn ghost" title="ตัวอักษรใหญ่ขึ้น" onclick="textSizeStep(1)">A+</button>
+            <button class="btn ghost" id="txtBoldBtn" title="ตัวหนา" style="font-weight:700" onclick="toggleTextBold()">B</button>
+            <button class="btn ghost" id="txtHandBtn" title="แสดงข้อความนี้เป็นลายมือของฉัน" onclick="toggleTextHand()">✍</button>
+            <button class="btn ghost" title="ใช้สีที่เลือกอยู่กับข้อความนี้" onclick="applyInkToText()">สี</button>
+            <button class="btn ghost" title="แก้ไขข้อความ" onclick="editSelectedText()">แก้ไข</button>
+          </span>
+          <button class="btn ghost img-ratio" onclick="resetImageRatio()">คืนสัดส่วน</button>
+          <button class="btn ghost danger" onclick="deleteImage()">ลบ</button>
           <button class="btn ghost" title="เสร็จ" aria-label="เสร็จ" onclick="selectImage(null)"><svg class="i" style="width:14px;height:14px"><use href="#i-x"/></svg></button>
         </div>
         <i class="hd" data-h="n"></i><i class="hd" data-h="e"></i><i class="hd" data-h="s"></i><i class="hd" data-h="w"></i>
         <i class="hd" data-h="nw"></i><i class="hd" data-h="ne"></i><i class="hd" data-h="se"></i><i class="hd" data-h="sw"></i>
       </div>
+      <textarea id="txtEdit" class="hidden" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="พิมพ์ข้อความ" placeholder="พิมพ์ข้อความ…"></textarea>
+      <div id="handCaretBox" class="hidden"><i></i></div>
     </div>
   </div>
 
@@ -584,6 +628,32 @@ input.doc-title:hover{border-color:var(--line)}
     <div class="sheet-actions">
       <button class="btn ghost" onclick="closeNew()">ยกเลิก</button>
       <button class="btn primary" onclick="createNote()">สร้าง</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== HANDWRITING FONT SHEET ========== -->
+<div id="handSheet" class="scrim hidden">
+  <div class="sheet hand-sheet">
+    <h3>ลายมือของฉัน</h3>
+    <p class="lede">เลือกตัวอักษรแล้วเขียนลงในช่องได้เลย ระบบบันทึกให้อัตโนมัติ ไม่ต้องกดบันทึก และไม่ต้องเขียนให้ครบ — เขียนแค่ “ก” ตัวเดียวก็พิมพ์ ก เป็นลายมือคุณได้ทันที ตัวที่ยังไม่ได้เขียนจะใช้ฟอนต์ปกติแทน</p>
+    <div class="hand-tabs" id="handTabs"></div>
+    <div class="hand-chars" id="handChars"></div>
+    <div class="hand-padwrap"><canvas id="handPad" width="600" height="600"></canvas><span class="hand-cap" id="handCap"></span></div>
+    <div class="hand-actions">
+      <button class="btn ghost" onclick="handUndoStroke()">ย้อนเส้น</button>
+      <button class="btn ghost" onclick="handClearPad()">ล้างตัวนี้</button>
+      <button class="btn primary" onclick="handNext()">ตัวถัดไป ›</button>
+    </div>
+    <div class="hand-progress" id="handProg"></div>
+    <h4>ลองพิมพ์ดู</h4>
+    <input id="handTry" type="text" value="สวัสดีครับ Hello 123" oninput="handPreview()" aria-label="ข้อความทดลอง">
+    <canvas id="handPreview" width="800" height="170"></canvas>
+    <label class="hand-def"><input type="checkbox" id="handDefChk" onchange="handDefToggle(this.checked)"> ใช้ลายมือของฉันกับข้อความใหม่โดยอัตโนมัติ</label>
+    <div class="sheet-actions">
+      <button class="btn ghost" id="handAllBtn" onclick="handApplyAll()">แปลงข้อความเก่าในโน้ตนี้เป็นลายมือ</button>
+      <button class="btn ghost danger" onclick="handResetAll()">ล้างลายมือทั้งหมด</button>
+      <button class="btn" onclick="closeHandSheet()">เสร็จ</button>
     </div>
   </div>
 </div>
@@ -770,7 +840,7 @@ function scheduleFrame(fullRebuild) {
     const m = frameMode; frameMode = 0;
     if (m === 2) { eraseDirty = null; render(); }
     else if (m === 1) { if (!renderRegion()) render(); positionSelectionBar(); }
-    else { paintFrame(); positionSelectionBar(); }
+    else { paintFrame(true); positionSelectionBar(); }
   });
 }
 
@@ -849,17 +919,52 @@ function bakePenDraftTail() {
   draft.baked = keepFrom;
 }
 
-function paintFrame() {
+let penPrevRect = null;     // device-pixel box of what the live pen tail covered in the last frame (null = last frame was not a pen frame)
+let penPred = null;         // a few points the stylus is about to reach (from getPredictedEvents): shown at the tip, never stored
+function penRectOf(pts) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const q of pts) { if (q[0] < x0) x0 = q[0]; if (q[0] > x1) x1 = q[0]; if (q[1] < y0) y0 = q[1]; if (q[1] > y1) y1 = q[1]; }
+  const pad = ((draft.size || 2) / 2 + 2) * renderScale + 4;
+  return { x0: x0 * renderScale - viewPx.x - pad, y0: y0 * renderScale - viewPx.y - pad, x1: x1 * renderScale - viewPx.x + pad, y1: y1 * renderScale - viewPx.y + pad };
+}
+function paintFrame(fast) {
   if (layersStale && draft && draft.tool === 'highlighter') { render(); return; }   // layers were left behind by a window slide
   /* nothing drawn on top of the page (no stroke in progress, no selection, no eraser ring…): show the page as is */
   if (!draft && !fading.length && !selection && !(tool === 'lasso' && lassoPoints && lassoPoints.length > 1) &&
       !(tool === 'eraser' && eraserCursor) &&
       !(tool === 'eraser' && eraserMode === 'loop' && eraserLoopPoints && eraserLoopPoints.length > 1)) {
+    penPrevRect = null;
     const out0 = winMode ? viewCtx : ctx;
     out0.setTransform(1, 0, 0, 1, 0, 0);
     out0.drawImage(baseCanvas, 0, 0);
     return;
   }
+  /* Fast path while writing: only the small box around the pen tail is cleared, re-copied and re-blitted - not the whole page twice per frame */
+  if (fast === true && penPrevRect && draft && draft.tool === 'pen' && tool === 'pen' && !shapeRecognized && !fading.length && !selection) {
+    if (draft.points.length - (draft.baked || 0) > PEN_LIVE_TAIL * 2) bakePenDraftTail();
+    const tail = draft.points.slice(Math.max(0, (draft.baked || 0) - 1));
+    const pts = penPred ? tail.concat(penPred) : tail;
+    if (pts.length) {
+      const cur = penRectOf(pts), pr = penPrevRect, W = frameCanvas.width, H = frameCanvas.height;
+      const rx = Math.max(0, Math.floor(Math.min(cur.x0, pr.x0))), ry = Math.max(0, Math.floor(Math.min(cur.y0, pr.y0)));
+      const rw = Math.min(W, Math.ceil(Math.max(cur.x1, pr.x1))) - rx, rh = Math.min(H, Math.ceil(Math.max(cur.y1, pr.y1))) - ry;
+      if (rw > 0 && rh > 0) {
+        frameCtx.save(); frameCtx.setTransform(1, 0, 0, 1, 0, 0);
+        frameCtx.beginPath(); frameCtx.rect(rx, ry, rw, rh); frameCtx.clip();
+        frameCtx.clearRect(rx, ry, rw, rh);
+        frameCtx.drawImage(baseCanvas, rx, ry, rw, rh, rx, ry, rw, rh);
+        if (draft.baked) frameCtx.drawImage(penBakeCanvas, rx, ry, rw, rh, rx, ry, rw, rh);
+        applyView(frameCtx); drawStroke(frameCtx, { ...draft, points: pts });
+        frameCtx.restore();
+        const outF = winMode ? viewCtx : ctx;
+        outF.setTransform(1, 0, 0, 1, 0, 0);
+        outF.drawImage(frameCanvas, rx, ry, rw, rh, rx, ry, rw, rh);
+        penPrevRect = cur;
+        return;
+      }
+    }
+  }
+  penPrevRect = null;
   frameCtx.setTransform(1, 0, 0, 1, 0, 0);
   frameCtx.clearRect(0, 0, frameCanvas.width, frameCanvas.height);
 
@@ -883,11 +988,13 @@ function paintFrame() {
     if (draft && draft.tool === 'pen' && !shapeRecognized) {
       if (draft.points.length - (draft.baked || 0) > PEN_LIVE_TAIL * 2) bakePenDraftTail();
       if (draft.baked) frameCtx.drawImage(penBakeCanvas, 0, 0);
-      const tailPts = draft.points.slice(Math.max(0, (draft.baked || 0) - 1));
+      const tail0 = draft.points.slice(Math.max(0, (draft.baked || 0) - 1));
+      const tailPts = penPred ? tail0.concat(penPred) : tail0;
       if (tailPts.length) {
         frameCtx.save(); applyView(frameCtx);
         drawStroke(frameCtx, { ...draft, points: tailPts });
         frameCtx.restore();
+        if (tool === 'pen' && !fading.length && !selection) penPrevRect = penRectOf(tailPts);
       }
     } else if (draft) {
       frameCtx.save(); applyView(frameCtx); drawSnapGuide(frameCtx, draft); drawStroke(frameCtx, draft); frameCtx.restore();
@@ -950,6 +1057,33 @@ async function deriveKey(pass, salt) {
     { name: 'PBKDF2', salt, iterations: KDF_ITER, hash: 'SHA-256' },
     base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 }
+/* The heavy part of saving (JSON -> bytes -> AES) runs in a background thread, so the pen never waits for it. The main thread only
+   hands the notebook over (a fast memory copy). If workers are unavailable it quietly falls back to doing the same work here. */
+let _encWorker = null, _encJobs = new Map(), _encSeq = 0, _encBroken = false;
+function encWorker() {
+  if (_encBroken) return null;
+  if (_encWorker) return _encWorker;
+  try {
+    const code = `self.onmessage = async e => { const { id, key, obj } = e.data; try {
+      const bytes = new TextEncoder().encode(JSON.stringify(obj)); const iv = crypto.getRandomValues(new Uint8Array(12));
+      const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, bytes);
+      self.postMessage({ id, iv, cipher }, [cipher]); } catch (err) { self.postMessage({ id, error: String(err) }); } };`;
+    const w = new Worker(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
+    w.onmessage = e => { const j = _encJobs.get(e.data.id); if (!j) return; _encJobs.delete(e.data.id); e.data.error ? j.rej(new Error(e.data.error)) : j.res({ iv: e.data.iv, cipher: e.data.cipher }); };
+    w.onerror = () => { _encBroken = true; _encWorker = null; for (const j of _encJobs.values()) j.rej(new Error('worker')); _encJobs.clear(); };
+    _encWorker = w;
+  } catch (e) { _encBroken = true; _encWorker = null; }
+  return _encWorker;
+}
+async function encryptVaultBg(key, obj) {
+  const w = encWorker();
+  if (w) {
+    try {
+      return await new Promise((res, rej) => { const id = ++_encSeq; _encJobs.set(id, { res, rej }); try { w.postMessage({ id, key, obj }); } catch (e) { _encJobs.delete(id); rej(e); } });
+    } catch (e) { /* fall through to the plain way */ }
+  }
+  return encryptVault(key, obj);
+}
 async function encryptVault(key, obj) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const bytes = new TextEncoder().encode(JSON.stringify(obj));
@@ -1000,7 +1134,7 @@ async function writeVaultNow() {
     let rec;
     const key = cryptoKey, salt = vaultSalt;      // snapshot: key and salt must always belong together
     if (key) {
-      const { iv, cipher } = await encryptVault(key, db);
+      const { iv, cipher } = await encryptVaultBg(key, db);
       rec = { v: 2, enc: true, salt, iv, cipher };
     } else {
       rec = { v: 2, enc: false, data: db };
@@ -1144,7 +1278,8 @@ async function accessEvaluate() {
   let st = null;
   try {
     st = await accessFetchStatus();
-    try { localStorage.setItem(ACCESS_CACHE, JSON.stringify({ st, at: Date.now() })); } catch (e) { }
+    const cacheIt = () => { try { localStorage.setItem(ACCESS_CACHE, JSON.stringify({ st, at: Date.now() })); } catch (e) { } };
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(cacheIt, { timeout: 4000 }); else setTimeout(cacheIt, 300);      // never on the pen's time
   } catch (e) {
     const c = accessReadCache();
     if (!c || !c.st) return { ok: false, reason: 'offline' };
@@ -1191,6 +1326,7 @@ async function accessRun(silent) {
   let res;
   try { res = await accessEvaluate(); } catch (e) { res = { ok: false, reason: 'offline' }; }
   accessBusy = false; accessLastAt = Date.now();
+  if (silent && handBusy()) { accessLastAt = 0; return; }       // the pen is down (or just lifted): apply the answer on the next quiet check, never in the middle of writing
   if (res.ok) {
     accessOk = true; $('accessSheet').classList.add('hidden');
     if (lockedRec) lockCopy(legacyPrompt);
@@ -1226,6 +1362,8 @@ function accessStart() {
   setInterval(() => {
     if (document.hidden) return;
     if (handBusy()) return;                                                       // never during a stroke: check right after the pen lifts
+    if (!$('editor').classList.contains('hidden') && Date.now() - accessLastAt < 12000) return;     // a note is open: ask every ~12 s instead of every 2 s (fewer requests, no hiccups while writing)
+    if (Date.now() - lastPenTime < 2500) return;                                  // the stylus is still hovering / was just writing
     if (!accessViaApi && Date.now() - accessLastAt < ACCESS.slowMs) return;     // hosted-file route: no point asking every few seconds
     accessRun(true);
   }, ACCESS.recheckMs);
@@ -1911,11 +2049,13 @@ function setTool(t) {
   hlLock = null; applyFeatures();
   if (t !== 'lasso') { resetSelectionState(); }
   draft = null;
-  if (t !== 'image') clearImageSelection();
+  if (t !== 'text') finishTextEdit();
+  if (t !== 'image' && t !== 'text') clearImageSelection();
   $('swatches').classList.toggle('hidden', t === 'image');
-  $('sizer').classList.toggle('hidden', t === 'image');
+  $('sizer').classList.toggle('hidden', t === 'image' || t === 'text');
+  $('textBar').classList.toggle('hidden', t !== 'text'); if (t === 'text') syncHandDefBtn();
   if (t !== 'image') renderSwatches();
-  canvas.style.cursor = t === 'eraser' ? 'cell' : t === 'image' ? 'default' : 'crosshair';
+  canvas.style.cursor = t === 'eraser' ? 'cell' : t === 'image' ? 'default' : t === 'text' ? 'text' : 'crosshair';
   const s = toolSizes[t] ?? size;
   setSize(s); $('size').value = s;
   render();
@@ -2167,7 +2307,7 @@ function applyFeatures() {                       // the little bars of the pen /
   document.querySelectorAll('#toolset [data-tool=pen], #toolset [data-tool=highlighter]').forEach(b => { if (fillMode) b.setAttribute('aria-pressed', 'false'); });   // the bucket is a tool of its own: only it looks pressed
   updateFillHint();
   const mf = $('mainFill'); if (mf) mf.setAttribute('aria-pressed', String(fillMode && (isHl || isPen)));
-  canvas.style.cursor = fillMode && (isHl || isPen) ? 'pointer' : tool === 'eraser' ? 'cell' : tool === 'image' ? 'default' : 'crosshair';
+  canvas.style.cursor = fillMode && (isHl || isPen) ? 'pointer' : tool === 'eraser' ? 'cell' : tool === 'image' ? 'default' : tool === 'text' ? 'text' : 'crosshair';
 }
 /* one pen movement while a locked highlighter stroke is being drawn; q = page point */
 function hlLockMove(q) {
@@ -2220,7 +2360,11 @@ function renderSwatches() {
 }
 function curPalette() { return tool === 'highlighter' ? hlPalette : palette; }
 function curInk() { return tool === 'highlighter' ? hlInk : ink; }
-function setInk(c) { if (tool === 'highlighter') hlInk = c; else ink = c; }
+function setInk(c) {
+  if (tool === 'highlighter') hlInk = c; else ink = c;
+  const tm = tool === 'text' && (textById(imgSel) || textById(textEditId));
+  if (tm && tm.color !== c) { pushUndo(); tm.color = c; positionTextEdit(); touch(); render(); }
+}
 function pickCustomColor(hex) {
   const pal = curPalette(), cur = curInk();
   const idx = pal.indexOf(cur);
@@ -2390,6 +2534,7 @@ function bgImage(src, onload) {
 /* Inserted images are cached by id. The callback re-renders whatever is on screen once one finishes loading. */
 const imgObjCache = new Map();
 function objImage(m) {
+  if (m.txt !== undefined) return null;                  // a typed text box has no picture
   let c = imgObjCache.get(m.id);
   if (!c || c.src !== m.src) {
     const el = new Image();
@@ -2644,6 +2789,7 @@ function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
   if (pg && pg._vert) drawVertBackdrop(c, n, scale, h, view);      // stacked document: every page's own paper / background
   else drawPageBase(c, n, pg);
   if (pg && pg.images) pg.images.forEach(m => {
+    if (m.txt !== undefined) { if (m.id !== textEditId || m.hand) drawTextItem(c, m); return; }
     const el = objImage(m);
     if (!el) return;
     if (m.rot || m.fx || m.fy) {                   // turned / mirrored picture: about its own centre
@@ -2958,7 +3104,7 @@ function drawEraserLoopPreview(c, pts) {
   c.restore();
 }
 function positionSelectionBar() {
-  positionImageBox();
+  positionImageBox(); positionTextEdit();
   const bar = $('selectionBar');
   if (!selection) { bar.classList.add('hidden'); return; }
   const b = selection.bounds;
@@ -3347,7 +3493,7 @@ function snapSelection() {
     origPoints: selection.indices.map(i => page().strokes[i].points.map(pt => [pt[0], pt[1]])),
     origHoles: selection.indices.map(i => page().strokes[i].holes || null),
     imgIds: imgs.map(m => m.id),
-    origImgs: imgs.map(m => ({ x: m.x, y: m.y, w: m.w, h: m.h, rot: m.rot || 0, fx: !!m.fx, fy: !!m.fy }))
+    origImgs: imgs.map(m => ({ x: m.x, y: m.y, w: m.w, h: m.h, rot: m.rot || 0, fx: !!m.fx, fy: !!m.fy, fs: m.fs }))
   };
 }
 /* apply a geometric change to the snapshot: pt maps a point, holeK scales the radius of eraser holes,
@@ -3410,7 +3556,9 @@ function moveDragTo(p) {
     applyToSelection(st, q => [A[0] + (q[0] - A[0]) * sx, A[1] + (q[1] - A[1]) * sy], (sx + sy) / 2, (m, o, c2) => {
       const turned = Math.abs(Math.sin(o.rot)) > 1e-6;
       const kx = turned ? (sx + sy) / 2 : sx, ky = turned ? (sx + sy) / 2 : sy;
-      m.w = Math.max(8, o.w * kx); m.h = Math.max(8, o.h * ky); m.x = c2[0] - m.w / 2; m.y = c2[1] - m.h / 2;
+      if (isTextItem(m)) { m.fs = Math.max(8, o.fs * (kx + ky) / 2); m.w = Math.max(40, o.w * kx); textFit(m); }
+      else { m.w = Math.max(8, o.w * kx); m.h = Math.max(8, o.h * ky); }
+      m.x = c2[0] - m.w / 2; m.y = c2[1] - m.h / 2;
     });
   } else {
     const dx = p[0] - st.startPagePoint[0], dy = p[1] - st.startPagePoint[1];
@@ -3996,11 +4144,7 @@ function resetTouchGesture() {
 
 const nearPen = (x, y) => Math.hypot(x - penPos.x, y - penPos.y) < PALM_REACH_PX;
 function penGuard(now, x, y) {          // is the stylus (or the hand holding it) active right now?
-  if (strokeInProgress || imgDrag) return true;
-  if (now - lastPenContact < PEN_CONTACT_QUIET_MS) return true;      // the stylus has only just touched the page: everything is its hand
-  const idle = now - lastPenTime;
-  if (!(idle < PALM_GRACE_MS || (penNear && idle < PALM_HOVER_MS))) return false;
-  return x === undefined ? true : nearPen(x, y);                     // hovering: only fingers close to the stylus are its hand
+  return !!(strokeInProgress || imgDrag);                            // only while the stylus is actually writing; the moment it lifts, fingers move the page freely
 }
 const isPalmContact = e => Math.max(e.width || 0, e.height || 0) >= PALM_CONTACT_PX;
 /* the stylus just touched down: whatever is already resting on the glass is the writing hand */
@@ -4010,7 +4154,7 @@ function penTookOver() {
 }
 
 function onTouchDown(e) {
-  if (penGuard(Date.now(), e.clientX, e.clientY) || isPalmContact(e) || palmIds.size) {
+  if (penGuard(Date.now(), e.clientX, e.clientY)) {
     palmIds.add(e.pointerId);
     for (const id of touchPointers.keys()) palmIds.add(id);
     if (touchPointers.size) resetTouchGesture();
@@ -4070,6 +4214,7 @@ function onTouchMove(e) {
    when it is (or just was) touching the page, or hovering close to the fingers - so tapping with the other hand while
    the stylus floats elsewhere works every time. */
 function tapKind(g, cancelled, now) {
+  return null;                                                  // 2-/3-finger undo/redo taps removed: they only got in the way of moving the page
   if (!g || g.moved || !g.tMulti || g.fired) return null;
   if (!(now - g.tLast < TAP_MAX_MS && now - g.tMulti < TAP_MAX_MS * 2)) return null;
   if (lastPenContact >= g.t0 - PEN_CONTACT_QUIET_MS) return null;      // the stylus touched the page just before / during the fingers
@@ -4103,6 +4248,7 @@ function onTouchUp(e, cancelled) {
     startPan(rest.x, rest.y, true);
   }
   if (n === 0) {
+    if (tool === 'text' && tGesture && !cancelled && !tGesture.moved && !tGesture.fired && tGesture.maxPoints === 1 && Date.now() - tGesture.t0 < 450) textTapAt(getCanvasPoint(e));
     tGesture = null;
     endTouchNav();
     canvas.classList.remove('touch-active');
@@ -4158,12 +4304,14 @@ document.addEventListener('touchcancel', touchesGone, { passive: true, capture: 
 canvas.addEventListener('pointerdown', e => {
   if (e.pointerType === 'touch') return;      // fingers are handled on the stage (below)
   if (e.pointerType === 'pen') { lastPenTime = lastPenContact = Date.now(); penTookOver(); }
+  penPred = null; penPrevRect = null;
   if (isEraserEnd(e)) beginStylusEraser();
 
 /* Stylus / Pen or Mouse: Drawing & Editing Operations */
   canvas.setPointerCapture(e.pointerId);
   const p = getCanvasPoint(e);
   if (tool === 'image') { imageBodyDown(e, p); return; }
+  if (tool === 'text') { textBodyDown(e, p); return; }
   if (fillMode && (tool === 'pen' || tool === 'highlighter')) { fillAt(p); return; }
   strokeInProgress = true;
 
@@ -4249,6 +4397,12 @@ canvas.addEventListener('pointermove', e => {
         if (!last || Math.hypot(q[0] - last[0], q[1] - last[1]) * zoom >= 0.4) draft.points.push(q);
       }
       armShapeHold(e);
+      penPred = null;
+      if (draft.tool === 'pen' && !hlLock && typeof e.getPredictedEvents === 'function') {            // where the stylus is heading: drawn at the tip so the ink keeps up with the pen
+        const pe = e.getPredictedEvents(), lp = draft.points[draft.points.length - 1], out = [];
+        for (let i = 0; i < pe.length && out.length < 3; i++) { const q = getCanvasPoint(pe[i], rect); if (lp && Math.hypot(q[0] - lp[0], q[1] - lp[1]) * zoom < 120) out.push(q); }
+        if (out.length) penPred = out;
+      }
     }
     scheduleFrame(false);
   } else if (tool === 'shape' && shapeDraftStart) {
@@ -4265,7 +4419,8 @@ function handlePointerUp(e) {
 }
 function handlePointerUpInner(e) {
   if (e.pointerType === 'touch') return;
-  if (e.pointerType === 'pen') lastPenTime = Date.now();   // the palm usually lifts a beat after the stylus
+  penPred = null; penPrevRect = null;
+  if (e.pointerType === 'pen') { lastPenTime = Date.now(); palmIds.clear(); }
   if (imgDrag && imgDrag.mode === 'move') { endImageDrag(); return; }
 
   if (!strokeInProgress) return;
@@ -4314,7 +4469,7 @@ canvas.addEventListener('pointercancel', handlePointerUp);
 
 /* Finger gestures listen on the whole stage, not only on the page canvas: when the page is
    zoomed to fit, the grey margins beside it are where most fingers actually land. */
-const isFingerUI = e => !!(e.target.closest && e.target.closest('.sel-bar, .zoombar, .img-box'));
+const isFingerUI = e => !!(e.target.closest && e.target.closest('.sel-bar, .zoombar, .img-box, #txtEdit'));
 stage.addEventListener('pointerdown', e => { if (e.pointerType === 'touch' && !isFingerUI(e)) onTouchDown(e); });
 stage.addEventListener('pointermove', e => { if (e.pointerType === 'touch') onTouchMove(e); });
 const stageTouchUp = e => { if (e.pointerType === 'touch') onTouchUp(e, e.type === 'pointercancel'); };
@@ -4565,6 +4720,394 @@ async function handleImport(e) {
   }
 }
 
+/* ---------- typed text ----------
+   A text box is stored next to the pictures (page().images) as {id, txt, fs, color, bold, x, y, w, h}; w is the width of the box, the
+   text wraps inside it and h follows from the number of lines. Because it shares the picture list it moves, rotates, copies,
+   undoes and works in vertical mode exactly like a picture, and the lasso tool can stretch / turn it too. */
+const TXT_PAD = 6, TXT_LH = 1.4, TXT_FONT = '"IBM Plex Sans Thai", system-ui, sans-serif';
+let textEditId = null, textEditNew = null, textEditPushed = false;
+const _tctx = document.createElement('canvas').getContext('2d');
+const _seg = (typeof Intl !== 'undefined' && Intl.Segmenter) ? new Intl.Segmenter('th', { granularity: 'word' }) : null;
+const textFont = m => (m.bold ? '600 ' : '400 ') + m.fs + 'px ' + TXT_FONT;
+const _lineCache = new Map();
+function textLines(m) {
+  const key = m.txt + '\u0001' + m.fs + '\u0001' + Math.round(m.w) + '\u0001' + (m.bold ? 1 : 0) + '\u0001' + (m.hand ? handVer : 'n');
+  const hit = _lineCache.get(m.id);
+  if (hit && hit.key === key) return hit.lines;
+  _tctx.font = textFont(m);
+  const mw = str => m.hand ? handWidth(m, str) : _tctx.measureText(str).width;
+  const maxW = Math.max(20, m.w - TXT_PAD * 2), out = [];
+  for (const para of String(m.txt).split('\n')) {
+    const parts = _seg ? [..._seg.segment(para)].map(x => x.segment) : para.split(/(\s+)/).filter(Boolean);
+    let line = '';
+    for (const part of parts) {
+      if (mw(line + part) <= maxW || !line) {
+        if (mw(part) > maxW && !line) {           // one word wider than the box: break it by letters
+          let cur = '';
+          for (const ch of part) { if (mw(cur + ch) > maxW && cur) { out.push(cur); cur = ''; } cur += ch; }
+          line = cur;
+        } else line += part;
+      } else { out.push(line.replace(/\s+$/, '')); line = part.replace(/^\s+/, ''); }
+    }
+    out.push(line);
+  }
+  if (_lineCache.size > 400) _lineCache.clear();
+  _lineCache.set(m.id, { key, lines: out });
+  return out;
+}
+function textFit(m) { m.h = Math.max(m.fs * TXT_LH, textLines(m).length * m.fs * TXT_LH) + TXT_PAD * 2; return m.h; }
+function drawTextItem(c, m) {
+  const lines = textLines(m), lh = m.fs * TXT_LH;
+  c.save();
+  if (m.rot) { c.translate(m.x + m.w / 2, m.y + m.h / 2); c.rotate(m.rot); c.translate(-(m.x + m.w / 2), -(m.y + m.h / 2)); }
+  c.font = textFont(m); c.fillStyle = m.color || '#222'; c.textBaseline = 'middle'; c.textAlign = 'left';
+  if (m.hand) lines.forEach((l, i) => drawHandLine(c, m, l, m.x + TXT_PAD, m.y + TXT_PAD + lh * (i + 0.5)));
+  else lines.forEach((l, i) => c.fillText(l, m.x + TXT_PAD, m.y + TXT_PAD + lh * (i + 0.5)));
+  c.restore();
+}
+/* ---------- my handwriting as a font ----------
+   db.hand = { g: { 'ก': { s: [ [[x,y],...], ... ] }, ... }, def: bool }. Each letter was written in a square pad; x, y are fractions of
+   that square (0..1), the writing line sits at HAND_BASE. When text is drawn in "hand" mode every letter that has a recorded glyph is
+   drawn from it (scaled with the font size), letters that were never written use the normal font. Thai vowels / tone marks that sit
+   above or below a letter (ิ ี ่ ้ ุ …) take no width of their own: they are drawn over the letter before them, at the place where the
+   writer put them relative to a ghost consonant in the pad. */
+const HAND_BASE = 0.7, HAND_SCALE = 2.0, HAND_MARK = /[ัิ-ฺ็-๎]/;
+let handVer = 1;
+const _glyphCache = new Map();
+const handGlyphs = () => (db && db.hand && db.hand.g) || null;
+function glyphInfo(ch) {
+  const g = handGlyphs() && handGlyphs()[ch];
+  if (!g || !g.s || !g.s.length) return null;
+  let h = _glyphCache.get(ch);
+  if (h && h.ver === handVer) return h;
+  const path = new Path2D(); let x0 = Infinity, x1 = -Infinity;
+  for (const st of g.s) {
+    if (!st.length) continue;
+    for (const q of st) { if (q[0] < x0) x0 = q[0]; if (q[0] > x1) x1 = q[0]; }
+    path.moveTo(st[0][0], st[0][1]);
+    if (st.length === 1) path.lineTo(st[0][0] + 0.0005, st[0][1]);
+    else if (st.length === 2) path.lineTo(st[1][0], st[1][1]);
+    else {
+      for (let i = 1; i < st.length - 1; i++) path.quadraticCurveTo(st[i][0], st[i][1], (st[i][0] + st[i + 1][0]) / 2, (st[i][1] + st[i + 1][1]) / 2);
+      path.lineTo(st[st.length - 1][0], st[st.length - 1][1]);
+    }
+  }
+  if (!isFinite(x0)) return null;
+  h = { ver: handVer, path, x0, x1, mark: HAND_MARK.test(ch) };
+  _glyphCache.set(ch, h);
+  return h;
+}
+function handAdv(m, ch) {
+  if (ch === ' ') return m.fs * 0.35;
+  const gi = glyphInfo(ch), G = m.fs * HAND_SCALE;
+  if (gi) return gi.mark ? 0 : (gi.x1 - gi.x0) * G + m.fs * 0.16;
+  if (HAND_MARK.test(ch)) return 0;
+  _tctx.font = textFont(m); return _tctx.measureText(ch).width;
+}
+function handWidth(m, str) { let w = 0; for (const ch of str) w += handAdv(m, ch); return w; }
+function drawHandLine(c, m, str, x, yMid) {
+  const G = m.fs * HAND_SCALE, lw = m.fs * (m.bold ? 0.12 : 0.07);
+  const base = yMid + m.fs * 0.3, top = base - HAND_BASE * G;
+  let pen = x, lastCx = x;
+  c.save(); c.strokeStyle = m.color || '#222'; c.lineCap = 'round'; c.lineJoin = 'round';
+  for (const ch of str) {
+    if (ch === ' ') { pen += m.fs * 0.35; continue; }
+    const gi = glyphInfo(ch);
+    if (gi) {
+      const ox = gi.mark ? lastCx - 0.5 * G : pen - gi.x0 * G;
+      c.save(); c.translate(ox, top); c.scale(G, G); c.lineWidth = lw / G; c.stroke(gi.path); c.restore();
+      if (!gi.mark) { lastCx = pen + (gi.x1 - gi.x0) * G / 2; pen += (gi.x1 - gi.x0) * G + m.fs * 0.16; }
+    } else if (HAND_MARK.test(ch)) {
+      c.save(); c.fillStyle = m.color || '#222'; c.textBaseline = 'alphabetic'; c.textAlign = 'center'; c.font = textFont(m); c.fillText(ch, lastCx, base); c.restore();
+    } else {
+      const w = handAdv(m, ch);
+      c.save(); c.fillStyle = m.color || '#222'; c.textBaseline = 'alphabetic'; c.textAlign = 'left'; c.font = textFont(m); c.fillText(ch, pen, base); c.restore();
+      lastCx = pen + w / 2; pen += w;
+    }
+  }
+  c.restore();
+}
+const isTextItem = m => !!m && m.txt !== undefined;
+const textById = id => { const m = id && imageById(id); return isTextItem(m) ? m : null; };
+function newTextItem(p) {
+  const w = Math.min(460, PAGE_W - 40), x = Math.min(Math.max(20, p[0]), PAGE_W - w - 20);
+  const m = { id: 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), txt: '', fs: 40, color: ink, bold: false, hand: !!(db.hand && db.hand.def), nw: 0, nh: 0, src: '', x, y: Math.max(0, p[1] - 28), w, h: 0 };
+  textFit(m); return m;
+}
+function textTapAt(p) {                                  // tap on the page with the text tool: edit the box there, or start a new one
+  const list = page().images || [];
+  for (let i = list.length - 1; i >= 0; i--) if (isTextItem(list[i]) && pointInImage(list[i], p)) { selectImage(list[i].id); startTextEdit(list[i].id); return; }
+  finishTextEdit();
+  const m = newTextItem(p);
+  textEditNew = m; selectImage(null); startTextEdit(m.id, m);
+}
+function textBodyDown(e, p) {                            // mouse / stylus on the page with the text tool
+  const list = page().images || [];
+  let hit = null;
+  for (let i = list.length - 1; i >= 0; i--) if (isTextItem(list[i]) && pointInImage(list[i], p)) { hit = list[i]; break; }
+  if (!hit) { textTapAt(p); return; }
+  if (textEditId && textEditId !== hit.id) finishTextEdit();
+  selectImage(hit.id);
+  if (textEditId === hit.id) return;                     // already typing in it: let the caret move
+  beginImageDrag(e, 'move');                             // drag moves it; a plain tap (no movement) opens it for typing (see endImageDrag)
+  if (imgDrag) imgDrag.tapEdit = hit.id;
+}
+function startTextEdit(id, fresh) {
+  const m = fresh || textById(id), ta = $('txtEdit');
+  if (!m) return;
+  if (textEditId && textEditId !== id) finishTextEdit();
+  textEditId = id; textEditPushed = false;
+  ta.value = m.txt; ta.classList.remove('hidden');
+  positionTextEdit(m);
+  render();
+  const grab = () => { if (textEditId === id && document.activeElement !== ta) { ta.focus(); try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) { } updateHandCaret(); } };
+  grab(); setTimeout(grab, 0); setTimeout(grab, 60);       // the mouse-down that follows the pointer-down would otherwise take the focus away again
+}
+function positionTextEdit(m) {
+  const ta = $('txtEdit');
+  if (!textEditId) { ta.classList.add('hidden'); return; }
+  m = m || textEditNew || textById(textEditId);
+  if (!m) return;
+  ta.style.left = m.x * zoom + 'px'; ta.style.top = m.y * zoom + 'px';
+  ta.style.width = m.w * zoom + 'px'; ta.style.height = m.h * zoom + 'px';
+  ta.style.padding = TXT_PAD * zoom + 'px'; ta.style.boxSizing = 'border-box';
+  ta.style.font = textFont({ fs: m.fs * zoom, bold: m.bold }); ta.style.lineHeight = TXT_LH;
+  ta.style.color = m.hand ? 'transparent' : (m.color || '#222');      // my-handwriting mode: the page shows the letters, the box only takes the keys
+  ta.style.caretColor = m.hand ? 'transparent' : '';
+  ta.style.transform = m.rot ? 'rotate(' + m.rot + 'rad)' : '';
+  updateHandCaret(m);
+}
+/* caret for handwriting mode: the real one follows the normal font's widths, so it is drawn by hand at the right spot */
+function handCaretXY(m, idx) {
+  const txt = String(m.txt), lines = textLines(m); let pos = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (l.length) while (pos < txt.length && !txt.startsWith(l, pos) && /[ \t]/.test(txt[pos])) pos++;
+    if (idx <= pos + l.length) return { line: i, x: handWidth(m, l.slice(0, Math.max(0, Math.min(l.length, idx - pos)))) };
+    pos += l.length;
+    while (pos < txt.length && /[ \t]/.test(txt[pos])) pos++;
+    if (txt[pos] === '\n') pos++;
+  }
+  const last = lines.length - 1; return { line: Math.max(0, last), x: handWidth(m, lines[last] || '') };
+}
+function updateHandCaret(m) {
+  const box = $('handCaretBox'), ta = $('txtEdit');
+  m = m || textEditNew || textById(textEditId);
+  if (!box) return;
+  if (!textEditId || !m || !m.hand || ta.selectionStart !== ta.selectionEnd) { box.classList.add('hidden'); return; }
+  const p = handCaretXY(m, ta.selectionStart), lh = m.fs * TXT_LH, el = box.firstElementChild;
+  box.style.left = ta.style.left; box.style.top = ta.style.top; box.style.width = ta.style.width; box.style.height = ta.style.height;
+  box.style.transform = ta.style.transform;
+  const base = TXT_PAD + lh * (p.line + 0.5) + m.fs * 0.3;
+  el.style.left = (TXT_PAD + p.x) * zoom + 'px'; el.style.top = (base - m.fs * 0.85) * zoom + 'px'; el.style.height = m.fs * 1.1 * zoom + 'px';
+  box.classList.remove('hidden');
+}
+function handIndexAt(m, lineIdx, x) {            // text index nearest to x (page units, from the text start) on wrapped line lineIdx
+  const txt = String(m.txt), lines = textLines(m); let pos = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (l.length) while (pos < txt.length && !txt.startsWith(l, pos) && /[ \t]/.test(txt[pos])) pos++;
+    if (i === lineIdx) {
+      let best = 0, bd = Infinity;
+      for (let k = 0; k <= l.length; k++) { const d = Math.abs(handWidth(m, l.slice(0, k)) - x); if (d < bd) { bd = d; best = k; } }
+      return pos + best;
+    }
+    pos += l.length;
+    while (pos < txt.length && /[ \t]/.test(txt[pos])) pos++;
+    if (txt[pos] === '\n') pos++;
+  }
+  return txt.length;
+}
+$('txtEdit').addEventListener('click', e => {
+  const m = textById(textEditId); const ta = $('txtEdit');
+  if (!m || !m.hand || ta.selectionStart !== ta.selectionEnd) return;
+  const r = ta.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  let dx = e.clientX - cx, dy = e.clientY - cy;
+  if (m.rot) { const c = Math.cos(-m.rot), sn = Math.sin(-m.rot); [dx, dy] = [dx * c - dy * sn, dx * sn + dy * c]; }
+  const px = (dx + (m.w * zoom) / 2) / zoom - TXT_PAD, py = (dy + (m.h * zoom) / 2) / zoom - TXT_PAD;
+  const lines = textLines(m), li = Math.max(0, Math.min(lines.length - 1, Math.floor(py / (m.fs * TXT_LH))));
+  const idx = handIndexAt(m, li, px);
+  setTimeout(() => { if (textEditId === m.id) { try { ta.setSelectionRange(idx, idx); } catch (_) { } updateHandCaret(m); } }, 0);
+});
+document.addEventListener('selectionchange', () => { if (textEditId && document.activeElement === $('txtEdit')) updateHandCaret(); });
+function finishTextEdit() {
+  if (!textEditId) return;
+  const id = textEditId, ta = $('txtEdit'), fresh = textEditNew;
+  textEditId = null; textEditNew = null; ta.classList.add('hidden'); $('handCaretBox').classList.add('hidden'); ta.blur();
+  const m = textById(id);
+  if (m && !m.txt.trim()) {                              // nothing typed: the empty box is dropped
+    page().images = page().images.filter(i => i.id !== id);
+    if (imgSel === id) imgSel = null;
+  }
+  positionImageBox(); render(); touch();
+}
+(function wireTextEdit() {
+  const ta = $('txtEdit');
+  ta.addEventListener('input', () => {
+    let m = textById(textEditId);
+    if (!m && textEditNew) {                             // first character of a brand-new box: now it joins the page (one undo step)
+      if (!ta.value) return;
+      m = textEditNew; pushUndo(); (page().images = page().images || []).push(m); textEditNew = null; textEditPushed = true; selectImage(m.id);
+    } else if (m && !textEditPushed) { pushUndo(); textEditPushed = true; }
+    if (!m) return;
+    m.txt = ta.value; textFit(m); positionTextEdit(m); positionImageBox(); touch(); scheduleFrame(true);
+  });
+  ta.addEventListener('blur', () => { setTimeout(() => { if (textEditId && document.activeElement !== ta) finishTextEdit(); }, 120); });
+  ta.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') { e.preventDefault(); finishTextEdit(); } });
+})();
+function textChanged(m, push) {                          // style change of the selected text box
+  if (push) pushUndo();
+  textFit(m); positionTextEdit(); positionImageBox(); touch(); render();
+}
+function textSizeStep(dir) {
+  const m = textById(imgSel) || textById(textEditId); if (!m) return;
+  pushUndo(); m.fs = Math.max(10, Math.min(300, Math.round(m.fs * (dir > 0 ? 1.15 : 1 / 1.15)))); textChanged(m, false);
+}
+function toggleTextHand() { const m = textById(imgSel) || textById(textEditId); if (!m) return; pushUndo(); m.hand = !m.hand; textChanged(m, false); }
+function toggleTextBold() { const m = textById(imgSel) || textById(textEditId); if (!m) return; pushUndo(); m.bold = !m.bold; textChanged(m, false); }
+function applyInkToText() { const m = textById(imgSel) || textById(textEditId); if (!m) return; pushUndo(); m.color = ink; textChanged(m, false); }
+function editSelectedText() { const m = textById(imgSel); if (m) startTextEdit(m.id); }
+
+/* ---------- handwriting sheet: write each letter once ---------- */
+const HAND_SETS = [
+  { k: 'th', label: 'ก-ฮ', chars: 'กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ' },
+  { k: 'vw', label: 'สระ / วรรณยุกต์', chars: 'ะาำเแโใไฤฦๅๆฯัิีึืุู็่้๊๋์ํ' },
+  { k: 'num', label: '0-9', chars: '0123456789' },
+  { k: 'lo', label: 'a-z', chars: 'abcdefghijklmnopqrstuvwxyz' },
+  { k: 'up', label: 'A-Z', chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' },
+  { k: 'sym', label: 'สัญลักษณ์', chars: '.,!?-:;()/@#+=\'"%&*_' }
+];
+let handSet = 'th', handCh = 'ก', padStrokes = [], padDrawing = false;
+const PAD = 600;
+function handDb() { if (!db.hand) db.hand = { g: {}, def: false }; if (!db.hand.g) db.hand.g = {}; return db.hand; }
+function openHandSheet() {
+  handDb(); renderHandTabs(); handPick(handCh); handPreview(); $('handDefChk').checked = !!db.hand.def;
+  $('handSheet').classList.remove('hidden');
+}
+function closeHandSheet() { $('handSheet').classList.add('hidden'); if (!$('editor').classList.contains('hidden')) render(); }
+function renderHandTabs() {
+  const t = $('handTabs'); t.innerHTML = '';
+  HAND_SETS.forEach(x => {
+    const b = document.createElement('button'); b.textContent = x.label; b.setAttribute('aria-pressed', String(x.k === handSet));
+    b.onclick = () => { handSet = x.k; handCh = HAND_SETS.find(y => y.k === x.k).chars[0]; renderHandTabs(); handPick(handCh); };
+    t.appendChild(b);
+  });
+  const box = $('handChars'); box.innerHTML = '';
+  const set = HAND_SETS.find(x => x.k === handSet), g = handDb().g;
+  for (const ch of set.chars) {
+    const b = document.createElement('button'); b.textContent = ch;
+    if (g[ch]) b.classList.add('done');
+    b.setAttribute('aria-pressed', String(ch === handCh)); b.onclick = () => handPick(ch);
+    box.appendChild(b);
+  }
+  let done = 0, total = 0; HAND_SETS.forEach(x => { for (const ch of x.chars) { total++; if (g[ch]) done++; } });
+  $('handProg').textContent = 'เขียนแล้ว ' + done + ' จาก ' + total + ' ตัว';
+}
+function handPick(ch) {
+  handCh = ch;
+  const g = handDb().g[ch];
+  padStrokes = g ? g.s.map(st => st.map(q => [q[0] * PAD, q[1] * PAD])) : [];
+  document.querySelectorAll('#handChars button').forEach(b => b.setAttribute('aria-pressed', String(b.textContent === ch)));
+  $('handCap').textContent = 'เขียน: ' + ch + (HAND_MARK.test(ch) ? '  (เขียนตรงตำแหน่งเหนือ/ใต้ ก)' : '');
+  padRedraw();
+}
+function padRedraw() {
+  const cv = $('handPad'), c = cv.getContext('2d');
+  c.clearRect(0, 0, PAD, PAD);
+  c.fillStyle = '#fff'; c.fillRect(0, 0, PAD, PAD);
+  c.save(); c.strokeStyle = '#d7ddd2'; c.lineWidth = 2;
+  c.beginPath(); c.moveTo(0, HAND_BASE * PAD); c.lineTo(PAD, HAND_BASE * PAD); c.stroke();           // writing line
+  c.setLineDash([8, 8]); c.beginPath(); c.moveTo(0, (HAND_BASE - 0.3) * PAD); c.lineTo(PAD, (HAND_BASE - 0.3) * PAD); c.stroke();   // height of a normal letter
+  c.restore();
+  c.save(); c.fillStyle = 'rgba(120,130,120,.16)'; c.font = '400 ' + (0.5 * PAD) + 'px ' + TXT_FONT; c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  c.fillText(HAND_MARK.test(handCh) ? 'ก' + handCh : handCh, PAD / 2, HAND_BASE * PAD); c.restore();     // faint guide to trace / place
+  c.save(); c.strokeStyle = '#242423'; c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = 0.035 * PAD * 0.9;
+  for (const st of padStrokes) {
+    if (!st.length) continue;
+    c.beginPath(); c.moveTo(st[0][0], st[0][1]);
+    if (st.length === 1) c.lineTo(st[0][0] + 0.1, st[0][1]);
+    for (let i = 1; i < st.length - 1; i++) c.quadraticCurveTo(st[i][0], st[i][1], (st[i][0] + st[i + 1][0]) / 2, (st[i][1] + st[i + 1][1]) / 2);
+    if (st.length > 1) c.lineTo(st[st.length - 1][0], st[st.length - 1][1]);
+    c.stroke();
+  }
+  c.restore();
+}
+(function wireHandPad() {
+  const cv = $('handPad');
+  const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * PAD, (e.clientY - r.top) / r.height * PAD]; };
+  cv.addEventListener('pointerdown', e => { e.preventDefault(); cv.setPointerCapture(e.pointerId); padDrawing = true; padStrokes.push([pt(e)]); padRedraw(); });
+  cv.addEventListener('pointermove', e => {
+    if (!padDrawing) return;
+    const st = padStrokes[padStrokes.length - 1];
+    const list = typeof e.getCoalescedEvents === 'function' ? e.getCoalescedEvents() : [e];
+    for (const ev of (list.length ? list : [e])) { const q = pt(ev), l = st[st.length - 1]; if (Math.hypot(q[0] - l[0], q[1] - l[1]) > 2) st.push(q); }
+    padRedraw();
+  });
+  const end = () => { if (!padDrawing) return; padDrawing = false; handCommit(); };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+})();
+function handUndoStroke() { padStrokes.pop(); padRedraw(); handCommit(); }
+function handClearPad() { padStrokes = []; padRedraw(); handCommit(); }
+function thinStroke(st) {                                        // fewer points, same shape
+  const out = [st[0]];
+  for (let i = 1; i < st.length - 1; i++) { const l = out[out.length - 1]; if (Math.hypot(st[i][0] - l[0], st[i][1] - l[1]) >= 6) out.push(st[i]); }
+  if (st.length > 1) out.push(st[st.length - 1]);
+  return out;
+}
+/* the pad and the stored letter are always the same: every stroke that ends is saved at once (no Save button) */
+function handCommit() {
+  const h = handDb(), strokes = padStrokes.filter(s => s.length);
+  if (strokes.length) {
+    h.g[handCh] = { s: strokes.map(st => thinStroke(st).map(q => [Math.round(q[0] / PAD * 1000) / 1000, Math.round(q[1] / PAD * 1000) / 1000])) };
+    if (!h.def && !h.off) { h.def = true; $('handDefChk').checked = true; syncHandDefBtn(); }     // first letter written: typing turns into my handwriting by itself
+  } else delete h.g[handCh];
+  handVer++; save();
+  document.querySelectorAll('#handChars button').forEach(b => { if (b.textContent === handCh) b.classList.toggle('done', !!h.g[handCh]); });
+  let done = 0, total = 0; HAND_SETS.forEach(x => { for (const ch of x.chars) { total++; if (h.g[ch]) done++; } });
+  $('handProg').textContent = 'เขียนแล้ว ' + done + ' จาก ' + total + ' ตัว (ไม่ต้องครบก็ใช้ได้)';
+  handPreview();
+}
+function handNext() {
+  const chars = HAND_SETS.find(x => x.k === handSet).chars, next = chars[chars.indexOf(handCh) + 1];
+  if (next) handPick(next); else toast('ครบชุดนี้แล้ว เลือกชุดอื่นต่อได้');
+}
+function handSave() { handCommit(); handNext(); }
+function handApplyAll() {
+  if ($('editor').classList.contains('hidden')) { toast('เปิดโน้ตก่อน แล้วค่อยกดปุ่มนี้'); return; }
+  if (!Object.keys(handDb().g).length) { toast('เขียนตัวอักษรสักตัวก่อนนะ'); return; }
+  const seen = new Set(), items = [];
+  const add = list => (list || []).forEach(m => { if (isTextItem(m) && !seen.has(m)) { seen.add(m); items.push(m); } });
+  note().pages.forEach(pg => add(pg.images)); if (typeof vpage !== 'undefined' && vpage) add(vpage.images);
+  const todo = items.filter(m => !m.hand);
+  if (!todo.length) { toast('ข้อความในโน้ตนี้เป็นลายมือหมดแล้ว'); return; }
+  pushUndo(); todo.forEach(m => { m.hand = true; textFit(m); });
+  touch(); render(); toast('เปลี่ยนแล้ว ' + todo.length + ' กล่อง (ย้อนกลับได้)');
+}
+function handDeleteCur() {
+  const h = handDb(); if (!h.g[handCh]) { handClearPad(); return; }
+  delete h.g[handCh]; handVer++; save(); handClearPad(); renderHandTabs(); handPreview();
+}
+function handResetAll() {
+  if (!Object.keys(handDb().g).length) return;
+  if (!confirm('ล้างลายมือที่เขียนไว้ทั้งหมด?')) return;
+  db.hand.g = {}; handVer++; save(); handClearPad(); renderHandTabs(); handPreview();
+  if (!$('editor').classList.contains('hidden')) render();
+}
+function handPreview() {
+  const cv = $('handPreview'), c = cv.getContext('2d');
+  c.clearRect(0, 0, cv.width, cv.height); c.fillStyle = '#fff'; c.fillRect(0, 0, cv.width, cv.height);
+  const m = { id: 'hp-prev', txt: $('handTry').value || '', fs: 44, color: '#242423', bold: false, hand: true, x: 0, y: 0, w: cv.width, h: 0 };
+  textFit(m); c.save(); c.beginPath(); c.rect(0, 0, cv.width, cv.height); c.clip(); drawTextItem(c, m); c.restore();
+}
+function handDefToggle(v) {
+  const h = handDb(); h.def = typeof v === 'boolean' ? v : !h.def; h.off = !h.def; save();
+  $('handDefChk').checked = h.def; syncHandDefBtn();
+  if (h.def && !Object.keys(h.g).length) openHandSheet();
+  const m = textById(imgSel) || textById(textEditId);
+  if (m && m.hand !== h.def) { pushUndo(); m.hand = h.def; textChanged(m, false); }
+}
+function syncHandDefBtn() { const b = $('handDefBtn'); if (b) b.setAttribute('aria-pressed', String(!!(db.hand && db.hand.def))); }
+
 /* ---------- inserted images: add / move / resize / delete ---------- */
 let imgSel = null;          // id of the selected inserted image
 let imgDrag = null;         // {mode, pointerId, sx, sy, r0, pushed}
@@ -4675,14 +5218,16 @@ async function handleInsert(e) {
 /* The picture tool: with no picture on the page there is nothing to move or resize, so the only useful thing is to pick one. */
 function imageToolClick() {
   setTool('image');
-  if (!(page().images || []).length) $('insertInput').click();
+  if (!(page().images || []).some(m => !isTextItem(m))) $('insertInput').click();
 }
 function selectImage(id) { imgSel = id; positionImageBox(); }
 function clearImageSelection() { imgSel = null; imgDrag = null; $('imgBox').classList.add('hidden'); }
 function positionImageBox() {
   const box = $('imgBox');
   const m = noteId && page() && imgSel ? imageById(imgSel) : null;
-  if (!m || tool !== 'image') { box.classList.add('hidden'); if (!m) imgSel = null; return; }
+  if (!m || (tool !== 'image' && tool !== 'text')) { box.classList.add('hidden'); if (!m) imgSel = null; return; }
+  box.classList.toggle('is-text', isTextItem(m));
+  if (isTextItem(m)) { $('txtBoldBtn').style.background = m.bold ? 'var(--accent-soft, #e3ead9)' : ''; $('txtHandBtn').style.background = m.hand ? 'var(--accent-soft, #e3ead9)' : ''; }
   box.style.left = m.x * zoom + 'px'; box.style.top = m.y * zoom + 'px';
   box.style.width = m.w * zoom + 'px'; box.style.height = m.h * zoom + 'px';
   box.style.transformOrigin = '50% 50%'; box.style.transform = m.rot ? 'rotate(' + m.rot + 'rad)' : '';
@@ -4695,8 +5240,9 @@ function deleteImage() {
   if (!m) return;
   pushUndo();
   page().images = page().images.filter(i => i.id !== imgSel);
+  const wasText = isTextItem(m); if (textEditId === m.id) { textEditId = null; $('txtEdit').classList.add('hidden'); $('handCaretBox').classList.add('hidden'); }
   imgSel = null; imgDrag = null;
-  touch(); render(); toast('ลบรูปแล้ว');
+  touch(); render(); toast(wasText ? 'ลบข้อความแล้ว' : 'ลบรูปแล้ว');
 }
 function resetImageRatio() {
   const m = imgSel && imageById(imgSel);
@@ -4709,7 +5255,7 @@ function resetImageRatio() {
 function beginImageDrag(e, mode) {
   const m = imgSel && imageById(imgSel);
   if (!m) return;
-  imgDrag = { mode, pointerId: e.pointerId, sx: e.clientX, sy: e.clientY, r0: { x: m.x, y: m.y, w: m.w, h: m.h }, pushed: false };
+  imgDrag = { mode, pointerId: e.pointerId, sx: e.clientX, sy: e.clientY, r0: { x: m.x, y: m.y, w: m.w, h: m.h, fs: m.fs }, pushed: false };
 }
 function moveImageDrag(e) {
   const d = imgDrag, m = imgSel && imageById(imgSel);
@@ -4739,13 +5285,20 @@ function moveImageDrag(e) {
       if (north || south) { h = Math.max(IMG_MIN, r.h + (south ? dy : -dy)); if (north) y = r.y + r.h - h; }
     }
   }
+  if (isTextItem(m) && d.mode !== 'move') {              // text: the sides change the width, a corner scales box and letters together
+    const k = w / r.w;
+    m.w = Math.max(60, w); if (d.mode.length === 2) m.fs = Math.max(10, Math.min(300, r.fs * k));
+    textFit(m); m.x = d.mode.includes('w') ? r.x + r.w - m.w : r.x; m.y = d.mode.includes('n') ? r.y + r.h - m.h : r.y;
+    positionImageBox(); scheduleFrame(true); return;
+  }
   m.x = x; m.y = y; m.w = w; m.h = h;
   positionImageBox();
   scheduleFrame(true);
 }
 function endImageDrag() {
-  const pushed = imgDrag && imgDrag.pushed;
+  const pushed = imgDrag && imgDrag.pushed, tapEdit = imgDrag && !imgDrag.pushed && imgDrag.tapEdit;
   imgDrag = null;
+  if (tapEdit && tool === 'text') { startTextEdit(tapEdit); return; }
   if (pushed) touch();
 }
 /* Pen / mouse on the page while the image tool is active: pick the top-most picture under it and drag it */
