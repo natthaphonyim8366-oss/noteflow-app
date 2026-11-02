@@ -1351,7 +1351,12 @@ async function accessButton() {
 }
 function accessStart() {
   if (!accessOn()) return;
-  accessRun(false);
+  /* personal link: https://.../index.html#code=THEIRCODE enters the code by itself. The code is taken out of the address bar at once; the
+     claim service then ties it to the first device that opens it, so the same link opened on another device is refused. */
+  let linkCode = '';
+  try { const m = /[#&]code=([^&]+)/.exec(location.hash); if (m) { linkCode = decodeURIComponent(m[1]); history.replaceState(null, '', location.pathname + location.search); } } catch (e) { }
+  if (normCode(linkCode)) { accessMode = 'code'; $('accCode').value = linkCode; accessButton(); }
+  else accessRun(false);
   setInterval(() => {
     if (document.hidden) return;
     if (handBusy()) return;                                                       // never during a stroke: check right after the pen lifts
