@@ -4,6 +4,7 @@
   "message": "",
   "users": [
     { "name": "ออ", "on": true, "hash": "1458bb6ed3764b79e8a47def0877e72119ba34e564efbaf79f123b1d2083b4d7" },
-    { "name": "กาน", "on": true, "hash": "7ec6f6a0e2723486d9e5f15b52acacc94f1434d359371c34907b0e7a3bc38208" }
+    { "name": "กาน", "on": true, "hash": "7ec6f6a0e2723486d9e5f15b52acacc94f1434d359371c34907b0e7a3bc38208" },
+    { "name": "บังง", "on": true, "hash": "81fd67b59a70e4c1c29f7e63bcf4be5c2f5d11bb7f8feb5724491feabd940827" }
   ]
 }
