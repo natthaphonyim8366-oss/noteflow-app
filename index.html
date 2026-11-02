@@ -104,18 +104,38 @@ textarea{width:100%;resize:vertical;min-height:44px}
 .edit-head{display:flex;align-items:center;gap:2px;flex-wrap:wrap;padding:6px 10px;background:var(--panel)}
 input.doc-title{flex:1 1 140px;min-width:100px;max-width:280px;margin-left:4px;border:1px solid transparent;background:transparent;font-weight:600;padding:6px 8px;border-radius:8px}
 input.doc-title:hover{border-color:var(--line)}
-.saved{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-left:6px}
+.saved{font-size:12px;color:var(--muted);display:none;align-items:center;gap:6px;margin-left:6px}
+.saved.err{display:flex;color:#b0523d}
 .dot{width:6px;height:6px;border-radius:50%;background:#6f8a5a;display:inline-block}
 .dot.busy{background:#c08a3e}
+.saved.err .dot{background:#b0523d}
 .pager{display:flex;align-items:center;margin-left:auto}
 .pg-num{padding:6px 8px;border-radius:8px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .pg-num:hover{background:var(--hover);color:var(--ink)}
 .actions{display:flex;align-items:center;margin-left:8px;padding-left:8px;border-left:1px solid var(--line)}
-.tools{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:4px 12px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
-.toolset{display:flex;gap:2px}
+.tools{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:6px 12px 10px;background:var(--panel);border-bottom:1px solid var(--line)}
+.toolset{display:flex;align-items:center;gap:2px;padding:3px;border-radius:14px;background:var(--hover)}
+.toolset.hidden{display:none}
+#shapeKindBar,#hlBar,#eraserKindBar{background:var(--accent-soft);animation:tsIn .18s ease-out}
+@keyframes tsIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.tsep{width:1px;height:20px;background:var(--line);margin:0 4px;flex:none}
+.colorset{display:flex;align-items:center;gap:14px;padding:5px 12px;border-radius:14px;background:var(--hover)}
+.tool{transition:background .15s,color .15s,opacity .15s}
+.toolset .tool[aria-pressed=true]{background:var(--panel);color:var(--accent);box-shadow:0 1px 3px rgba(0,0,0,.10)}
+#mainFill[aria-pressed=true]{background:var(--accent);color:var(--on-accent);box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.fill-hint{position:fixed;left:50%;transform:translateX(-50%);bottom:68px;display:flex;align-items:center;gap:10px;padding:7px 8px 7px 14px;background:var(--ink);color:var(--paper);border-radius:999px;font-size:13px;box-shadow:var(--shadow);z-index:11;animation:fhIn .2s ease-out}
+.fill-hint.hidden{display:none}
+.fill-hint .i{width:17px;height:17px}
+.fh-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.85);flex:none}
+.fh-done{background:rgba(255,255,255,.16);color:inherit;border-radius:999px;padding:5px 13px;font-size:13px;font-weight:600}
+.fh-done:hover{background:rgba(255,255,255,.28)}
+@keyframes fhIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+.pour{position:fixed;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;pointer-events:none;z-index:12;opacity:.55;animation:pourAnim .55s ease-out forwards}
+@keyframes pourAnim{from{transform:scale(.3);opacity:.6}to{transform:scale(11);opacity:0}}
 .tool{width:38px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;color:var(--muted)}
 .tool:hover{color:var(--ink);background:var(--hover)}
 .tool[aria-pressed=true]{background:var(--accent-soft);color:var(--accent)}
+#mainFill:disabled{opacity:.28;pointer-events:none;cursor:default}
 @media (pointer:coarse){.tool{width:44px;height:42px}}
 .swatches{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .sw{position:relative;width:20px;height:20px;border-radius:50%;border:1px solid var(--line)}
@@ -155,8 +175,13 @@ input.doc-title:hover{border-color:var(--line)}
    takes pointer input. */
 #viewCanvas{position:absolute;left:0;top:0;display:none;pointer-events:none;z-index:1;touch-action:none}
 
-.sel-bar{position:absolute;display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--shadow);z-index:6;transform:translate(0,-100%)}
+.sel-bar{position:absolute;display:flex;flex-direction:column;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--shadow);z-index:6}
 .sel-bar button{padding:6px 10px;font-size:12px;white-space:nowrap;border-radius:7px}
+.sb-row{display:flex;gap:2px;align-items:center;flex-wrap:nowrap}
+.sb-xform{border-top:1px solid var(--line);padding-top:2px}
+.sb-deg{display:inline-flex;align-items:center;gap:2px;margin-left:2px;padding-left:4px;border-left:1px solid var(--line);font-size:12px;color:var(--muted)}
+.sb-deg input{width:48px;padding:5px 4px;font-size:12px;text-align:right;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.img-box.rotated .hd{display:none}
 .img-box{position:absolute;pointer-events:none;border:1.5px solid var(--accent);z-index:5}
 .img-bar{position:absolute;left:0;top:-8px;transform:translateY(-100%);display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--shadow);pointer-events:auto;white-space:nowrap}
 .img-bar button{padding:6px 10px;font-size:12px;border-radius:7px}
@@ -250,6 +275,7 @@ input.doc-title:hover{border-color:var(--line)}
 <symbol id="i-highlighter" viewBox="0 0 24 24"><path d="M13 4.5l6.5 6.5-7 7H6v-6.5z"/><path d="M3 21h9"/></symbol>
 <symbol id="i-hl-free" viewBox="0 0 24 24"><path d="M3.5 15.5c2.5-6 4.5 3.5 8-2s5.500 1.500 9-3"/></symbol>
 <symbol id="i-hl-line" viewBox="0 0 24 24"><path d="M4 12h16"/><path d="M12 4v16"/><path d="M4 12l2.500-2M4 12l2.500 2M20 12l-2.500-2M20 12l-2.500 2M12 4l-2 2.500M12 4l2 2.500M12 20l-2-2.500M12 20l2-2.500"/></symbol>
+<symbol id="i-bucket" viewBox="0 0 24 24"><path d="M6 11.500l5.500-5.500 7 7-5.500 5.500a2 2 0 0 1-2.800 0L6 14.300a2 2 0 0 1 0-2.800z"/><path d="M6 11.500h12.500"/><path d="M20 16s1.800 1.900 1.800 3.100a1.800 1.800 0 0 1-3.600 0C18.200 17.900 20 16 20 16z"/></symbol>
 <symbol id="i-shape" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="10" height="10" rx="1.5"/><circle cx="15.5" cy="15.5" r="5"/></symbol>
 <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M9 20h11"/><path d="M5.2 15.6l9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11.6 20H8.4l-3.2-3.2a1.2 1.2 0 0 1 0-1.2z"/></symbol>
 <symbol id="i-eraser-dot" viewBox="0 0 24 24"><path d="M9 20h11"/><path d="M5.2 15.6l9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11.6 20H8.4l-3.2-3.2a1.2 1.2 0 0 1 0-1.2z"/><circle cx="9" cy="14.5" r="1.15" fill="currentColor" stroke="none"/></symbol>
@@ -261,6 +287,7 @@ input.doc-title:hover{border-color:var(--line)}
 <symbol id="i-rect" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1.5"/></symbol>
 <symbol id="i-ellipse" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8.5" ry="6"/></symbol>
 <symbol id="i-triangle" viewBox="0 0 24 24"><path d="M12 5l8 14H4z"/></symbol>
+<symbol id="i-rtriangle" viewBox="0 0 24 24"><path d="M6 5v14h13z"/><path d="M6 15h4v4"/></symbol>
 <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9.5 5V4h5v1"/></symbol>
 <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
 <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .4-7.98A5.5 5.5 0 0 0 6.9 9.6 4.2 4.2 0 0 0 7 18z"/></symbol>
@@ -362,15 +389,19 @@ input.doc-title:hover{border-color:var(--line)}
       <button class="tool" data-tool="pen" aria-pressed="true" title="ปากกา" aria-label="ปากกา" onclick="setTool('pen')"><svg class="i"><use href="#i-pen"/></svg></button>
       <button class="tool" data-tool="highlighter" aria-pressed="false" title="ไฮไลต์" aria-label="ไฮไลต์" onclick="setTool('highlighter')"><svg class="i"><use href="#i-highlighter"/></svg></button>
       <button class="tool" data-tool="shape" aria-pressed="false" title="รูปทรง" aria-label="รูปทรง" onclick="setTool('shape')"><svg class="i"><use href="#i-shape"/></svg></button>
+      <button class="tool" id="mainFill" aria-pressed="false" title="เทสี — วาดพื้นที่ปิดด้วยปากกา/ไฮไลต์ก่อน จึงจะใช้ได้" aria-label="เทสี" disabled onclick="bucketToolClick()"><svg class="i"><use href="#i-bucket"/></svg></button>
+      <span class="tsep"></span>
       <button class="tool" data-tool="eraser" aria-pressed="false" title="ยางลบ" aria-label="ยางลบ" onclick="setTool('eraser')"><svg class="i"><use href="#i-eraser"/></svg></button>
       <button class="tool" data-tool="lasso" aria-pressed="false" title="เลือก" aria-label="เลือก" onclick="setTool('lasso')"><svg class="i"><use href="#i-lasso"/></svg></button>
-      <button class="tool" data-tool="image" aria-pressed="false" title="รูปภาพ" aria-label="รูปภาพ" onclick="setTool('image')"><svg class="i"><use href="#i-image"/></svg></button>
+      <span class="tsep"></span>
+      <button class="tool" data-tool="image" aria-pressed="false" title="รูปภาพ — เลือกรูปมาแทรก / ย้าย / ปรับขนาด" aria-label="รูปภาพ" onclick="imageToolClick()"><svg class="i"><use href="#i-image"/></svg></button>
     </div>
     <div class="toolset hidden" id="shapeKindBar">
       <button class="tool" data-kind="line" aria-pressed="true" title="เส้นตรง" aria-label="เส้นตรง" onclick="setShapeKind('line')"><svg class="i"><use href="#i-line"/></svg></button>
       <button class="tool" data-kind="rect" aria-pressed="false" title="สี่เหลี่ยม" aria-label="สี่เหลี่ยม" onclick="setShapeKind('rect')"><svg class="i"><use href="#i-rect"/></svg></button>
       <button class="tool" data-kind="ellipse" aria-pressed="false" title="วงรี" aria-label="วงรี" onclick="setShapeKind('ellipse')"><svg class="i"><use href="#i-ellipse"/></svg></button>
       <button class="tool" data-kind="triangle" aria-pressed="false" title="สามเหลี่ยม" aria-label="สามเหลี่ยม" onclick="setShapeKind('triangle')"><svg class="i"><use href="#i-triangle"/></svg></button>
+      <button class="tool" data-kind="rtriangle" aria-pressed="false" title="สามเหลี่ยมมุมฉาก" aria-label="สามเหลี่ยมมุมฉาก" onclick="setShapeKind('rtriangle')"><svg class="i"><use href="#i-rtriangle"/></svg></button>
     </div>
     <div class="toolset hidden" id="hlBar">
       <button class="tool" data-hkind="free" aria-pressed="true" title="ไฮไลต์อิสระ" aria-label="ไฮไลต์อิสระ" onclick="setHlMode('free')"><svg class="i"><use href="#i-hl-free"/></svg></button>
@@ -381,11 +412,13 @@ input.doc-title:hover{border-color:var(--line)}
       <button class="tool" data-ekind="stroke" aria-pressed="false" title="ลบทั้งเส้น" aria-label="ลบทั้งเส้น (แตะโดนเส้นไหนลบทั้งเส้นนั้น)" onclick="setEraserKind('stroke')"><svg class="i"><use href="#i-eraser-line"/></svg></button>
       <button class="tool" data-ekind="loop" aria-pressed="false" title="ลบแบบห่วง" aria-label="ลบแบบห่วง (ลากล้อมพื้นที่ เฉพาะส่วนที่อยู่ในวงจะถูกลบ)" onclick="setEraserKind('loop')"><svg class="i"><use href="#i-eraser-loop"/></svg></button>
     </div>
+    <div class="colorset" id="colorset">
     <div class="swatches" id="swatches"></div>
     <input type="color" id="customColorInput" value="#3d3627" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none" oninput="pickCustomColor(this.value)">
     <div class="sizer" id="sizer">
       <input type="range" id="size" min="1" max="40" value="3" title="ขนาดเส้น" aria-label="ขนาดเส้น" oninput="setSize(this.value)">
       <span class="num" id="sizeNum">3</span>
+    </div>
     </div>
     <button class="ib" id="pasteBtn" onclick="pasteClipboard()" title="วาง" aria-label="วาง" disabled><svg class="i"><use href="#i-paste"/></svg></button>
   </div>
@@ -394,11 +427,19 @@ input.doc-title:hover{border-color:var(--line)}
     <div id="canvasWrap">
       <canvas id="pageCanvas"></canvas>
       <div id="selectionBar" class="sel-bar hidden">
-        <button class="btn ghost" onclick="copySelection()">คัดลอก</button>
-        <button class="btn ghost" onclick="cutSelection()">ตัด</button>
-        <button class="btn ghost" onclick="duplicateSelection()">ทำสำเนา</button>
-        <button class="btn ghost danger" onclick="deleteSelection()">ลบ</button>
-        <button class="btn ghost" title="ยกเลิกการเลือก" aria-label="ยกเลิกการเลือก" onclick="clearSelection()"><svg class="i" style="width:14px;height:14px"><use href="#i-x"/></svg></button>
+        <div class="sb-row">
+          <button class="btn ghost" onclick="copySelection()">คัดลอก</button>
+          <button class="btn ghost" onclick="cutSelection()">ตัด</button>
+          <button class="btn ghost" onclick="duplicateSelection()">ทำสำเนา</button>
+          <button class="btn ghost danger" onclick="deleteSelection()">ลบ</button>
+          <button class="btn ghost" title="ยกเลิกการเลือก" aria-label="ยกเลิกการเลือก" onclick="clearSelection()"><svg class="i" style="width:14px;height:14px"><use href="#i-x"/></svg></button>
+        </div>
+        <div class="sb-row sb-xform">
+          <button class="btn ghost" title="พลิกกลับซ้าย-ขวา" onclick="flipSelection('h')">⇋ พลิกซ้าย-ขวา</button>
+          <button class="btn ghost" title="พลิกกลับบน-ล่าง" onclick="flipSelection('v')">⇅ พลิกบน-ล่าง</button>
+          <button class="btn ghost" title="หมุนตามเข็ม 90°" onclick="rotateSelection(90)">⟳ 90°</button>
+          <span class="sb-deg"><input id="rotDeg" type="number" step="1" value="15" aria-label="องศาที่ต้องการหมุน" onkeydown="if(event.key==='Enter'){rotateFromInput();event.preventDefault()}"><span>°</span><button class="btn ghost" title="หมุนตามเข็มนาฬิกาตามองศาที่ใส่ (ใส่ค่าติดลบเพื่อหมุนทวนเข็ม)" onclick="rotateFromInput()">หมุน</button></span>
+        </div>
       </div>
       <div id="imgBox" class="img-box hidden">
         <div class="img-bar">
@@ -412,6 +453,12 @@ input.doc-title:hover{border-color:var(--line)}
     </div>
   </div>
 
+  <div class="fill-hint hidden" id="fillHint" role="status">
+    <svg class="i"><use href="#i-bucket"/></svg>
+    <span class="fh-dot" id="fillDot"></span>
+    <span class="fh-text">แตะในพื้นที่ที่ปิดเพื่อเทสี</span>
+    <button class="fh-done" onclick="setFillMode(false)">เสร็จ</button>
+  </div>
   <div class="zoombar" id="zoombar">
     <button class="ib" onclick="zoomBy(-0.15)" title="ซูมออก" aria-label="ซูมออก"><svg class="i"><use href="#i-minus"/></svg></button>
     <span class="num" id="zoomNum">100%</span>
@@ -635,6 +682,7 @@ let currentPaperDark = false;
 let shapeKind = 'line';
 /* highlighter: 'free' = as drawn, 'line' = locked into a straight horizontal or vertical line (owner can switch this off per person) */
 let hlMode = 'free', hlLock = null;
+let fillMode = false;             // pen / highlighter: a tap pours colour into the area enclosed by lines instead of writing
 try { if (localStorage.getItem('noteflow.hlMode') === 'line') hlMode = 'line'; } catch (e) { }
 const HL_LOCK_DECIDE_PX = 10;     // how far (screen px) the pen must travel before the direction is picked
 let shapeDraftStart = null;
@@ -698,17 +746,68 @@ function boundsOfStroke(s) {
   return b;
 }
 let frameQueued = false;
-let frameNeedsFullRebuild = false;
+let frameMode = 0;                  // 0 = just repaint the overlay, 1 = the eraser changed a small area, 2 = rebuild everything
 
 function scheduleFrame(fullRebuild) {
-  frameNeedsFullRebuild = frameNeedsFullRebuild || fullRebuild;
+  frameMode = Math.max(frameMode, fullRebuild === 'erase' ? 1 : fullRebuild ? 2 : 0);
   if (frameQueued) return;
   frameQueued = true;
   requestAnimationFrame(() => {
     frameQueued = false;
-    if (frameNeedsFullRebuild) { frameNeedsFullRebuild = false; render(); }
+    const m = frameMode; frameMode = 0;
+    if (m === 2) { eraseDirty = null; render(); }
+    else if (m === 1) { if (!renderRegion()) render(); positionSelectionBar(); }
     else { paintFrame(); positionSelectionBar(); }
   });
+}
+
+/* ---------- erasing: repaint only the patch that changed ----------
+   Rubbing out used to rebuild the whole zoom window (several megapixels, every stroke) on every pointer move, which
+   is what made it heavy when zoomed in. The eraser now reports the small area it changed and only that patch of the
+   layers is redrawn - the work no longer depends on how big the window or the page is. */
+let eraseDirty = null, regionClip = null;
+function addDirty(x0, y0, x1, y1) {
+  if (!eraseDirty) eraseDirty = { x0, y0, x1, y1 };
+  else { eraseDirty.x0 = Math.min(eraseDirty.x0, x0); eraseDirty.y0 = Math.min(eraseDirty.y0, y0); eraseDirty.x1 = Math.max(eraseDirty.x1, x1); eraseDirty.y1 = Math.max(eraseDirty.y1, y1); }
+}
+function addDirtyStroke(s) {
+  const b = boundsOfStroke(s), pad = (s.size || 0) / 2 + (s.grow || 0) + 6;
+  addDirty(b.minX - pad, b.minY - pad, b.maxX + pad, b.maxY + pad);
+}
+function renderRegion() {
+  const d = eraseDirty; eraseDirty = null;
+  if (!d || layersStale || deleteAnim || live || $('editor').classList.contains('hidden')) return false;
+  const cw = baseCanvas.width, ch = baseCanvas.height, S = renderScale;
+  let rx = Math.floor(d.x0 * S - viewPx.x) - 3, ry = Math.floor(d.y0 * S - viewPx.y) - 3;
+  let rx1 = Math.ceil(d.x1 * S - viewPx.x) + 3, ry1 = Math.ceil(d.y1 * S - viewPx.y) + 3;
+  rx = Math.max(0, rx); ry = Math.max(0, ry); rx1 = Math.min(cw, rx1); ry1 = Math.min(ch, ry1);
+  if (rx1 <= rx || ry1 <= ry) { paintFrame(); return true; }        // the change is outside the window
+  const rw = rx1 - rx, rh = ry1 - ry, n = note(), pg = page();
+  const x0 = (viewPx.x + rx) / S, y0 = (viewPx.y + ry) / S, x1 = (viewPx.x + rx1) / S, y1 = (viewPx.y + ry1) / S;
+  const touches = s => {
+    if (!s.points || !s.points.length) return false;
+    const b = boundsOfStroke(s), pad = (s.size || 0) / 2 + (s.grow || 0) + 2;
+    return !(b.maxX + pad < x0 || b.minX - pad > x1 || b.maxY + pad < y0 || b.minY - pad > y1);
+  };
+  const hl = [], rest = [];
+  for (const s of pg.strokes) if (touches(s)) (isHlItem(s) ? hl : rest).push(s);
+  hlClip = regionClip = [rx, ry, rw, rh];
+  try {
+    hlLayerCtx.save(); hlLayerCtx.beginPath(); hlLayerCtx.rect(rx, ry, rw, rh); hlLayerCtx.clip();
+    drawPage(hlLayerCtx, n, { ...pg, strokes: hl }, S, cw, ch, null, false, viewPx);
+    hlLayerCtx.restore();
+    inkLayerCtx.save(); inkLayerCtx.beginPath(); inkLayerCtx.rect(rx, ry, rw, rh); inkLayerCtx.clip();
+    inkLayerCtx.setTransform(1, 0, 0, 1, 0, 0); inkLayerCtx.clearRect(rx, ry, rw, rh);
+    applyView(inkLayerCtx); drawInkList(inkLayerCtx, rest);
+    inkLayerCtx.restore();
+  } finally { hlClip = regionClip = null; }
+  baseCtx.save(); baseCtx.setTransform(1, 0, 0, 1, 0, 0);
+  baseCtx.clearRect(rx, ry, rw, rh);
+  baseCtx.drawImage(hlLayerCanvas, rx, ry, rw, rh, rx, ry, rw, rh);
+  baseCtx.drawImage(inkLayerCanvas, rx, ry, rw, rh, rx, ry, rw, rh);
+  baseCtx.restore();
+  paintFrame();
+  return true;
 }
 
 const LIVE_TAIL = 48;
@@ -850,9 +949,11 @@ async function decryptVault(key, iv, cipher) {
 }
 
 let saveTimer = null, vaultSalt = null;
-function setSaveState(text, busy) {
+function setSaveState(text, busy) {          // the little "saved" mark stays hidden; it only appears if saving fails
   $('saveText').textContent = text;
   $('saveDot').className = 'dot' + (busy ? ' busy' : '');
+  const box = $('saveDot').parentNode;
+  if (box) box.classList.toggle('err', text === 'บันทึกไม่สำเร็จ');
 }
 function save() {
   setSaveState('กำลังบันทึก…', true);
@@ -1464,8 +1565,13 @@ function refreshPager() {
 /* strokes of the stacked document -> per-page strokes ------------------------------------------------- */
 const pageOfY = (y, cnt) => Math.max(0, Math.min(cnt - 1, Math.floor(y / PAGE_H)));
 
+function shiftHoles(h, dx, dy) {
+  return h.map(q => Array.isArray(q) ? [q[0] + dx, q[1] + dy, q[2]] : { p: q.p.map(t => [t[0] + dx, t[1] + dy]) });
+}
 function offsetStroke(s, oy) {
-  return { ...s, points: s.points.map(p => [p[0], p[1] + oy]) };
+  const o = { ...s, points: s.points.map(p => [p[0], p[1] + oy]) };
+  if (s.holes) o.holes = shiftHoles(s.holes, 0, oy);
+  return o;
 }
 function buildVpage() {
   const n = note();
@@ -1485,6 +1591,13 @@ function buildVpage() {
 function splitStrokeToPages(s, out, cnt) {
   const pts = s.points;
   if (!pts || !pts.length) return;
+  if (s.tool === 'fill') {                       // poured colour is one piece: it lives on the page where it starts
+    let top = Infinity; for (const p of pts) if (p[1] < top) top = p[1];
+    const idx = pageOfY(top, cnt), oy = idx * PAGE_H, o = { ...s, points: pts.map(p => [p[0], p[1] - oy]) };
+    if (s.holes) o.holes = shiftHoles(s.holes, 0, -oy);
+    out[idx].push(o);
+    return;
+  }
   let minY = Infinity, maxY = -Infinity;
   for (const p of pts) { if (p[1] < minY) minY = p[1]; if (p[1] > maxY) maxY = p[1]; }
   const a = pageOfY(minY, cnt), b = pageOfY(maxY, cnt);
@@ -1759,6 +1872,8 @@ function highlightQpPill(i) {
 }
 
 function setTool(t) {
+  fillMode = false;                     // picking ANY tool from the bar (the pen / highlighter again too) leaves the bucket
+  if (t === 'pen' || t === 'highlighter') lastInkTool = t;
   tool = t;
   eraserCursor = null;
   eraserLoopPoints = null;
@@ -1779,20 +1894,254 @@ function setTool(t) {
   setSize(s); $('size').value = s;
   render();
 }
+/* ---------- is there anything to pour into yet? ----------
+   The bucket buttons stay faded and cannot be pressed until the page holds an area closed by lines. The check is a
+   small (1/4 size) version of the fill's own test: draw every line fat, flood in from the edge of the page, and if some
+   empty pixels are left over, they are enclosed. It runs shortly after the page changes, never while drawing. */
+let fillCheckTimer = null, fillSig = '', fillOk = false;
+function scheduleFillCheck() {
+  let sig = '';
+  try { const st = page().strokes, l = st[st.length - 1]; sig = noteId + ':' + pageIndex + ':' + vertMode + ':' + st.length + ':' + (l && l.points ? l.points.length : 0) + ':' + (l && l.tool); } catch (e) { return; }
+  if (sig === fillSig) return;
+  fillSig = sig;
+  clearTimeout(fillCheckTimer);
+  fillCheckTimer = setTimeout(updateFillAvailability, 250);
+}
+function hasClosedArea() {
+  const strokes = page().strokes.filter(s => s.tool !== 'fill' && s.points && s.points.length > 1);
+  if (strokes.length === 0) return false;
+  const Q = 4, DH = Math.min(docH(), PAGE_H * 12), W = Math.ceil(PAGE_W / Q), H = Math.ceil(DH / Q);
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  g.setTransform(1 / Q, 0, 0, 1 / Q, 0, 0);
+  for (const s of strokes) drawStroke(g, { ...s, tool: 'pen', color: '#000', size: (s.size || 1) + 2 * FILL_GAP });
+  const d = g.getImageData(0, 0, W, H).data, walls = new Uint8Array(W * H);
+  for (let i = 0, j = 3; i < walls.length; i++, j += 4) walls[i] = d[j] >= 128 ? 1 : 0;
+  const vis = new Uint8Array(W * H), stack = [];
+  const push = i => { if (!walls[i] && !vis[i]) { vis[i] = 1; stack.push(i); } };
+  for (let x = 0; x < W; x++) { push(x); push((H - 1) * W + x); }
+  for (let y = 0; y < H; y++) { push(y * W); push(y * W + W - 1); }
+  while (stack.length) {
+    const i = stack.pop(), x = i % W, y = (i / W) | 0;
+    if (x > 0) push(i - 1); if (x < W - 1) push(i + 1); if (y > 0) push(i - W); if (y < H - 1) push(i + W);
+  }
+  let left = 0;
+  for (let i = 0; i < walls.length; i++) if (!walls[i] && !vis[i] && ++left >= 24) return true;   // an enclosed pocket of real size
+  return false;
+}
+function updateFillAvailability() {
+  fillCheckTimer = null;
+  let ok = false;
+  try { ok = hasClosedArea(); } catch (e) { ok = true; }       // if the check itself fails, never lock the tool
+  fillOk = ok;
+  document.querySelectorAll('#mainFill').forEach(b => { b.disabled = !ok; });
+  const mf = $('mainFill'); if (mf) mf.title = ok ? 'เทสี — แตะข้างในพื้นที่ที่ล้อมด้วยเส้นเพื่อเทสี' : 'เทสี — วาดพื้นที่ปิดด้วยปากกา/ไฮไลต์ก่อน จึงจะใช้ได้';
+  if (!ok && fillMode) setFillMode(false);
+}
+
+/* ---------- bucket fill (pen + highlighter) ----------
+   Tap inside an area closed by lines and the chosen colour is poured in. How: every line on the page is drawn fat
+   (a few units wider each side, which also bridges small gaps in a hand-drawn outline) on a scratch bitmap; a flood
+   fill from the tap finds the enclosed area; its outline is traced, simplified and stored as ONE polygon
+   ({tool:'fill'}) that is grown back by the same few units so it tucks under the lines. Everything inside that
+   outer outline is covered, so writing inside a boxed area is highlighted as a whole.
+   If the area is not closed (the flood reaches the edge of the work area) nothing is poured. */
+const FILL_REACH = 100;                // how far (px) poured colour may creep into thin tips beyond the fat-line flood
+const FILL_GAP = 8;                    // page units: the fat-line margin = gaps up to ~2x this are bridged
+const FILL_WIN_H = PAGE_H * 2;         // height of the work area (page units, 1 unit = 1 pixel)
+function dpSimplify(pts, tol) {
+  const n = pts.length;
+  if (n < 3) return pts.slice();
+  const keep = new Uint8Array(n); keep[0] = keep[n - 1] = 1;
+  const st = [[0, n - 1]];
+  while (st.length) {
+    const [a, b] = st.pop(), A = pts[a], B = pts[b];
+    const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy) || 1e-9;
+    let md = -1, mi = -1;
+    for (let i = a + 1; i < b; i++) {
+      const d = Math.abs((pts[i][0] - A[0]) * dy - (pts[i][1] - A[1]) * dx) / L;
+      if (d > md) { md = d; mi = i; }
+    }
+    if (md > tol) { keep[mi] = 1; st.push([a, mi], [mi, b]); }
+  }
+  return pts.filter((_, i) => keep[i]);
+}
+function simplifyRing(pts, tol) {
+  const n = pts.length;
+  if (n < 8) return pts.slice();
+  let far = 0, fd = -1;
+  for (let i = 1; i < n; i++) { const d = Math.hypot(pts[i][0] - pts[0][0], pts[i][1] - pts[0][1]); if (d > fd) { fd = d; far = i; } }
+  const a = dpSimplify(pts.slice(0, far + 1), tol);
+  const b = dpSimplify(pts.slice(far).concat([pts[0]]), tol);
+  return a.concat(b.slice(1, -1));
+}
+/* flood from `seed` over free pixels; leak = the flood touched the edge of the work area (the outline is not closed) */
+function floodRegion(walls, W, H, seed) {
+  const vis = new Uint8Array(W * H), stack = [seed];
+  while (stack.length) {
+    const i = stack.pop();
+    if (walls[i] || vis[i]) continue;
+    const y = (i / W) | 0, row = y * W;
+    let xl = i - row, xr = xl;
+    while (xl > 0 && !walls[row + xl - 1] && !vis[row + xl - 1]) xl--;
+    while (xr < W - 1 && !walls[row + xr + 1] && !vis[row + xr + 1]) xr++;
+    if (xl === 0 || xr === W - 1 || y === 0 || y === H - 1) return { vis, leak: true };
+    for (let x = xl; x <= xr; x++) vis[row + x] = 1;
+    for (const ny of [y - 1, y + 1]) {
+      const nr = ny * W; let run = false;
+      for (let x = xl; x <= xr; x++) {
+        const free = !walls[nr + x] && !vis[nr + x];
+        if (free && !run) { stack.push(nr + x); run = true; } else if (!free) run = false;
+      }
+    }
+  }
+  return { vis, leak: false };
+}
+/* outer outline of the flooded area, walking along pixel edges with the area on the right-hand side */
+function traceOuter(vis, W, H) {
+  const start = vis.indexOf(1);
+  if (start < 0) return null;
+  const sx = start % W, sy = (start / W) | 0;
+  const inR = (x, y) => x >= 0 && y >= 0 && x < W && y < H && vis[y * W + x] === 1;
+  const DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];            // east, south, west, north
+  let x = sx, y = sy, d = 0, guard = 0;
+  const out = [];
+  do {
+    x += DX[d]; y += DY[d];
+    let L, R;
+    if (d === 0) { L = inR(x, y - 1); R = inR(x, y); }
+    else if (d === 1) { L = inR(x, y); R = inR(x - 1, y); }
+    else if (d === 2) { L = inR(x - 1, y); R = inR(x - 1, y - 1); }
+    else { L = inR(x - 1, y - 1); R = inR(x, y - 1); }
+    const nd = R ? (L ? (d + 3) % 4 : d) : (d + 1) % 4;
+    if (nd !== d) out.push([x, y]);
+    d = nd;
+  } while (!(x === sx && y === sy && d === 0) && ++guard < 6e6);
+  return guard >= 6e6 ? null : out;
+}
+function nearestFree(walls, W, H, sx, sy, R) {
+  if (!walls[sy * W + sx]) return sy * W + sx;
+  for (let r = 1; r <= R; r++)
+    for (let dy = -r; dy <= r; dy++)
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const x = sx + dx, y = sy + dy;
+        if (x >= 0 && y >= 0 && x < W && y < H && !walls[y * W + x]) return y * W + x;
+      }
+  return -1;
+}
+function fillAt(p) {
+  const as = tool === 'highlighter' ? 'highlighter' : 'pen', color = curInk();
+  const DH = docH(), W = PAGE_W, H = Math.min(DH, FILL_WIN_H);
+  const y0 = Math.max(0, Math.min(DH - H, Math.round(p[1] - H / 2)));
+  if (p[0] < 0 || p[0] >= W || p[1] < y0 || p[1] >= y0 + H) return false;
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d', { willReadFrequently: true });
+  g.setTransform(1, 0, 0, 1, 0, -y0);
+  for (const s of page().strokes) {
+    if (s.tool === 'fill' || !s.points || !s.points.length) continue;
+    const b = boundsOfStroke(s), pad = (s.size || 1) / 2 + FILL_GAP + 2;
+    if (b.maxY + pad < y0 || b.minY - pad > y0 + H || b.maxX + pad < 0 || b.minX - pad > W) continue;
+    drawStroke(g, { ...s, tool: 'pen', color: '#000', size: (s.size || 1) + 2 * FILL_GAP });
+  }
+  const data = g.getImageData(0, 0, W, H).data, walls = new Uint8Array(W * H);
+  for (let i = 0, j = 3; i < walls.length; i++, j += 4) walls[i] = data[j] >= 128 ? 1 : 0;
+  const seed = nearestFree(walls, W, H, Math.round(p[0]), Math.round(p[1] - y0), 18);
+  if (seed < 0) { toast('แตะในพื้นที่ว่างที่ล้อมด้วยเส้น'); return false; }
+  const { vis, leak } = floodRegion(walls, W, H, seed);
+  if (leak) { toast('พื้นที่ยังไม่ปิด — ต่อเส้นล้อมให้ติดกันก่อนแล้วลองเทใหม่'); return false; }
+  /* The fat lines kept the flood off narrow tips and thin bays of the shape (sharp corners, crescents, pinched curves),
+     so grow the area back out to the REAL lines: from the flooded area, spread through the pixels that only the
+     fat margin had blocked (not blocked by the actual line), a limited distance, which also stops it from running
+     along the outside of the outline through a small gap. */
+  {
+    const tg = document.createElement('canvas'); tg.width = W; tg.height = H;
+    const tc = tg.getContext('2d', { willReadFrequently: true });
+    tc.setTransform(1, 0, 0, 1, 0, -y0);
+    for (const s of page().strokes) {
+      if (s.tool === 'fill' || !s.points || !s.points.length) continue;
+      drawStroke(tc, { ...s, tool: 'pen', color: '#000', size: (s.size || 1) + 1 });
+    }
+    const td = tc.getImageData(0, 0, W, H).data;
+    const cand = i => walls[i] === 1 && td[i * 4 + 3] < 128 && vis[i] === 0;
+    let layer = [];
+    for (let i = 0; i < vis.length; i++) {
+      if (!vis[i]) continue;
+      const x = i % W;
+      if ((x > 0 && cand(i - 1)) || (x < W - 1 && cand(i + 1)) || (i >= W && cand(i - W)) || (i + W < vis.length && cand(i + W))) layer.push(i);
+    }
+    for (let step = 0; step < FILL_REACH && layer.length; step++) {
+      const next = [];
+      for (const i of layer) {
+        const x = i % W;
+        for (const j of [x > 0 ? i - 1 : -1, x < W - 1 ? i + 1 : -1, i - W, i + W]) {
+          if (j < 0 || j >= vis.length || !cand(j)) continue;
+          vis[j] = 1; next.push(j);
+        }
+      }
+      layer = next;
+    }
+  }
+  const ring0 = traceOuter(vis, W, H);
+  if (!ring0 || ring0.length < 3) { toast('เทสีตรงนี้ไม่ได้'); return false; }
+  const ring = simplifyRing(ring0, 0.7);
+  if (ring.length < 3) { toast('เทสีตรงนี้ไม่ได้'); return false; }
+  const grow = 1.5;                    // the area now reaches the real lines: just tuck a hair under them
+  const pts = ring.map(q => [q[0], q[1] + y0]); pts.push([pts[0][0], pts[0][1]]);
+  const fill = { tool: 'fill', as, color, size: grow * 2, grow, closed: true, points: pts };
+  /* pouring again into the same spot replaces the colour that was there (the smallest area under the tap) */
+  let old = null, oldArea = Infinity;
+  for (const s of page().strokes) {
+    if (s.tool !== 'fill' || s.as !== as || !pointInPoly(p, s.points)) continue;
+    const b = getStrokeBounds(s), a = (b.maxX - b.minX) * (b.maxY - b.minY);
+    if (a < oldArea) { oldArea = a; old = s; }
+  }
+  pushUndo();
+  if (old) page().strokes = page().strokes.filter(s => s !== old);
+  page().strokes.push(fill);
+  touch(); render();
+  pourRipple(p, color);
+  return true;
+}
+
 /* ---------- highlighter straight-line lock ----------
    In 'line' mode (or with Shift held) a highlighter stroke becomes a perfectly horizontal or vertical straight line:
    after a short travel the direction that was dragged most is picked and kept for the whole stroke, so a slightly
    wobbly hand still gives a ruler-straight mark. Works the same in page mode and vertical (scroll) mode.
    It is a basic tool: available to everybody, nothing to switch on in the admin page. */
 function hlLineActive() { return hlMode === 'line'; }
+let lastInkTool = 'pen';
+function bucketToolClick() {              // main-toolbar bucket: works with the pen or the highlighter (whichever was used last)
+  if (fillMode) { setFillMode(false); return; }
+  if (tool !== 'pen' && tool !== 'highlighter') setTool(lastInkTool);
+  setFillMode(true);
+}
+function updateFillHint() {
+  const h = $('fillHint'); if (!h) return;
+  const on = fillMode && (tool === 'pen' || tool === 'highlighter');
+  h.classList.toggle('hidden', !on);
+  if (on) $('fillDot').style.background = curInk();
+}
+function pourRipple(p, color) {
+  const r = canvas.getBoundingClientRect(), d = document.createElement('div');
+  d.className = 'pour'; d.style.left = (r.left + p[0] * zoom) + 'px'; d.style.top = (r.top + p[1] * zoom) + 'px'; d.style.background = color;
+  document.body.appendChild(d); setTimeout(() => d.remove(), 650);
+}
+function setFillMode(on) { fillMode = !!on; hlLock = null; applyFeatures(); }
 function setHlMode(m) {
+  fillMode = false;
   hlMode = m === 'line' ? 'line' : 'free';
   try { localStorage.setItem('noteflow.hlMode', hlMode); } catch (e) { }
   applyFeatures();
 }
-function applyFeatures() {                       // show the highlighter's little bar only for the highlighter
-  $('hlBar').classList.toggle('hidden', tool !== 'highlighter');
-  document.querySelectorAll('#hlBar .tool').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.hkind === hlMode)));
+function applyFeatures() {                       // the little bars of the pen / highlighter, and which mode is on
+  const isHl = tool === 'highlighter', isPen = tool === 'pen';
+  $('hlBar').classList.toggle('hidden', !isHl);
+  document.querySelectorAll('#hlBar [data-hkind]').forEach(b => b.setAttribute('aria-pressed', String(!fillMode && b.dataset.hkind === hlMode)));
+  document.querySelectorAll('#toolset [data-tool=pen], #toolset [data-tool=highlighter]').forEach(b => { if (fillMode) b.setAttribute('aria-pressed', 'false'); });   // the bucket is a tool of its own: only it looks pressed
+  updateFillHint();
+  const mf = $('mainFill'); if (mf) mf.setAttribute('aria-pressed', String(fillMode && (isHl || isPen)));
+  canvas.style.cursor = fillMode && (isHl || isPen) ? 'pointer' : tool === 'eraser' ? 'cell' : tool === 'image' ? 'default' : 'crosshair';
 }
 /* one pen movement while a locked highlighter stroke is being drawn; q = page point */
 function hlLockMove(q) {
@@ -2063,13 +2412,13 @@ function windowCovers() {
 }
 function planBacking() {
   const dprRaw = window.devicePixelRatio || 1;
-  const fullS = zoom * Math.min(dprRaw, 2);
+  const fullS = zoom * Math.min(Math.max(dprRaw, 1.5), 2);   // never below 1.5x: supersampled, so thin lines and Thai text stay smooth even on a 1x screen
   /* one page: as before. A tall stacked document only gets a whole-document bitmap while that stays small enough;
      otherwise it is drawn through the crisp window like any zoomed-in page. */
   if (fullS <= FULL_SCALE_CAP && PAGE_W * fullS * docH() * fullS <= WIN_MAX_PX) {
     return { win: false, S: fullS, x: 0, y: 0, w: Math.max(1, Math.round(PAGE_W * fullS)), h: Math.max(1, Math.round(docH() * fullS)), mx: 0, my: 0 };
   }
-  let S = zoom * Math.min(dprRaw, 3);           // native device resolution
+  let S = zoom * Math.min(Math.max(dprRaw, 2), 4);   // at least 2x, up to 4x the device resolution (the browser scales it down smoothly)
   const cssW = Math.round(PAGE_W * zoom), cssH = Math.round(docH() * zoom);
   const V = visibleCssRect();
   /* The window's SIZE comes from the stage (not from the slice of the page that happens to be visible),
@@ -2097,6 +2446,8 @@ function planBacking() {
 }
 
 function render(zoomOnly, slideOk) {
+  scheduleFillCheck();
+  if (fillMode) updateFillHint();
   const dprNow = window.devicePixelRatio || 1;
   layoutCanvas();
   let plan;
@@ -2167,15 +2518,15 @@ function render(zoomOnly, slideOk) {
       return !(b.maxX + pad < x0 || b.minX - pad > x1 || b.maxY + pad < y0 || b.minY - pad > y1);
     };
   }
-  const hl = strokes.filter(s => s.tool === 'highlighter' && inView(s));
-  const rest = strokes.filter(s => s.tool !== 'highlighter' && inView(s));
+  const hl = strokes.filter(s => isHlItem(s) && inView(s));
+  const rest = strokes.filter(s => !isHlItem(s) && inView(s));
 
   drawPage(hlLayerCtx, n, { ...pg, strokes: hl }, renderScale, cw, ch, null, false, viewPx);
 
   inkLayerCtx.setTransform(1, 0, 0, 1, 0, 0);
   inkLayerCtx.clearRect(0, 0, cw, ch);
   inkLayerCtx.save(); applyView(inkLayerCtx);
-  rest.forEach(s => drawStroke(inkLayerCtx, s));
+  drawInkList(inkLayerCtx, rest);
   inkLayerCtx.restore();
 
   baseCtx.setTransform(1, 0, 0, 1, 0, 0);
@@ -2232,15 +2583,16 @@ function paintStrip(r, n, pg) {
     return !(b.maxX + pad < x0 || b.minX - pad > x1 || b.maxY + pad < y0 || b.minY - pad > y1);
   };
   const strokes = pg ? pg.strokes : [];
-  const hl = strokes.filter(s => s.tool === 'highlighter' && touches(s));
-  const rest = strokes.filter(s => s.tool !== 'highlighter' && touches(s));
+  const hl = strokes.filter(s => isHlItem(s) && touches(s));
+  const rest = strokes.filter(s => !isHlItem(s) && touches(s));
   baseCtx.save();
   baseCtx.beginPath(); baseCtx.rect(rx, ry, rw, rh); baseCtx.clip();
   /* paper + pattern + pictures + highlighter strokes (drawPage clears/fills the whole canvas, but only the clipped strip changes) */
-  drawPage(baseCtx, n, { ...pg, strokes: hl }, renderScale, cw, ch, null, false, viewPx);
+  hlClip = [rx, ry, rw, rh];
+  try { drawPage(baseCtx, n, { ...pg, strokes: hl }, renderScale, cw, ch, null, false, viewPx); } finally { hlClip = null; }
   baseCtx.setTransform(1, 0, 0, 1, 0, 0);
   applyView(baseCtx);
-  rest.forEach(s => drawStroke(baseCtx, s));
+  drawInkList(baseCtx, rest);
   baseCtx.restore();
 }
 
@@ -2256,6 +2608,7 @@ stage.addEventListener('scroll', () => {
 
 function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
   c.setTransform(1, 0, 0, 1, 0, 0);
+  c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
   c.clearRect(0, 0, w, h);
   c.fillStyle = n.paperColor || '#ffffff';
   c.fillRect(0, 0, w, h);
@@ -2266,7 +2619,13 @@ function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
   else drawPageBase(c, n, pg);
   if (pg && pg.images) pg.images.forEach(m => {
     const el = objImage(m);
-    if (el) c.drawImage(el, m.x, m.y, m.w, m.h);
+    if (!el) return;
+    if (m.rot || m.fx || m.fy) {                   // turned / mirrored picture: about its own centre
+      c.save(); c.translate(m.x + m.w / 2, m.y + m.h / 2);
+      if (m.rot) c.rotate(m.rot);
+      c.scale(m.fx ? -1 : 1, m.fy ? -1 : 1);
+      c.drawImage(el, -m.w / 2, -m.h / 2, m.w, m.h); c.restore();
+    } else c.drawImage(el, m.x, m.y, m.w, m.h);
   });
   drawStrokesLayered(c, pg ? pg.strokes : [], extra);
   if (interactive) {
@@ -2314,12 +2673,95 @@ function drawVertBackdrop(c, n, scale, h, view) {
   c.restore();
 }
 
+/* A highlight item is a highlighter stroke or a colour poured with the highlighter. Everything of ONE colour is first
+   drawn solid on a scratch layer and only then laid on the page with the highlighter's transparency, so two marks
+   of the same colour never stack into a darker patch (outline + poured colour, scribbling back and forth...). */
+const isHlItem = s => s.tool === 'highlighter' || (s.tool === 'fill' && s.as === 'highlighter');
+let hlScratchCanvas = null, hlScratchCtx = null, hlClip = null;
+function hlScratch(w, h) {
+  if (!hlScratchCanvas) { hlScratchCanvas = document.createElement('canvas'); hlScratchCtx = hlScratchCanvas.getContext('2d'); }
+  if (hlScratchCanvas.width !== w || hlScratchCanvas.height !== h) { hlScratchCanvas.width = w; hlScratchCanvas.height = h; }
+  return hlScratchCtx;
+}
+function drawHlShape(g, s) { if (s.tool === 'fill') drawFillSolid(g, s); else drawStroke(g, { ...s, tool: 'pen' }); }
+function drawHighlights(c, list) {
+  if (!list.length) return;
+  const anim = [], groups = new Map();
+  for (const s of list) {
+    if (deleteAnim && deleteAnim.strokeSet.has(s)) { anim.push(s); continue; }     // fading-out items keep their own transparency
+    let a = groups.get(s.color); if (!a) groups.set(s.color, a = []);
+    a.push(s);
+  }
+  if (groups.size) {
+    const W = c.canvas.width, H = c.canvas.height, T = c.getTransform(), g = hlScratch(W, H), rg = hlClip;
+    for (const arr of groups.values()) {
+      g.save();
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      if (rg) { g.beginPath(); g.rect(rg[0], rg[1], rg[2], rg[3]); g.clip(); g.clearRect(rg[0], rg[1], rg[2], rg[3]); }
+      else g.clearRect(0, 0, W, H);
+      g.setTransform(T.a, T.b, T.c, T.d, T.e, T.f);
+      for (const s of arr) drawHlShape(g, s);
+      g.restore();
+      c.save();
+      c.setTransform(1, 0, 0, 1, 0, 0);
+      c.globalAlpha = HL_ALPHA;
+      c.globalCompositeOperation = currentPaperDark ? 'screen' : 'multiply';
+      if (rg) c.drawImage(hlScratchCanvas, rg[0], rg[1], rg[2], rg[3], rg[0], rg[1], rg[2], rg[3]); else c.drawImage(hlScratchCanvas, 0, 0);
+      c.restore();
+    }
+  }
+  anim.forEach(s => drawStroke(c, s));
+}
+function drawInkList(c, list) {                      // colour poured with the pen sits behind all the ink
+  for (const s of list) if (s.tool === 'fill') drawStroke(c, s);
+  for (const s of list) if (s.tool !== 'fill') drawStroke(c, s);
+}
 function drawStrokesLayered(c, strokes, extra) {
-  const hl = strokes.filter(s => s.tool === 'highlighter');
-  const rest = strokes.filter(s => s.tool !== 'highlighter');
-  if (extra) { (extra.tool === 'highlighter' ? hl : rest).push(extra); }
-  hl.forEach(s => drawStroke(c, s));
-  rest.forEach(s => drawStroke(c, s));
+  const hl = [], rest = [];
+  for (const s of strokes) (isHlItem(s) ? hl : rest).push(s);
+  if (extra) (isHlItem(extra) ? hl : rest).push(extra);
+  drawHighlights(c, hl);
+  drawInkList(c, rest);
+}
+/* a poured region: its outline polygon, grown a little so it tucks under the lines that enclose it */
+let fillTmpCanvas = null;
+function drawFillSolid(c, s) {
+  const pts = s.points;
+  if (!pts || pts.length < 3) return;
+  if (s.holes && s.holes.length) {                 // erased parts: draw on a spare layer, cut the holes out, then lay it on
+    const W = c.canvas.width, H = c.canvas.height, T = c.getTransform();
+    if (!fillTmpCanvas) fillTmpCanvas = document.createElement('canvas');
+    if (fillTmpCanvas.width !== W || fillTmpCanvas.height !== H) { fillTmpCanvas.width = W; fillTmpCanvas.height = H; }
+    const g = fillTmpCanvas.getContext('2d');
+    const rc = regionClip;                         // while only a patch is repainted, work on that patch only
+    g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1;
+    if (rc) g.clearRect(rc[0], rc[1], rc[2], rc[3]); else g.clearRect(0, 0, W, H);
+    g.restore();
+    g.save();
+    if (rc) { g.beginPath(); g.rect(rc[0], rc[1], rc[2], rc[3]); g.clip(); }
+    g.setTransform(T.a, T.b, T.c, T.d, T.e, T.f);
+    drawFillSolid(g, { ...s, holes: null });
+    g.globalCompositeOperation = 'destination-out'; g.fillStyle = '#000';
+    for (const h of s.holes) {
+      g.beginPath();
+      if (Array.isArray(h)) g.arc(h[0], h[1], h[2], 0, Math.PI * 2);
+      else { g.moveTo(h.p[0][0], h.p[0][1]); for (let i = 1; i < h.p.length; i++) g.lineTo(h.p[i][0], h.p[i][1]); g.closePath(); }
+      g.fill();
+    }
+    g.restore();
+    c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
+    if (rc) c.drawImage(fillTmpCanvas, rc[0], rc[1], rc[2], rc[3], rc[0], rc[1], rc[2], rc[3]); else c.drawImage(fillTmpCanvas, 0, 0);
+    c.restore();
+    return;
+  }
+  c.save();
+  c.fillStyle = s.color; c.strokeStyle = s.color;
+  c.lineJoin = 'miter'; c.miterLimit = 3; c.lineWidth = s.size || 0;
+  c.beginPath(); c.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) c.lineTo(pts[i][0], pts[i][1]);
+  c.closePath(); c.fill();
+  if (c.lineWidth > 0) c.stroke();
+  c.restore();
 }
 
 function drawPattern(c, kind, paperColor) {
@@ -2356,6 +2798,11 @@ function drawStroke(c, s) {
     c.translate(-deleteAnim.center[0], -deleteAnim.center[1]);
   }
 
+  if (s.tool === 'fill') {
+    if (s.as === 'highlighter') { c.globalAlpha = HL_ALPHA * alpha; c.globalCompositeOperation = currentPaperDark ? 'screen' : 'multiply'; }
+    else c.globalAlpha = alpha;
+    drawFillSolid(c, s); c.restore(); return;
+  }
   if (s.tool === 'eraser') {
     c.strokeStyle = 'rgba(215, 120, 100, 0.38)';
     c.lineWidth = s.size;
@@ -2448,6 +2895,17 @@ function drawSelectionBox(c, b) {
   c.lineWidth = 1.5 / zoom;
   c.strokeStyle = '#7a8968';
   c.strokeRect(b.x - 6, b.y - 6, b.w + 12, b.h + 12);
+  c.setLineDash([]);
+  const H = selHandles(b, zoom), hs = 5 / zoom;
+  c.fillStyle = '#fff'; c.strokeStyle = '#5b7757';
+  c.beginPath(); c.moveTo(H.n[0], H.n[1]); c.lineTo(H.rot[0], H.rot[1]); c.stroke();
+  for (const k of ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']) { c.beginPath(); c.rect(H[k][0] - hs, H[k][1] - hs, hs * 2, hs * 2); c.fill(); c.stroke(); }
+  c.beginPath(); c.arc(H.rot[0], H.rot[1], 6.5 / zoom, 0, Math.PI * 2); c.fill(); c.stroke();
+  c.beginPath(); c.arc(H.rot[0], H.rot[1], 3 / zoom, -2.6, 1.2); c.stroke();           // little turning arrow
+  if (dragMoveState && dragMoveState.mode === 'rotate' && dragMoveState.angle !== undefined) {
+    c.fillStyle = '#242423'; c.font = '600 ' + (13 / zoom) + 'px system-ui,sans-serif'; c.textAlign = 'center';
+    c.fillText(Math.round(dragMoveState.angle) + '°', H.rot[0], H.rot[1] - 12 / zoom);
+  }
   c.restore();
 }
 function drawEraserCursor(c, p) {
@@ -2476,7 +2934,7 @@ function positionSelectionBar() {
   if (!selection) { bar.classList.add('hidden'); return; }
   const b = selection.bounds;
   bar.style.left = Math.max(0, b.x * zoom) + 'px';
-  bar.style.top = Math.max(0, (b.y - 6) * zoom) + 'px';
+  bar.style.top = ((b.y + b.h + 6) * zoom + 12) + 'px';        // under the box, so the rotate handle above stays free
   bar.classList.remove('hidden');
 }
 
@@ -2531,7 +2989,7 @@ function drawSnapGuide(c, s) {
   c.restore();
 }
 
-function buildShapeStroke(a, b, kind, shift) {
+function buildShapeStroke(a, b, kind, shift, rt) {
   let x1 = a[0], y1 = a[1], x2 = b[0], y2 = b[1];
   const base = { tool: 'shape', kind, straight: true, color: ink, size };
   if (kind === 'line') {
@@ -2558,6 +3016,14 @@ function buildShapeStroke(a, b, kind, shift) {
   if (kind === 'rect') {
     return { ...base, closed: true, points: [[x1, y1], [x2, y1], [x2, y2], [x1, y2], [x1, y1]] };
   }
+  if (kind === 'rtriangle') {
+    /* right angle at the bottom-left of what you drag (press = top, release = bottom); a recognised shape passes
+       `rt` = which corner of its box keeps the right angle, so the orientation survives stretching */
+    const lo = [Math.min(x1, x2), Math.min(y1, y2)], hi = [Math.max(x1, x2), Math.max(y1, y2)];
+    const cx = rt ? (rt.x === 'l' ? lo[0] : hi[0]) : x1, cy = rt ? (rt.y === 't' ? lo[1] : hi[1]) : y2;
+    const ox = cx === lo[0] ? hi[0] : lo[0], oy = cy === lo[1] ? hi[1] : lo[1];
+    return { ...base, closed: true, points: [[cx, oy], [cx, cy], [ox, cy], [cx, oy]] };
+  }
   if (kind === 'triangle') {
     const midX = (x1 + x2) / 2;
     return { ...base, closed: true, points: [[midX, y1], [x2, y2], [x1, y2], [midX, y1]] };
@@ -2577,7 +3043,7 @@ function commitShape() {
 
 const SHAPE_HOLD_MS = 500;
 let holdTimer = null, shapeRecognized = false;
-let shapeStretchAnchor = null, shapeStretchKind = null, shapeStretchColor = null, shapeStretchSize = null;
+let shapeStretchAnchor = null, shapeStretchKind = null, shapeStretchColor = null, shapeStretchSize = null, shapeStretchRt = null;
 /* "Hold still" no longer means perfectly still: the 0.5 s timer only restarts when the pen
    drifts more than SHAPE_HOLD_SLOP_PX (screen px, so it feels the same at any zoom) away from where
    the hold began. Hand tremor / pen jitter inside that small area keeps counting as a hold. */
@@ -2603,12 +3069,19 @@ function tryRecognizeShape() {
   let anchor = corners[0], bestD = -1;
   for (const c of corners) { const d = ptDist(c, last); if (d > bestD) { bestD = d; anchor = c; } }
   lineLock = null;
-  const shape = buildShapeStroke(result.a, result.b, result.kind, false);
+  const shape = buildShapeStroke(result.a, result.b, result.kind, false, result.rt);
+  shapeStretchRt = result.rt || null;
   shape.color = draft.color; shape.size = draft.size;
   shapeStretchAnchor = anchor; shapeStretchKind = result.kind;
   shapeStretchColor = shape.color; shapeStretchSize = shape.size;
   draft = shape; shapeRecognized = true;
-  render(); toast('แปลงเป็นรูปทรงแล้ว — ลากต่อเพื่อยืด/หด แล้วยกสไตลัสเพื่อยืนยัน');
+  render();
+  try {                                   // the hint is shown only the very first time a stroke turns into a shape
+    if (!localStorage.getItem('noteflow.shapeHint')) {
+      localStorage.setItem('noteflow.shapeHint', '1');
+      toast('แปลงเป็นรูปทรงแล้ว — ลากต่อเพื่อยืด/หด แล้วยกสไตลัสเพื่อยืนยัน');
+    }
+  } catch (e) { }
 }
 function ptDist(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1]); }
 function pathLength(pts) {
@@ -2642,6 +3115,38 @@ function polygonArea(pts) {
   }
   return Math.abs(area) / 2;
 }
+/* Shape recognition: the stroke is resampled evenly along its length and compared with every candidate outline
+   (rectangle, ellipse, isosceles triangle, right triangle in its 4 orientations) fitted to the stroke's box.
+   The candidate with the smallest distance to the stroke wins, and only if it is a good fit AND the stroke
+   really goes through its corners - so a round loop is never turned into a box or the other way round. */
+function resampleEven(pts, n) {
+  const L = pathLength(pts);
+  if (L < 1e-6) return pts.slice();
+  const out = [pts[0]], step = L / (n - 1);
+  let acc = 0, need = step;
+  for (let i = 1; i < pts.length; i++) {
+    let a = pts[i - 1], b = pts[i], seg = ptDist(a, b);
+    while (seg > 1e-9 && acc + seg >= need) {
+      const t = (need - acc) / seg;
+      a = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+      out.push(a); seg = ptDist(a, b); acc = 0; need = step;
+    }
+    acc += seg;
+  }
+  while (out.length < n) out.push(pts[pts.length - 1]);
+  return out;
+}
+function segDist(p, a, b) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx * dx + dy * dy;
+  let t = l2 ? ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / l2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dy));
+}
+function polyOutlineDist(p, v) {
+  let d = Infinity;
+  for (let i = 0; i < v.length; i++) d = Math.min(d, segDist(p, v[i], v[(i + 1) % v.length]));
+  return d;
+}
 function classifyStroke(points) {
   if (points.length < 8) return null;
   const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
@@ -2650,7 +3155,6 @@ function classifyStroke(points) {
   if (diag < 40) return null;
   const first = points[0], last = points[points.length - 1];
   const closed = ptDist(first, last) < diag * 0.28;
-  const len = pathLength(points);
 
   if (!closed) {
     const straight = ptDist(first, last);
@@ -2661,16 +3165,46 @@ function classifyStroke(points) {
     return null;
   }
 
-  const area = polygonArea(points);
-  const circularity = len > 0 ? (4 * Math.PI * area) / (len * len) : 0;
-
-  const eps = Math.max(6, diag * 0.045);
-  let verts = simplifyRDP(points, eps);
-  if (verts.length > 1 && ptDist(verts[0], verts[verts.length - 1]) < diag * 0.15) verts = verts.slice(0, -1);
-  if (verts.length === 3) return { kind: 'triangle', a: [minX, minY], b: [maxX, maxY] };
-  if (verts.length === 4 || verts.length === 5) return { kind: 'rect', a: [minX, minY], b: [maxX, maxY] };
-  if (circularity > 0.6) return { kind: 'ellipse', a: [minX, minY], b: [maxX, maxY] };
-  return null;
+  const S = resampleEven(points.concat([first]), 96);
+  const w = maxX - minX, h = maxY - minY;
+  if (w < 12 || h < 12) return null;                           // flat scribble: not a closed shape
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2, rx = w / 2, ry = h / 2;
+  const cands = [];
+  const poly = (kind, v, rt) => {
+    let sum = 0, mx = 0;
+    for (const q of S) { const d = polyOutlineDist(q, v); sum += d; if (d > mx) mx = d; }
+    // every corner must be visited by the stroke
+    let cover = 0;
+    for (const c of v) { let m = Infinity; for (const q of S) m = Math.min(m, ptDist(q, c)); cover = Math.max(cover, m); }
+    cands.push({ kind, rt, score: sum / S.length + 0.35 * mx, cover });
+  };
+  const TL = [minX, minY], TR = [maxX, minY], BR = [maxX, maxY], BL = [minX, maxY];
+  poly('rect', [TL, TR, BR, BL]);
+  poly('triangle', [[cx, minY], BR, BL]);
+  poly('rtriangle', [TL, BL, BR], { x: 'l', y: 'b' });
+  poly('rtriangle', [TR, BR, BL], { x: 'r', y: 'b' });
+  poly('rtriangle', [TL, TR, BL], { x: 'l', y: 't' });
+  poly('rtriangle', [TL, TR, BR], { x: 'r', y: 't' });
+  {
+    let sum = 0, mx = 0;
+    for (const q of S) {
+      const r = Math.hypot((q[0] - cx) / rx, (q[1] - cy) / ry), d = Math.abs(r - 1) * Math.sqrt(rx * ry);
+      sum += d; if (d > mx) mx = d;
+    }
+    let cover = 0;
+    for (let i = 0; i < 16; i++) {                              // the whole ellipse must be traced, not just part of it
+      const a = i / 16 * Math.PI * 2, c = [cx + Math.cos(a) * rx, cy + Math.sin(a) * ry];
+      let m = Infinity; for (const q of S) m = Math.min(m, ptDist(q, c)); cover = Math.max(cover, m);
+    }
+    cands.push({ kind: 'ellipse', score: sum / S.length + 0.35 * mx, cover });
+  }
+  let best = null;
+  for (const c of cands) {
+    if (c.score > diag * 0.075 || c.cover > diag * 0.16) continue;
+    if (!best || c.score < best.score) best = c;
+  }
+  if (!best) return null;
+  return { kind: best.kind, rt: best.rt, a: [minX, minY], b: [maxX, maxY] };
 }
 
 function pointInPoly(pt, poly) {
@@ -2692,53 +3226,197 @@ function boundsOf(strokesArr) {
   if (!isFinite(minX)) return { x: 0, y: 0, w: 0, h: 0 };
   return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
 }
+/* Anything the loop touches is picked up: a point of the stroke inside the loop, or the stroke crossing the loop's
+   line (so even a loop that merely cuts across a thin line catches it). */
+function segsCross(a, b, c, d) {
+  const o = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
+  const d1 = o(a, b, c), d2 = o(a, b, d), d3 = o(c, d, a), d4 = o(c, d, b);
+  return ((d1 > 0) !== (d2 > 0)) && ((d3 > 0) !== (d4 > 0));
+}
+function strokeTouchesLoop(pts, poly, pb, reach) {
+  const inB = q => q[0] >= pb.minX - reach && q[0] <= pb.maxX + reach && q[1] >= pb.minY - reach && q[1] <= pb.maxY + reach;
+  const n = poly.length;
+  for (let i = 0; i < pts.length; i++) {
+    const q = pts[i];
+    if (inB(q) && pointInPoly(q, poly)) return true;
+    if (i === 0) continue;
+    const a = pts[i - 1];
+    if (!inB(q) && !inB(a) && (Math.max(a[0], q[0]) < pb.minX || Math.min(a[0], q[0]) > pb.maxX || Math.max(a[1], q[1]) < pb.minY || Math.min(a[1], q[1]) > pb.maxY)) continue;
+    const d = Math.hypot(q[0] - a[0], q[1] - a[1]), k = Math.min(60, Math.ceil(d / 5));   // points along a long segment (a straight line has only two)
+    for (let j = 1; j < k; j++) { const t = j / k, m = [a[0] + (q[0] - a[0]) * t, a[1] + (q[1] - a[1]) * t]; if (inB(m) && pointInPoly(m, poly)) return true; }
+    for (let e = 0, f = n - 1; e < n; f = e++) if (segsCross(a, q, poly[f], poly[e])) return true;
+  }
+  return false;
+}
 function selectByLasso(poly) {
-  const idxs = [];
+  const idxs = [], pb = polyBoundsOf(poly);
   page().strokes.forEach((s, i) => {
     if (!s.points || !s.points.length) return;
-    let inside = 0;
-    s.points.forEach(p => { if (pointInPoly(p, poly)) inside++; });
-    if (inside / s.points.length >= 0.5) idxs.push(i);
+    const bb = boundsOfStroke(s), reach = (s.size || 0) / 2 + 3;
+    if (bb.maxX + reach < pb.minX || bb.minX - reach > pb.maxX || bb.maxY + reach < pb.minY || bb.minY - reach > pb.maxY) return;   // nowhere near the loop
+    if (strokeTouchesLoop(s.points, poly, pb, reach)) idxs.push(i);
+    else if (s.tool === 'fill' && s.points.length > 2 && pointInPoly(poly[0], s.points)) idxs.push(i);   // loop drawn on poured colour
   });
   return idxs;
 }
-function setSelection(idxs) {
-  if (!idxs.length) { clearSelection(); return; }
-  selection = { indices: idxs, bounds: boundsOf(idxs.map(i => page().strokes[i])) };
+function setSelection(idxs, ids) {
+  ids = ids || [];
+  if (!idxs.length && !ids.length) { clearSelection(); return; }
+  selection = { indices: idxs, imgIds: ids, bounds: null };
+  selection.bounds = selectionBounds();
   render();
 }
 function clearSelection() { resetSelectionState(); render(); }
 function pointInBoundsPadded(p, b, pad) {
   return p[0] >= b.x - pad && p[0] <= b.x + b.w + pad && p[1] >= b.y - pad && p[1] <= b.y + b.h + pad;
 }
+/* ---------- lasso: pictures too, and stretch / flip / rotate what is selected ---------- */
+function imgCorners(m) {
+  const cx = m.x + m.w / 2, cy = m.y + m.h / 2, r = m.rot || 0, c = Math.cos(r), sn = Math.sin(r), hw = m.w / 2, hh = m.h / 2;
+  return [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [cx + x * c - y * sn, cy + x * sn + y * c]);
+}
+function pointInImage(m, p) {
+  const cx = m.x + m.w / 2, cy = m.y + m.h / 2, r = m.rot || 0, c = Math.cos(r), sn = Math.sin(r);
+  const dx = p[0] - cx, dy = p[1] - cy, lx = dx * c + dy * sn, ly = -dx * sn + dy * c;
+  return Math.abs(lx) <= m.w / 2 && Math.abs(ly) <= m.h / 2;
+}
+function selectedImages() { return ((selection && selection.imgIds) || []).map(imageById).filter(Boolean); }
+function selectionBounds() {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const add = p => { if (p[0] < minX) minX = p[0]; if (p[1] < minY) minY = p[1]; if (p[0] > maxX) maxX = p[0]; if (p[1] > maxY) maxY = p[1]; };
+  selection.indices.forEach(i => { const st = page().strokes[i]; if (st) st.points.forEach(add); });
+  selectedImages().forEach(m => imgCorners(m).forEach(add));
+  if (!isFinite(minX)) return { x: 0, y: 0, w: 0, h: 0 };
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
+/* a picture is picked up when the loop encloses a good part of it (so a loop round the writing on top of a picture
+   does not drag the picture along with it) */
+function selectImagesByLasso(poly) {
+  const pb = polyBoundsOf(poly), out = [];
+  for (const m of (page().images || [])) {
+    const cs = imgCorners(m);
+    if (Math.max(...cs.map(q => q[0])) < pb.minX || Math.min(...cs.map(q => q[0])) > pb.maxX || Math.max(...cs.map(q => q[1])) < pb.minY || Math.min(...cs.map(q => q[1])) > pb.maxY) continue;
+    const cx = m.x + m.w / 2, cy = m.y + m.h / 2, r = m.rot || 0, c = Math.cos(r), sn = Math.sin(r);
+    let inside = 0; const N = 7;
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      const lx = -m.w / 2 + (i + 0.5) / N * m.w, ly = -m.h / 2 + (j + 0.5) / N * m.h;
+      if (pointInPoly([cx + lx * c - ly * sn, cy + lx * sn + ly * c], poly)) inside++;
+    }
+    if (inside / (N * N) >= 0.4) out.push(m.id);
+  }
+  return out;
+}
+/* handles around the selection box: 8 to stretch / scale, one above to rotate */
+function selHandles(b, z) {
+  const P = 6, x0 = b.x - P, y0 = b.y - P, x1 = b.x + b.w + P, y1 = b.y + b.h + P, mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+  return { nw: [x0, y0], n: [mx, y0], ne: [x1, y0], e: [x1, my], se: [x1, y1], s: [mx, y1], sw: [x0, y1], w: [x0, my], rot: [mx, y0 - 34 / z] };
+}
+function snapSelection() {
+  const imgs = selectedImages();
+  return {
+    indices: selection.indices.slice(),
+    origPoints: selection.indices.map(i => page().strokes[i].points.map(pt => [pt[0], pt[1]])),
+    origHoles: selection.indices.map(i => page().strokes[i].holes || null),
+    imgIds: imgs.map(m => m.id),
+    origImgs: imgs.map(m => ({ x: m.x, y: m.y, w: m.w, h: m.h, rot: m.rot || 0, fx: !!m.fx, fy: !!m.fy }))
+  };
+}
+/* apply a geometric change to the snapshot: pt maps a point, holeK scales the radius of eraser holes,
+   imgFn(m, orig, centre') sets a picture's new box from its old one */
+function applyToSelection(st, pt, holeK, imgFn) {
+  st.indices.forEach((idx, k) => {
+    const s = page().strokes[idx]; if (!s) return;
+    s.points = st.origPoints[k].map(pt);
+    const oh = st.origHoles[k];
+    if (oh) s.holes = oh.map(h => { if (Array.isArray(h)) { const q = pt([h[0], h[1]]); return [q[0], q[1], h[2] * holeK]; } return { p: h.p.map(pt) }; });
+    delete s._bounds;
+  });
+  st.imgIds.forEach((id, k) => {
+    const m = imageById(id), o = st.origImgs[k]; if (!m) return;
+    imgFn(m, o, pt([o.x + o.w / 2, o.y + o.h / 2]));
+  });
+  selection.bounds = selectionBounds();
+}
+const rotPt = (c, a) => { const cs = Math.cos(a), sn = Math.sin(a); return q => [c[0] + (q[0] - c[0]) * cs - (q[1] - c[1]) * sn, c[1] + (q[0] - c[0]) * sn + (q[1] - c[1]) * cs]; };
 function startLasso(p) {
+  if (selection) {
+    const H = selHandles(selection.bounds, zoom), R = 18 / zoom;
+    let best = null, bd = Infinity;                       // nearest handle wins (zoomed out, the grab areas overlap)
+    for (const key of Object.keys(H)) { const d = Math.hypot(p[0] - H[key][0], p[1] - H[key][1]); if (d <= R && d < bd) { bd = d; best = key; } }
+    if (best) {
+      pushUndo();
+      dragMoveState = { mode: best === 'rot' ? 'rotate' : 'scale', handle: best, startPagePoint: p, b0: { ...selection.bounds }, H0: H, ...snapSelection() };
+      return;
+    }
+  }
   if (selection && pointInBoundsPadded(p, selection.bounds, 10)) {
     pushUndo();
-    dragMoveState = {
-      startPagePoint: p,
-      indices: selection.indices.slice(),
-      origPoints: selection.indices.map(i => page().strokes[i].points.map(pt => [pt[0], pt[1]]))
-    };
+    dragMoveState = { mode: 'move', startPagePoint: p, ...snapSelection() };
     return;
   }
   resetSelectionState();
   lassoPoints = [p];
 }
 function moveDragTo(p) {
-  const dx = p[0] - dragMoveState.startPagePoint[0], dy = p[1] - dragMoveState.startPagePoint[1];
-  dragMoveState.indices.forEach((idx, k) => {
-    page().strokes[idx].points = dragMoveState.origPoints[k].map(pt => [pt[0] + dx, pt[1] + dy]);
-    delete page().strokes[idx]._bounds;
-  });
-  selection.bounds = boundsOf(dragMoveState.indices.map(i => page().strokes[i]));
+  const st = dragMoveState;
+  if (st.mode === 'rotate') {
+    const b = st.b0, c = [b.x + b.w / 2, b.y + b.h / 2];
+    let a = Math.atan2(p[1] - c[1], p[0] - c[0]) - Math.atan2(st.startPagePoint[1] - c[1], st.startPagePoint[0] - c[0]);
+    let deg = a * 180 / Math.PI; deg = ((deg + 540) % 360) - 180;
+    const near = Math.round(deg / 15) * 15;
+    if (Math.abs(deg - near) < 3) { deg = near; a = deg * Math.PI / 180; }          // click into place every 15°
+    st.angle = deg;
+    applyToSelection(st, rotPt(c, a), 1, (m, o, c2) => { m.rot = o.rot + a; m.x = c2[0] - o.w / 2; m.y = c2[1] - o.h / 2; });
+  } else if (st.mode === 'scale') {
+    const h = st.handle, H = st.H0, opp = { nw: 'se', n: 's', ne: 'sw', e: 'w', se: 'nw', s: 'n', sw: 'ne', w: 'e' }[h];
+    const A = H[opp], Hp = H[h];
+    let sx = 1, sy = 1;
+    if (h.length === 2) {                                      // corner: scale, keeping the proportions
+      const vx = Hp[0] - A[0], vy = Hp[1] - A[1], k = ((p[0] - A[0]) * vx + (p[1] - A[1]) * vy) / (vx * vx + vy * vy || 1);
+      sx = sy = Math.max(0.05, Math.min(20, k));
+    } else {                                                   // edge: stretch along one axis only
+      if (h === 'e' || h === 'w') sx = Math.max(0.05, Math.min(20, (p[0] - A[0]) / ((Hp[0] - A[0]) || 1)));
+      else sy = Math.max(0.05, Math.min(20, (p[1] - A[1]) / ((Hp[1] - A[1]) || 1)));
+    }
+    applyToSelection(st, q => [A[0] + (q[0] - A[0]) * sx, A[1] + (q[1] - A[1]) * sy], (sx + sy) / 2, (m, o, c2) => {
+      const turned = Math.abs(Math.sin(o.rot)) > 1e-6;
+      const kx = turned ? (sx + sy) / 2 : sx, ky = turned ? (sx + sy) / 2 : sy;
+      m.w = Math.max(8, o.w * kx); m.h = Math.max(8, o.h * ky); m.x = c2[0] - m.w / 2; m.y = c2[1] - m.h / 2;
+    });
+  } else {
+    const dx = p[0] - st.startPagePoint[0], dy = p[1] - st.startPagePoint[1];
+    applyToSelection(st, q => [q[0] + dx, q[1] + dy], 1, (m, o) => { m.x = o.x + dx; m.y = o.y + dy; });
+  }
   scheduleFrame(true);
 }
+/* menu actions: flip / rotate everything selected about the middle of the selection */
+function flipSelection(axis) {
+  if (!selection) return;
+  pushUndo();
+  const st = snapSelection(), b = selection.bounds, cx = b.x + b.w / 2, cy = b.y + b.h / 2;
+  const pt = axis === 'h' ? q => [2 * cx - q[0], q[1]] : q => [q[0], 2 * cy - q[1]];
+  applyToSelection(st, pt, 1, (m, o, c2) => {
+    m.x = c2[0] - o.w / 2; m.y = c2[1] - o.h / 2; m.rot = -o.rot;      // a mirror reverses the turn
+    if (axis === 'h') m.fx = !o.fx; else m.fy = !o.fy;
+  });
+  touch(); render();
+}
+function rotateSelection(deg) {
+  if (!selection || !isFinite(deg)) return;
+  pushUndo();
+  const st = snapSelection(), b = selection.bounds, a = deg * Math.PI / 180;
+  applyToSelection(st, rotPt([b.x + b.w / 2, b.y + b.h / 2], a), 1, (m, o, c2) => { m.rot = o.rot + a; m.x = c2[0] - o.w / 2; m.y = c2[1] - o.h / 2; });
+  touch(); render();
+}
+function rotateFromInput() { const v = parseFloat($('rotDeg').value); if (isFinite(v) && v !== 0) rotateSelection(v); }
 function copySelection() {
   if (!selection) return;
-  clipboard = selection.indices.map(i => JSON.parse(JSON.stringify(page().strokes[i])));
+  clipboard = selection.indices.map(i => JSON.parse(JSON.stringify(page().strokes[i])))
+    .concat(selectedImages().map(m => ({ _image: true, ...JSON.parse(JSON.stringify(m)) })));
   updatePasteAvailability();
-  toast('คัดลอกแล้ว (' + clipboard.length + ' เส้น)');
+  toast('คัดลอกแล้ว (' + clipboard.length + ' รายการ)');
 }
+const newImageId = () => 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 function cutSelection() {
   if (!selection) return;
   copySelection(); deleteSelection();
@@ -2747,6 +3425,9 @@ function cutSelection() {
 function deleteSelection() {
   if (!selection || deleteAnim) return;
   pushUndo();
+  const imgGone = new Set(selection.imgIds || []);
+  if (imgGone.size) page().images = (page().images || []).filter(m => !imgGone.has(m.id));
+  if (!selection.indices.length) { resetSelectionState(); touch(); render(); return; }
   const removeIdx = new Set(selection.indices);
   const strokeSet = new Set(selection.indices.map(i => page().strokes[i]));
   const b = selection.bounds;
@@ -2773,11 +3454,14 @@ function duplicateSelection() {
   const copies = selection.indices.map(i => {
     const c = JSON.parse(JSON.stringify(page().strokes[i]));
     c.points = c.points.map(p => [p[0] + 24, p[1] + 24]);
+    if (c.holes) c.holes = shiftHoles(c.holes, 24, 24);
     return c;
   });
+  const imgCopies = selectedImages().map(m => ({ ...JSON.parse(JSON.stringify(m)), id: newImageId(), x: m.x + 24, y: m.y + 24 }));
   const start = page().strokes.length;
   page().strokes.push(...copies);
-  setSelection(copies.map((_, k) => start + k));
+  if (imgCopies.length) (page().images = page().images || []).push(...imgCopies);
+  setSelection(copies.map((_, k) => start + k), imgCopies.map(m => m.id));
   touch(); toast('ทำซ้ำแล้ว');
 }
 
@@ -2835,14 +3519,17 @@ function redo() {
 function pasteClipboard() {
   if (!clipboard || !clipboard.length) return toast('ไม่มีสิ่งที่คัดลอกไว้');
   pushUndo();
-  const copies = clipboard.map(s => {
+  const copies = clipboard.filter(s => !s._image).map(s => {
     const c = JSON.parse(JSON.stringify(s));
     c.points = c.points.map(p => [p[0] + 24, p[1] + 24]);
+    if (c.holes) c.holes = shiftHoles(c.holes, 24, 24);
     return c;
   });
+  const imgCopies = clipboard.filter(s => s._image).map(m => { const c = JSON.parse(JSON.stringify(m)); delete c._image; c.id = newImageId(); c.x += 24; c.y += 24; return c; });
   const start = page().strokes.length;
   page().strokes.push(...copies);
-  setSelection(copies.map((_, k) => start + k));
+  if (imgCopies.length) (page().images = page().images || []).push(...imgCopies);
+  setSelection(copies.map((_, k) => start + k), imgCopies.map(m => m.id));
   touch(); render(); toast('วางแล้ว');
 }
 
@@ -2883,6 +3570,7 @@ function segCircleHits(A, B, C, rSq) {
    whose point count happens to stay the same is still recognised as changed, and the two ends
    of a closed shape are joined back into one piece. */
 function sliceStrokeByCircle(s, C, r) {
+  if (s.tool === 'fill') return s;            // poured colour is one piece: see eraseStrokeAt
   const pts = s.points;
   if (!pts || !pts.length) return [];
   const bb = boundsOfStroke(s);
@@ -2954,19 +3642,49 @@ function eraseAt(p) {
     /* cut at radius + half the pen width so the visible ink ends exactly at the eraser's edge */
     const res = sliceStrokeByCircle(s, p, radius + (s.size || 0) / 2);
     if (res === s) { if (out) out.push(s); continue; }
+    const R = radius + (s.size || 0) + 6; addDirty(p[0] - R, p[1] - R, p[0] + R, p[1] + R);
     if (!out) out = strokes.slice(0, i);
     for (const piece of res) out.push(piece);
   }
+  /* poured colour: the eraser cuts a round hole where it passes (the colour is one shape, not a line to trim) */
+  const list = out || strokes;
+  let list2 = null;
+  for (let i = 0; i < list.length; i++) {
+    const s = list[i];
+    if (s.tool === 'fill') {
+      const f = punchFill(s, [p[0], p[1], radius]);
+      if (f !== s) { if (!list2) list2 = list.slice(); list2[i] = f; const R = radius + (s.grow || 0) + 6; addDirty(p[0] - R, p[1] - R, p[0] + R, p[1] + R); }
+    }
+  }
+  if (list2) out = list2;
   if (!out) return false;
   if (!eraseUndoPushed) { pushUndo(); eraseUndoPushed = true; }   // snapshot of the strokes as they were
   page().strokes = out;
   return true;
 }
+/* returns the same fill when the eraser circle does not touch it, otherwise a copy with one more hole */
+function punchFill(f, circ) {
+  const [cx, cy, r] = circ, pts = f.points, reach = (f.grow || 0) + r;
+  let mnx = Infinity, mny = Infinity, mxx = -Infinity, mxy = -Infinity;
+  for (const q of pts) { if (q[0] < mnx) mnx = q[0]; if (q[0] > mxx) mxx = q[0]; if (q[1] < mny) mny = q[1]; if (q[1] > mxy) mxy = q[1]; }
+  if (cx < mnx - reach || cx > mxx + reach || cy < mny - reach || cy > mxy + reach) return f;
+  let hit = pointInPoly([cx, cy], pts);
+  if (!hit) for (let i = 0; i < pts.length - 1 && !hit; i++) if (segDist([cx, cy], pts[i], pts[i + 1]) <= reach) hit = true;
+  if (!hit) return f;
+  const hs = f.holes || [];
+  for (let i = Math.max(0, hs.length - 6); i < hs.length; i++) {        // a hole already covers (almost) this one: nothing new
+    const h = hs[i];
+    if (Array.isArray(h) && h[2] >= r && Math.hypot(h[0] - cx, h[1] - cy) <= Math.max(0.5, h[2] - r) + r * 0.12) return f;
+  }
+  if (hs.length > 1500) return f;
+  return { ...f, holes: hs.concat([[cx, cy, r]]) };
+}
 /* Erase along the path from→to so a fast swipe can't jump over a line or shape. */
 function eraseAlong(from, to) {
-  const step = Math.max(2, eraserRadius() * 0.5);
+  const hasFill = page().strokes.some(s => s.tool === 'fill');          // finer steps over poured colour: smooth edge, no scallops
+  const step = Math.max(hasFill ? 1 : 2, eraserRadius() * (hasFill ? 0.18 : 0.5));
   const d = Math.hypot(to[0] - from[0], to[1] - from[1]);
-  const cnt = Math.min(80, Math.max(1, Math.ceil(d / step)));
+  const cnt = Math.min(hasFill ? 240 : 80, Math.max(1, Math.ceil(d / step)));
   let changed = false;
   for (let i = 1; i <= cnt; i++) {
     const t = i / cnt;
@@ -2979,7 +3697,7 @@ function eraseAlong(from, to) {
    Reuses the same circle-collision test as the precise eraser (sliceStrokeByCircle),
    but instead of keeping the untouched leftover pieces, the whole stroke that was
    touched is dropped. */
-function eraseStrokeAt(p) {
+function eraseStrokeAt(p, allowFill) {
   const radius = eraserRadius();
   const strokes = page().strokes;
   let changed = false;
@@ -2988,6 +3706,14 @@ function eraseStrokeAt(p) {
     const res = sliceStrokeByCircle(s, p, radius + (s.size || 0) / 2);
     if (res === s) { out.push(s); continue; }
     changed = true;   // the circle touched this stroke somewhere -> drop it entirely
+    addDirtyStroke(s);
+  }
+  /* tapping empty poured colour (no line under the eraser) removes that colour; wiping over writing never does */
+  if (!changed && allowFill) {
+    for (let i = out.length - 1; i >= 0; i--) {
+      const s = out[i];
+      if (s.tool === 'fill' && pointInPoly(p, s.points)) { addDirtyStroke(s); out.splice(i, 1); changed = true; break; }
+    }
   }
   if (!changed) return false;
   if (!eraseUndoPushed) { pushUndo(); eraseUndoPushed = true; }
@@ -3035,6 +3761,7 @@ function segCrossPoly(A, B, poly) {
    the polygon equivalent of sliceStrokeByCircle above, same return contract
    (same object `s` when untouched, otherwise the surviving pieces). */
 function sliceStrokeByPolygon(s, poly, polyB) {
+  if (s.tool === 'fill') return s;
   const pts = s.points;
   if (!pts || !pts.length) return [];
   const bb = boundsOfStroke(s);
@@ -3102,6 +3829,17 @@ function eraseByLoop(poly) {
     if (!out) out = strokes.slice(0, i);
     for (const piece of res) out.push(piece);
   }
+  const list = out || strokes;
+  let list2 = null;
+  for (let i = 0; i < list.length; i++) {            // poured colour inside the loop is cut out as well
+    const s = list[i];
+    if (s.tool !== 'fill') continue;
+    const b = getStrokeBounds(s), g = s.grow || 0;
+    if (b.maxX + g < polyB.minX || b.minX - g > polyB.maxX || b.maxY + g < polyB.minY || b.minY - g > polyB.maxY) continue;
+    if (!list2) list2 = list.slice();
+    list2[i] = { ...s, holes: (s.holes || []).concat([{ p: poly.map(q => [q[0], q[1]]) }]) };
+  }
+  if (list2) out = list2;
   if (!out) return false;
   pushUndo();
   page().strokes = out;
@@ -3121,13 +3859,34 @@ function eraseByLoop(poly) {
    small dead-zone so the tiny jitter of a resting 2-finger tap doesn't
    start zooming. */
 const touchPointers = new Map();     // pointerId -> {x,y,sx,sy}
-const TAP_MAX_MS = 500, TAP_SLOP = 22, PINCH_DEADZONE_PX = 24;
+const TAP_MAX_MS = 650, TAP_SLOP = 28, PINCH_DEADZONE_PX = 24;
 let tGesture = null;                 // {t0, tMulti, tLast, maxPoints, moved}
 let pinch = null;                    // {dist0, z0, active}
 let isFingerPanning = false;
 let fingerPanStart = { x: 0, y: 0, scrollLeft: 0, scrollTop: 0 };
-let lastPenTime = 0;                 // palm rejection: touches are ignored while/just after the stylus is in use
-const PALM_GRACE_MS = 500;
+/* ---------- palm rejection: resting the writing hand on the screen ----------
+   A hand that rests on the glass while the stylus writes must never scroll, zoom, undo or redo. Layers:
+   1. stylus first: fingers landing while the stylus writes / just after it / while it hovers close are "the hand" and ignored
+   2. hand first:   the moment the stylus touches down, any finger already on the glass becomes "the hand" too and its gesture is dropped
+   3. one hand:     while any hand contact is still down, every further contact is ignored as well (palm + knuckles land together)
+   4. big contact:  a contact that is palm-sized (not fingertip-sized) is never a finger
+   5. taps:         a 2-/3-finger tap (undo/redo) only counts when the stylus has been quiet for a while before AND during it,
+                    and a touch the system cancelled (its own palm rejection) near the stylus is never a tap
+   6. drift:        a single finger has to travel a little before the page starts to scroll, so a hand shifting by a few pixels does nothing */
+let lastPenTime = 0;                 // when the stylus was last seen (touching or hovering)
+let penNear = false;                 // the stylus is hovering within reach of the screen
+const PALM_GRACE_MS = 800;           // fingers landing this soon after the stylus was last seen are the writing hand
+const PALM_HOVER_MS = 1500;          // ... and this long while the stylus is still hovering close by
+const TAP_PEN_IDLE_MS = 1200;        // an undo/redo tap needs the stylus quiet for this long before the fingers landed - but only while the stylus is NEAR the fingers (below)
+const PEN_CONTACT_QUIET_MS = 1200;   // ... and the stylus must not have TOUCHED the page for this long, wherever it is
+const PALM_REACH_PX = 320;           // a hovering stylus only counts as "the hand" for fingers closer than this to it (the other hand taps freely)
+let lastPenContact = 0;              // when the stylus last touched the glass (down, drawing, up)
+let penPos = { x: -9999, y: -9999 }; // where the stylus was last seen
+const TAP_CANCEL_IDLE_MS = 3000;     // ... and for this long when the system cancelled the touches
+const PALM_CONTACT_PX = 64;          // a contact this big (CSS px, width or height) is a palm
+const PAN_DEADZONE_PX = 10;          // a finger must travel this far before the page starts to scroll
+const palmIds = new Set();           // touches classed as "the hand": ignored until everything has lifted
+let panEngaged = false;
 
 function getCanvasPoint(e, rect) {
   rect = rect || canvas.getBoundingClientRect();
@@ -3182,8 +3941,8 @@ function flushPinch() {
     pinch.z0 = zoom; pinch.dist0 = touchDist();
   }, 300);
 }
-function startPan(x, y) {
-  isFingerPanning = true;
+function startPan(x, y, engaged) {
+  isFingerPanning = true; panEngaged = !!engaged;       // engaged = carry on from a pinch: no dead-zone
   fingerPanStart = { x, y, scrollLeft: stage.scrollLeft, scrollTop: stage.scrollTop };
   canvas.classList.add('touch-panning');
 }
@@ -3201,10 +3960,25 @@ function resetTouchGesture() {
   canvas.classList.remove('touch-active');
 }
 
+const nearPen = (x, y) => Math.hypot(x - penPos.x, y - penPos.y) < PALM_REACH_PX;
+function penGuard(now, x, y) {          // is the stylus (or the hand holding it) active right now?
+  if (strokeInProgress || imgDrag) return true;
+  if (now - lastPenContact < PEN_CONTACT_QUIET_MS) return true;      // the stylus has only just touched the page: everything is its hand
+  const idle = now - lastPenTime;
+  if (!(idle < PALM_GRACE_MS || (penNear && idle < PALM_HOVER_MS))) return false;
+  return x === undefined ? true : nearPen(x, y);                     // hovering: only fingers close to the stylus are its hand
+}
+const isPalmContact = e => Math.max(e.width || 0, e.height || 0) >= PALM_CONTACT_PX;
+/* the stylus just touched down: whatever is already resting on the glass is the writing hand */
+function penTookOver() {
+  for (const id of touchPointers.keys()) palmIds.add(id);
+  if (touchPointers.size || tGesture) resetTouchGesture();
+}
+
 function onTouchDown(e) {
-  /* Palm rejection: a hand resting on the glass while the stylus writes
-     must never pan, zoom, undo or redo. */
-  if (strokeInProgress || imgDrag || Date.now() - lastPenTime < PALM_GRACE_MS) {
+  if (penGuard(Date.now(), e.clientX, e.clientY) || isPalmContact(e) || palmIds.size) {
+    palmIds.add(e.pointerId);
+    for (const id of touchPointers.keys()) palmIds.add(id);
     if (touchPointers.size) resetTouchGesture();
     return;
   }
@@ -3215,7 +3989,7 @@ function onTouchDown(e) {
   if (!tGesture) tGesture = { t0: now, tMulti: 0, tLast: now, maxPoints: 0, moved: false };
   tGesture.maxPoints = Math.max(tGesture.maxPoints, touchPointers.size);
   tGesture.tLast = now;                                   // when the most recent finger landed
-  if (touchPointers.size >= 2 && !tGesture.tMulti) tGesture.tMulti = now;   // when it became a multi-finger gesture
+  if (touchPointers.size >= 2 && !tGesture.tMulti) { tGesture.tMulti = now; const [a, b2] = [...touchPointers.values()]; tGesture.mid = [(a.x + b2.x) / 2, (a.y + b2.y) / 2]; }   // when it became a multi-finger gesture, and where
   const n = touchPointers.size;
   if (n === 1) {
     startPan(e.clientX, e.clientY);
@@ -3248,17 +4022,41 @@ function onTouchMove(e) {
     }
     queuePinch(pinch.z0 * (dist / pinch.dist0), mx, my);
   } else if (n === 1 && isFingerPanning) {
+    if (!panEngaged) {
+      if (Math.hypot(e.clientX - fingerPanStart.x, e.clientY - fingerPanStart.y) < PAN_DEADZONE_PX) return;
+      panEngaged = true;                                   // from here on, scroll from where the finger is now (no jump)
+      fingerPanStart = { x: e.clientX, y: e.clientY, scrollLeft: stage.scrollLeft, scrollTop: stage.scrollTop };
+    }
     queuePan(fingerPanStart.scrollLeft - (e.clientX - fingerPanStart.x),
              fingerPanStart.scrollTop - (e.clientY - fingerPanStart.y));
   }
 }
 
+/* Is this finished-looking gesture an undo / redo tap?  Same strict tests as ever, but the stylus only vetoes a tap
+   when it is (or just was) touching the page, or hovering close to the fingers - so tapping with the other hand while
+   the stylus floats elsewhere works every time. */
+function tapKind(g, cancelled, now) {
+  if (!g || g.moved || !g.tMulti || g.fired) return null;
+  if (!(now - g.tLast < TAP_MAX_MS && now - g.tMulti < TAP_MAX_MS * 2)) return null;
+  if (lastPenContact >= g.t0 - PEN_CONTACT_QUIET_MS) return null;      // the stylus touched the page just before / during the fingers
+  const mid = g.mid || [0, 0];
+  const near = nearPen(mid[0], mid[1]);
+  if (near && (g.t0 - lastPenTime < TAP_PEN_IDLE_MS || lastPenTime >= g.t0)) return null;   // the stylus hovers close by: that is the writing hand
+  if (cancelled && near && now - lastPenTime < TAP_CANCEL_IDLE_MS) return null;           // the system cancelled them near the stylus: its own palm rejection
+  return g.maxPoints === 2 ? 'undo' : g.maxPoints === 3 ? 'redo' : null;
+}
 function onTouchUp(e, cancelled) {
+  palmIds.delete(e.pointerId);
   if (!touchPointers.has(e.pointerId)) return;
   touchPointers.delete(e.pointerId);
   const n = touchPointers.size;
   /* pointercancel is deliberately NOT treated as an abort: iPadOS fires it when its own
      3-finger gesture takes over, and the tap tests below are enough to tell a tap from a swipe. */
+  /* The tap fires the moment the FIRST finger leaves (not when the last one does): no waiting for a lingering finger */
+  if (tGesture && !tGesture.fired && tGesture.maxPoints >= 2 && n === tGesture.maxPoints - 1) {
+    const kind = tapKind(tGesture, cancelled, Date.now());
+    if (kind) { tGesture.fired = true; if (kind === 'undo') undo(); else redo(); }
+  }
   if (n < 2 && pinch) {
     clearTimeout(pinchSettleTimer); flushPinch();
     pinch = null;
@@ -3268,19 +4066,12 @@ function onTouchUp(e, cancelled) {
     /* one finger left after a real pinch/pan: carry on scrolling from
        where it is now instead of jumping */
     const [rest] = [...touchPointers.values()];
-    startPan(rest.x, rest.y);
+    startPan(rest.x, rest.y, true);
   }
   if (n === 0) {
-    const g = tGesture; tGesture = null;
+    tGesture = null;
     endTouchNav();
     canvas.classList.remove('touch-active');
-    /* Decide tap gestures only now, when everything has lifted */
-    const now = Date.now();
-    /* a tap = no finger travelled, the last finger down and everything up again quickly */
-    if (g && !g.moved && g.tMulti && now - g.tLast < TAP_MAX_MS && now - g.tMulti < TAP_MAX_MS * 2) {
-      if (g.maxPoints === 2) undo();
-      else if (g.maxPoints === 3) redo();
-    }
   }
 }
 
@@ -3306,15 +4097,40 @@ function endStylusEraser() {
   scheduleFrame(false);
 }
 
+/* the stylus is tracked on the whole document (hovering included), not only on the page */
+['pointerdown', 'pointermove', 'pointerover', 'pointerenter'].forEach(t => document.addEventListener(t, e => {
+  if (e.pointerType === 'pen') {
+    const now = Date.now();
+    lastPenTime = now; penNear = true; penPos = { x: e.clientX, y: e.clientY };
+    if (e.type === 'pointerdown' || (e.buttons & 1) || (e.buttons === 0 && e.pressure > 0)) lastPenContact = now;   // touching the glass
+  }
+}, true));
+['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, e => {
+  if (e.pointerType === 'pen') { lastPenTime = lastPenContact = Date.now(); penPos = { x: e.clientX, y: e.clientY }; }
+}, true));
+document.addEventListener('pointerout', e => {                      // leaving for nowhere = the stylus left the screen
+  if (e.pointerType === 'pen' && !e.relatedTarget) { penNear = false; lastPenTime = Date.now(); }
+}, true);
+/* no long-press menus / text selection from a resting hand */
+document.addEventListener('contextmenu', e => {
+  if (!stage.contains(e.target)) return;
+  if (e.pointerType === 'touch' || e.pointerType === 'pen' || penNear || Date.now() - lastPenTime < PALM_GRACE_MS) e.preventDefault();
+}, true);
+/* browsers can report touchend without a pointerup (and the reverse): when nothing is on the glass any more, forget "the hand" */
+const touchesGone = e => { if (e.touches.length === 0) palmIds.clear(); };
+document.addEventListener('touchend', touchesGone, { passive: true, capture: true });
+document.addEventListener('touchcancel', touchesGone, { passive: true, capture: true });
+
 canvas.addEventListener('pointerdown', e => {
   if (e.pointerType === 'touch') return;      // fingers are handled on the stage (below)
-  if (e.pointerType === 'pen') lastPenTime = Date.now();
+  if (e.pointerType === 'pen') { lastPenTime = lastPenContact = Date.now(); penTookOver(); }
   if (isEraserEnd(e)) beginStylusEraser();
 
 /* Stylus / Pen or Mouse: Drawing & Editing Operations */
   canvas.setPointerCapture(e.pointerId);
   const p = getCanvasPoint(e);
   if (tool === 'image') { imageBodyDown(e, p); return; }
+  if (fillMode && (tool === 'pen' || tool === 'highlighter')) { fillAt(p); return; }
   strokeInProgress = true;
 
   if (tool === 'pen' || tool === 'highlighter') {
@@ -3337,8 +4153,8 @@ canvas.addEventListener('pointerdown', e => {
       eraserCursor = p;
       eraseUndoPushed = false;
       draft = { tool: 'eraser', color: 'rgba(215, 120, 100, 0.38)', size: Math.max(size * 4.4, 28), points: [p] };
-      const hit = eraserMode === 'stroke' ? eraseStrokeAt(p) : eraseAt(p);
-      if (hit) { touch(); scheduleFrame(true); } else scheduleFrame(false);
+      const hit = eraserMode === 'stroke' ? eraseStrokeAt(p, true) : eraseAt(p);
+      if (hit) { touch(); scheduleFrame('erase'); } else scheduleFrame(false);
     }
   } else if (tool === 'lasso') {
     startLasso(p);
@@ -3374,7 +4190,7 @@ canvas.addEventListener('pointermove', e => {
         draft.points.push(q); prev = q;
       }
       if (draft.points.length > ERASER_TRAIL_MAX) draft.points.splice(0, draft.points.length - ERASER_TRAIL_MAX);
-      if (changed) { touch(); scheduleFrame(true); return; }
+      if (changed) { touch(); scheduleFrame('erase'); return; }
     }
     scheduleFrame(false);
     return;
@@ -3389,7 +4205,7 @@ canvas.addEventListener('pointermove', e => {
 
   if (tool === 'pen' || tool === 'highlighter') {
     if (shapeRecognized && shapeStretchAnchor) {
-      draft = buildShapeStroke(shapeStretchAnchor, p, shapeStretchKind, e.shiftKey);
+      draft = buildShapeStroke(shapeStretchAnchor, p, shapeStretchKind, e.shiftKey, shapeStretchRt);
       draft.color = shapeStretchColor; draft.size = shapeStretchSize;
     } else if (draft) {
       const rect = canvas.getBoundingClientRect();
@@ -3450,7 +4266,7 @@ function handlePointerUpInner(e) {
   } else if (tool === 'shape' && draft) {
     commitShape();
   } else if (tool === 'lasso' && lassoPoints) {
-    if (lassoPoints.length > 2) setSelection(selectByLasso(lassoPoints));
+    if (lassoPoints.length > 2) setSelection(selectByLasso(lassoPoints), selectImagesByLasso(lassoPoints));
     lassoPoints = null;
     render();
   }
@@ -3614,8 +4430,8 @@ async function exportPDF() {
   for (let i = 0; i < n.pages.length; i++) {
     if (i > 0) doc.addPage();
     const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = PAGE_W; tempCanvas.height = PAGE_H;
-    drawPage(tempCanvas.getContext('2d'), n, n.pages[i], 1, PAGE_W, PAGE_H);
+    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+    drawPage(tempCanvas.getContext('2d'), n, n.pages[i], 2, PAGE_W * 2, PAGE_H * 2);
     const imgData = tempCanvas.toDataURL('image/jpeg', 0.92);
     doc.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
   }
@@ -3639,8 +4455,8 @@ async function exportPDFRange() {
   pagesToExport.forEach((pg, i) => {
     if (i > 0) doc.addPage();
     const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = PAGE_W; tempCanvas.height = PAGE_H;
-    drawPage(tempCanvas.getContext('2d'), n, pg, 1, PAGE_W, PAGE_H);
+    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+    drawPage(tempCanvas.getContext('2d'), n, pg, 2, PAGE_W * 2, PAGE_H * 2);
     const imgData = tempCanvas.toDataURL('image/jpeg', 0.92);
     doc.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
   });
@@ -3653,8 +4469,8 @@ async function exportPNG() {
   const pg = note().pages[pageIndex];      // the real page (in vertical mode: the one in the middle of the screen)
   await preloadPages([pg]);
   const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = PAGE_W; tempCanvas.height = PAGE_H;
-  drawPage(tempCanvas.getContext('2d'), note(), pg, 1, PAGE_W, PAGE_H);
+  tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+  drawPage(tempCanvas.getContext('2d'), note(), pg, 2, PAGE_W * 2, PAGE_H * 2);
   const a = document.createElement('a');
   a.download = note().title + '-หน้า-' + (pageIndex + 1) + '.png';
   a.href = tempCanvas.toDataURL('image/png');
@@ -3694,11 +4510,11 @@ async function handleImport(e) {
     const pages = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const p = await pdf.getPage(i);
-      const vp = p.getViewport({ scale: 1.5 });
+      const vp = p.getViewport({ scale: 3 });
       const c = document.createElement('canvas');
       c.width = vp.width; c.height = vp.height;
       await p.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
-      pages.push({ strokes: [], bg: c.toDataURL('image/jpeg', 0.85) });
+      pages.push({ strokes: [], bg: c.toDataURL('image/jpeg', 0.9) });
     }
     const n = blankNote(file.name.replace(/\.pdf$/i, ''), targetFolder(), 'blank', '#ffffff', pages);
     db.notes.push(n); save(); renderBoard(); openEditor(n.id);
@@ -3718,25 +4534,33 @@ let imgDrag = null;         // {mode, pointerId, sx, sy, r0, pushed}
 const IMG_MIN = 60;         // smallest side, in page units
 const imageById = id => (page().images || []).find(i => i.id === id);
 
-function readImageFile(file, maxDim) {
+function imageFromSrc(src) {
   return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file), el = new Image();
-    const ext = (file.name.match(/\.([a-z0-9]+)$/i) || [, ''])[1].toLowerCase();
-    el.onload = () => {
-      const k = Math.min(1, maxDim / Math.max(el.naturalWidth, el.naturalHeight));
-      const w = Math.max(1, Math.round(el.naturalWidth * k)), h = Math.max(1, Math.round(el.naturalHeight * k));
-      const c = document.createElement('canvas'); c.width = w; c.height = h;
-      const cx = c.getContext('2d');
-      // some pickers (cloud photos, certain Android/desktop combos) hand us a file with no .type at all — fall back to the extension
-      const jpeg = file.type === 'image/jpeg' || (!file.type && (ext === 'jpg' || ext === 'jpeg'));
-      if (jpeg) { cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); }
-      cx.drawImage(el, 0, 0, w, h);
-      URL.revokeObjectURL(url);
-      resolve({ src: c.toDataURL(jpeg ? 'image/jpeg' : 'image/png', 0.88), w, h });
-    };
-    el.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
-    el.src = url;
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error('image'));
+    el.src = src;
   });
+}
+async function readImageFile(file, maxDim) {
+  let url = null, el;
+  try {
+    try { url = URL.createObjectURL(file); el = await imageFromSrc(url); }
+    catch (err) {                       // some pickers hand over files a blob URL can't open: read the bytes instead
+      const data = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = () => rej(fr.error); fr.readAsDataURL(file); });
+      el = await imageFromSrc(data);
+    }
+    const ext = (file.name.match(/\.([a-z0-9]+)$/i) || [, ''])[1].toLowerCase();
+    const k = Math.min(1, maxDim / Math.max(el.naturalWidth, el.naturalHeight));
+    const w = Math.max(1, Math.round(el.naturalWidth * k)), h = Math.max(1, Math.round(el.naturalHeight * k));
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const cx = c.getContext('2d');
+    // some pickers (cloud photos, certain Android/desktop combos) hand us a file with no .type at all — fall back to the extension
+    const jpeg = file.type === 'image/jpeg' || (!file.type && (ext === 'jpg' || ext === 'jpeg'));
+    if (jpeg) { cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); }
+    cx.drawImage(el, 0, 0, w, h);
+    return { src: c.toDataURL(jpeg ? 'image/jpeg' : 'image/png', 0.88), w, h };
+  } finally { if (url) URL.revokeObjectURL(url); }
 }
 
 /* What kind of file this is, by MIME type first and file extension as a fallback —
@@ -3756,7 +4580,7 @@ async function pdfFirstPageToImage(file) {
   const buf = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   const p = await pdf.getPage(1);
-  const vp = p.getViewport({ scale: 2 });
+  const vp = p.getViewport({ scale: 3 });
   const c = document.createElement('canvas');
   c.width = vp.width; c.height = vp.height;
   await p.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
@@ -3782,11 +4606,10 @@ function placeInsertedImage(img) {
   setTool('image'); selectImage(m.id); render();
 }
 async function handleInsert(e) {
-  const file = e.target.files[0];
-  e.target.value = '';                      // so the same picture can be picked again
-  if (!file) return;
+  const input = e.target, file = input.files[0];
+  if (!file) { input.value = ''; return; }
   const kind = guessInsertKind(file);
-  if (!kind) { toast('ไฟล์นี้ไม่รองรับ — แทรกได้เฉพาะรูปภาพ (PNG, JPG, GIF, WEBP ฯลฯ) หรือ PDF'); return; }
+  if (!kind) { input.value = ''; toast('ไฟล์นี้ไม่รองรับ — แทรกได้เฉพาะรูปภาพ (PNG, JPG, GIF, WEBP ฯลฯ) หรือ PDF'); return; }
   const ext = (file.name.match(/\.([a-z0-9]+)$/i) || [, ''])[1].toLowerCase();
   try {
     if (kind === 'pdf') {
@@ -3794,21 +4617,28 @@ async function handleInsert(e) {
       placeInsertedImage(res);
       toast(res.pageCount > 1 ? 'แทรกหน้าที่ 1 จาก PDF แล้ว (มีทั้งหมด ' + res.pageCount + ' หน้า)' : 'แทรกหน้า PDF แล้ว');
     } else {
-      const img = await readImageFile(file, 1800);
+      const img = await readImageFile(file, 3200);
       placeInsertedImage(img);
       toast('แทรกรูปภาพแล้ว');
     }
   } catch (err) {
-    if (kind === 'image' && (ext === 'heic' || ext === 'heif')) {
+    if (kind === 'pdf' && typeof pdfjsLib === 'undefined') {
+      toast('ตัวอ่าน PDF ยังไม่โหลด — ต่ออินเทอร์เน็ตแล้วเปิดแอปใหม่อีกครั้ง (แทรกรูปภาพทั่วไปไม่ต้องใช้อินเทอร์เน็ต)');
+    } else if (kind === 'image' && (ext === 'heic' || ext === 'heif')) {
       toast('ไฟล์ HEIC/HEIF ยังเปิดในเบราว์เซอร์นี้ไม่ได้ ลองแปลงเป็น JPG หรือ PNG ก่อนแทรก');
     } else if (kind === 'pdf') {
       toast('เปิดไฟล์ PDF นี้ไม่ได้ — ไฟล์อาจเสียหายหรือมีการป้องกันด้วยรหัสผ่าน');
     } else {
       toast('เปิดรูปภาพนี้ไม่ได้ — ไฟล์อาจเสียหายหรือเป็นชนิดไฟล์ที่ไม่รองรับ');
     }
-  }
+  } finally { input.value = ''; }          // so the same picture can be picked again
 }
 
+/* The picture tool: with no picture on the page there is nothing to move or resize, so the only useful thing is to pick one. */
+function imageToolClick() {
+  setTool('image');
+  if (!(page().images || []).length) $('insertInput').click();
+}
 function selectImage(id) { imgSel = id; positionImageBox(); }
 function clearImageSelection() { imgSel = null; imgDrag = null; $('imgBox').classList.add('hidden'); }
 function positionImageBox() {
@@ -3817,6 +4647,8 @@ function positionImageBox() {
   if (!m || tool !== 'image') { box.classList.add('hidden'); if (!m) imgSel = null; return; }
   box.style.left = m.x * zoom + 'px'; box.style.top = m.y * zoom + 'px';
   box.style.width = m.w * zoom + 'px'; box.style.height = m.h * zoom + 'px';
+  box.style.transformOrigin = '50% 50%'; box.style.transform = m.rot ? 'rotate(' + m.rot + 'rad)' : '';
+  box.classList.toggle('rotated', !!m.rot);                           // a turned picture can only be moved here (resize it with the lasso tool)
   box.classList.toggle('bar-below', m.y * zoom < 56);
   box.classList.remove('hidden');
 }
@@ -3884,7 +4716,7 @@ function imageBodyDown(e, p) {
   let hit = null;
   for (let i = list.length - 1; i >= 0; i--) {
     const m = list[i];
-    if (p[0] >= m.x && p[0] <= m.x + m.w && p[1] >= m.y && p[1] <= m.y + m.h) { hit = m; break; }
+    if (pointInImage(m, p)) { hit = m; break; }
   }
   selectImage(hit ? hit.id : null);
   if (hit) beginImageDrag(e, 'move');
