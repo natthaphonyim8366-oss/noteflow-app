@@ -6,9 +6,22 @@
 <title>NoteFlow — สมุดโน้ตลายมือ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
+<script>
+/* PDF libraries are big; they are fetched only when a PDF is opened or exported, so they never delay (or stall) the start of the app */
+const LIB_URLS = { pdfjs: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', jspdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js' };
+const _libP = {};
+function loadLib(k) {
+  if (k === 'pdfjs' && window.pdfjsLib) return Promise.resolve();
+  if (k === 'jspdf' && window.jspdf) return Promise.resolve();
+  return _libP[k] || (_libP[k] = new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = LIB_URLS[k]; sc.onload = () => res();
+    sc.onerror = () => { delete _libP[k]; rej(new Error('lib ' + k)); };
+    document.head.appendChild(sc);
+  }));
+}
+</script>
 <style>
 :root{
   --paper:#f5f5f3; --panel:#ffffff; --ink:#242423; --muted:#8c8b86;
@@ -955,15 +968,26 @@ function setSaveState(text, busy) {          // the little "saved" mark stays hi
   const box = $('saveDot').parentNode;
   if (box) box.classList.toggle('err', text === 'บันทึกไม่สำเร็จ');
 }
+/* Saving serialises (and, with a code, encrypts) the WHOLE notebook — heavy once there are pictures. Doing that in the middle
+   of writing freezes the pen for a moment, so it waits for a quiet gap: pen up, no finger down, and ~1.2 s with no new edit.
+   A hard cap (SAVE_MAX_WAIT) still saves during long non-stop writing, and leaving the tab saves at once. */
+const SAVE_QUIET = 1200, SAVE_MAX_WAIT = 20000;
+let saveFirstDirty = 0;
+function handBusy() { return strokeInProgress || (typeof touchPointers !== 'undefined' && touchPointers.size > 0) || (Date.now() - lastPenContact < 700); }
 function save() {
   setSaveState('กำลังบันทึก…', true);
+  if (!saveFirstDirty) saveFirstDirty = Date.now();
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(attemptWrite, 350);
+  saveTimer = setTimeout(attemptWrite, SAVE_QUIET);
 }
 function attemptWrite() {
-  if (strokeInProgress) { saveTimer = setTimeout(attemptWrite, 200); return; }
-  writeVault();
+  if (handBusy() && Date.now() - saveFirstDirty < SAVE_MAX_WAIT) { saveTimer = setTimeout(attemptWrite, 500); return; }
+  const go = () => { saveFirstDirty = 0; writeVault(); };
+  if (typeof requestIdleCallback === 'function') requestIdleCallback(go, { timeout: 1500 }); else go();
 }
+function flushSave() { if (saveFirstDirty) { clearTimeout(saveTimer); saveFirstDirty = 0; writeVault(); } }
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); });
+window.addEventListener('pagehide', flushSave);
 let writeChain = Promise.resolve();
 function writeVault() {       // writes run one after another, so an older write can never land after a newer one
   const p = writeChain.then(writeVaultNow, writeVaultNow);
@@ -1095,8 +1119,9 @@ async function fetchJson(url, opts) {
     return await r.json();
   } finally { clearTimeout(timer); }
 }
+let apiBackoffUntil = 0;
 async function accessFetchStatus() {
-  const repo = accessRepo();
+  const repo = Date.now() < apiBackoffUntil ? '' : accessRepo();
   if (repo) {                                                  // 1) GitHub API: shows a change within seconds
     try {
       const path = ACCESS.statusUrl.replace(/^\.?\//, '');
@@ -1106,7 +1131,7 @@ async function accessFetchStatus() {
         const st = JSON.parse(new TextDecoder().decode(_unb64(j.content.replace(/\s/g, ''))));
         if (st && typeof st === 'object') { accessViaApi = true; return st; }
       }
-    } catch (e) { /* rate-limited / private repo / offline: fall through to the hosted file */ }
+    } catch (e) { apiBackoffUntil = Date.now() + 5 * 60 * 1000; /* rate-limited / private repo / offline: use the hosted file for a while */ }
   }
   accessViaApi = false;
   const sep = ACCESS.statusUrl.includes('?') ? '&' : '?';       // 2) the hosted file itself
@@ -1200,6 +1225,7 @@ function accessStart() {
   accessRun(false);
   setInterval(() => {
     if (document.hidden) return;
+    if (handBusy()) return;                                                       // never during a stroke: check right after the pen lifts
     if (!accessViaApi && Date.now() - accessLastAt < ACCESS.slowMs) return;     // hosted-file route: no point asking every few seconds
     accessRun(true);
   }, ACCESS.recheckMs);
@@ -1566,7 +1592,7 @@ function refreshPager() {
 const pageOfY = (y, cnt) => Math.max(0, Math.min(cnt - 1, Math.floor(y / PAGE_H)));
 
 function shiftHoles(h, dx, dy) {
-  return h.map(q => Array.isArray(q) ? [q[0] + dx, q[1] + dy, q[2]] : { p: q.p.map(t => [t[0] + dx, t[1] + dy]) });
+  return h.map(q => Array.isArray(q) ? [q[0] + dx, q[1] + dy, q[2]] : q.w ? { w: q.w.map(t => [t[0] + dx, t[1] + dy]), r: q.r, g: q.g } : { p: q.p.map(t => [t[0] + dx, t[1] + dy]) });
 }
 function offsetStroke(s, oy) {
   const o = { ...s, points: s.points.map(p => [p[0], p[1] + oy]) };
@@ -2744,9 +2770,12 @@ function drawFillSolid(c, s) {
     g.globalCompositeOperation = 'destination-out'; g.fillStyle = '#000';
     for (const h of s.holes) {
       g.beginPath();
-      if (Array.isArray(h)) g.arc(h[0], h[1], h[2], 0, Math.PI * 2);
-      else { g.moveTo(h.p[0][0], h.p[0][1]); for (let i = 1; i < h.p.length; i++) g.lineTo(h.p[i][0], h.p[i][1]); g.closePath(); }
-      g.fill();
+      if (Array.isArray(h)) { g.arc(h[0], h[1], h[2], 0, Math.PI * 2); g.fill(); }
+      else if (h.w) {                                // one swept band: everything the eraser covered in one gesture
+        if (h.w.length === 1) { g.arc(h.w[0][0], h.w[0][1], h.r, 0, Math.PI * 2); g.fill(); }
+        else { g.lineWidth = h.r * 2; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#000'; g.moveTo(h.w[0][0], h.w[0][1]); for (let i = 1; i < h.w.length; i++) g.lineTo(h.w[i][0], h.w[i][1]); g.stroke(); }
+      }
+      else { g.moveTo(h.p[0][0], h.p[0][1]); for (let i = 1; i < h.p.length; i++) g.lineTo(h.p[i][0], h.p[i][1]); g.closePath(); g.fill(); }
     }
     g.restore();
     c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
@@ -3328,7 +3357,7 @@ function applyToSelection(st, pt, holeK, imgFn) {
     const s = page().strokes[idx]; if (!s) return;
     s.points = st.origPoints[k].map(pt);
     const oh = st.origHoles[k];
-    if (oh) s.holes = oh.map(h => { if (Array.isArray(h)) { const q = pt([h[0], h[1]]); return [q[0], q[1], h[2] * holeK]; } return { p: h.p.map(pt) }; });
+    if (oh) s.holes = oh.map(h => { if (Array.isArray(h)) { const q = pt([h[0], h[1]]); return [q[0], q[1], h[2] * holeK]; } if (h.w) return { w: h.w.map(pt), r: h.r * holeK, g: h.g }; return { p: h.p.map(pt) }; });
     delete s._bounds;
   });
   st.imgIds.forEach((id, k) => {
@@ -3629,6 +3658,7 @@ function sliceStrokeByCircle(s, C, r) {
 }
 
 const eraserRadius = () => Math.max(size * 2.2, 14);
+let eraseGesture = 0;            // numbers each erase gesture; a fill keeps ONE swept band per gesture
 let eraseUndoPushed = false;      // one undo step per erase gesture (not one per mouse-move)
 const ERASER_TRAIL_MAX = 40;      // the pink trail only needs its most recent tail
 
@@ -3671,13 +3701,17 @@ function punchFill(f, circ) {
   let hit = pointInPoly([cx, cy], pts);
   if (!hit) for (let i = 0; i < pts.length - 1 && !hit; i++) if (segDist([cx, cy], pts[i], pts[i + 1]) <= reach) hit = true;
   if (!hit) return f;
-  const hs = f.holes || [];
-  for (let i = Math.max(0, hs.length - 6); i < hs.length; i++) {        // a hole already covers (almost) this one: nothing new
+  const hs = f.holes || [], last = hs[hs.length - 1];
+  if (last && last.w && last.g === eraseGesture && Math.abs(last.r - r) < 0.01) {      // same gesture: lengthen its band (copy-on-write: undo shares the old one)
+    const lp = last.w[last.w.length - 1];
+    if (Math.hypot(lp[0] - cx, lp[1] - cy) < Math.max(0.6, r * 0.2)) return f;          // hardly moved
+    if (last.w.length < 4000) return { ...f, holes: hs.slice(0, -1).concat([{ w: last.w.concat([[cx, cy]]), r, g: eraseGesture }]) };
+  }
+  for (let i = Math.max(0, hs.length - 6); i < hs.length; i++) {       // an older circle already covers (almost) this one: nothing new
     const h = hs[i];
     if (Array.isArray(h) && h[2] >= r && Math.hypot(h[0] - cx, h[1] - cy) <= Math.max(0.5, h[2] - r) + r * 0.12) return f;
   }
-  if (hs.length > 1500) return f;
-  return { ...f, holes: hs.concat([[cx, cy, r]]) };
+  return { ...f, holes: hs.concat([{ w: [[cx, cy]], r, g: eraseGesture }]) };
 }
 /* Erase along the path from→to so a fast swipe can't jump over a line or shape. */
 function eraseAlong(from, to) {
@@ -3727,7 +3761,7 @@ function eraseStrokeAlong(from, to) {
   let changed = false;
   for (let i = 1; i <= cnt; i++) {
     const t = i / cnt;
-    if (eraseStrokeAt([from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t])) changed = true;
+    if (eraseStrokeAt([from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t], true)) changed = true;
   }
   return changed;
 }
@@ -4151,7 +4185,7 @@ canvas.addEventListener('pointerdown', e => {
       scheduleFrame(false);
     } else {
       eraserCursor = p;
-      eraseUndoPushed = false;
+      eraseUndoPushed = false; eraseGesture++;
       draft = { tool: 'eraser', color: 'rgba(215, 120, 100, 0.38)', size: Math.max(size * 4.4, 28), points: [p] };
       const hit = eraserMode === 'stroke' ? eraseStrokeAt(p, true) : eraseAt(p);
       if (hit) { touch(); scheduleFrame('erase'); } else scheduleFrame(false);
@@ -4423,6 +4457,7 @@ function closeExport() { $('exportSheet').classList.add('hidden'); }
 async function exportPDF() {
   syncVert();
   toast('กำลังเตรียมไฟล์ PDF…');
+  await loadLib('jspdf');
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const n = note();
@@ -4448,6 +4483,7 @@ async function exportPDFRange() {
   from = Math.max(1, Math.min(from, total));
   to = Math.max(from, Math.min(to, total));
   toast('กำลังเตรียมไฟล์ PDF…');
+  await loadLib('jspdf');
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const pagesToExport = n.pages.slice(from - 1, to);
@@ -4506,6 +4542,7 @@ async function handleImport(e) {
   } else if (file.type === 'application/pdf') {
     toast('กำลังแปลงไฟล์ PDF…');
     const arrayBuffer = await file.arrayBuffer();
+    await loadLib('pdfjs');
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     const pages = [];
     for (let i = 1; i <= pdf.numPages; i++) {
@@ -4578,6 +4615,7 @@ function guessInsertKind(file) {
 }
 async function pdfFirstPageToImage(file) {
   const buf = await file.arrayBuffer();
+  await loadLib('pdfjs');
   const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
   const p = await pdf.getPage(1);
   const vp = p.getViewport({ scale: 3 });
@@ -4622,7 +4660,7 @@ async function handleInsert(e) {
       toast('แทรกรูปภาพแล้ว');
     }
   } catch (err) {
-    if (kind === 'pdf' && typeof pdfjsLib === 'undefined') {
+    if (kind === 'pdf' && typeof window.pdfjsLib === 'undefined') {
       toast('ตัวอ่าน PDF ยังไม่โหลด — ต่ออินเทอร์เน็ตแล้วเปิดแอปใหม่อีกครั้ง (แทรกรูปภาพทั่วไปไม่ต้องใช้อินเทอร์เน็ต)');
     } else if (kind === 'image' && (ext === 'heic' || ext === 'heif')) {
       toast('ไฟล์ HEIC/HEIF ยังเปิดในเบราว์เซอร์นี้ไม่ได้ ลองแปลงเป็น JPG หรือ PNG ก่อนแทรก');
