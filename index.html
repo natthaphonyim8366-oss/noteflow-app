@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>NoteFlow — สมุดโน้ตลายมือ</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#5b7757">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NoteFlow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -215,9 +222,15 @@ input.doc-title:hover{border-color:var(--line)}
 .txt-ctl{display:none;gap:2px;align-items:center}
 .img-box.is-text .txt-ctl{display:flex}
 .img-box.is-text .img-ratio{display:none}
-.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{display:none}
+@media (pointer:coarse){.img-box .hd{width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:6px}.img-box .hd::after{inset:-14px}}
+.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:28px;height:10px;margin:-5px 0 0 -14px;border-radius:5px}
+@media (pointer:coarse){.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:40px;height:14px;margin:-7px 0 0 -20px}}
+.img-box.is-text .hd[data-h=e],.img-box.is-text .hd[data-h=w]{height:26px;width:10px;margin:-13px 0 0 -5px}
 #txtEdit{position:absolute;z-index:6;margin:0;border:0;outline:0;background:transparent;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;caret-color:var(--accent);touch-action:manipulation;transform-origin:50% 50%}
 #txtEdit.hidden{display:none}
+#txtEdit.hand-live{color:transparent!important;caret-color:transparent}
+#txtEdit.hand-live::selection{background:transparent}
+#txtEdit.hand-live::placeholder{color:transparent}
 #txtEdit::placeholder{color:#9aa39a}
 .img-box{position:absolute;pointer-events:none;border:1.5px solid var(--accent);z-index:5}
 .img-bar{position:absolute;left:0;top:-8px;transform:translateY(-100%);display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--shadow);pointer-events:auto;white-space:nowrap}
@@ -290,6 +303,7 @@ input.doc-title:hover{border-color:var(--line)}
   .actions{margin-left:0;padding-left:0;border-left:0}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.update-pill{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:80;background:var(--accent);color:#fff;border:0;border-radius:999px;padding:9px 18px;font-size:13px;font-weight:600;box-shadow:var(--shadow);cursor:pointer}
 </style>
 </head>
 <body>
@@ -381,6 +395,7 @@ input.doc-title:hover{border-color:var(--line)}
     </label>
     <button class="ib" id="cloudBtn" title="ซิงก์" aria-label="ซิงก์" onclick="openCloudSheet()"><svg class="i"><use href="#i-cloud"/></svg></button>
     <button class="ib" title="ความปลอดภัย" aria-label="ความปลอดภัย" onclick="openSecurity()"><svg class="i"><use href="#i-lock"/></svg></button>
+    <button class="btn hidden" id="installBtn" onclick="installApp()" title="ติดตั้งเป็นแอป ใช้ได้แม้ไม่มีอินเทอร์เน็ต">ติดตั้งแอป</button>
     <button class="btn primary" onclick="openNew()"><svg class="i"><use href="#i-plus"/></svg>สมุดโน้ตใหม่</button>
   </header>
   <div class="board">
@@ -888,6 +903,22 @@ function renderRegion() {
   return true;
 }
 
+/* A pen line is drawn as quadratic curves through the midpoints of its points. To draw a long line in pieces (the finished part is kept
+   on a spare layer, only the newest tail is redrawn each frame) the pieces must join exactly where the single full line would pass:
+   quad i runs from mid(p[i-1],p[i]) (p0 for i = 1) to mid(p[i],p[i+1]). A piece = quads a..b-1, optionally ending with the straight run
+   to the last point. Cutting pieces any other way left tiny steps at the seams, visible on fast flicks. */
+function drawPenSpan(c, s, pts, a, b, tail) {
+  const n = pts.length;
+  if (n < 2) return;
+  a = Math.max(1, a); b = Math.min(b, n - 1);
+  const sx = a === 1 ? pts[0][0] : (pts[a - 1][0] + pts[a][0]) / 2, sy = a === 1 ? pts[0][1] : (pts[a - 1][1] + pts[a][1]) / 2;
+  c.save();
+  c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = s.color; c.lineWidth = s.size; c.globalAlpha = 1;
+  c.beginPath(); c.moveTo(sx, sy);
+  for (let i = a; i < b; i++) c.quadraticCurveTo(pts[i][0], pts[i][1], (pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2);
+  if (tail) c.lineTo(pts[n - 1][0], pts[n - 1][1]);
+  c.stroke(); c.restore();
+}
 const LIVE_TAIL = 48;
 function bakeDraftTail() {
   const keepFrom = draft.points.length - LIVE_TAIL;
@@ -904,14 +935,13 @@ function bakeDraftTail() {
 const PEN_LIVE_TAIL = 48;
 function bakePenDraftTail() {
   const keepFrom = draft.points.length - PEN_LIVE_TAIL;
-  const from = Math.max(0, (draft.baked || 0) - 1);
-  const segPts = draft.points.slice(from, keepFrom + 1);
-  if (segPts.length > 1) {
+  const from = Math.max(1, draft.baked || 0);
+  if (keepFrom > from) {
     penBakeCtx.save(); applyView(penBakeCtx);
-    drawStroke(penBakeCtx, { ...draft, points: segPts });
+    drawPenSpan(penBakeCtx, draft, draft.points, from, keepFrom, false);
     penBakeCtx.restore();
+    draft.baked = keepFrom;
   }
-  draft.baked = keepFrom;
 }
 
 function paintFrame() {
@@ -948,10 +978,12 @@ function paintFrame() {
     if (draft && draft.tool === 'pen' && !shapeRecognized) {
       if (draft.points.length - (draft.baked || 0) > PEN_LIVE_TAIL * 2) bakePenDraftTail();
       if (draft.baked) frameCtx.drawImage(penBakeCanvas, 0, 0);
-      const tailPts = draft.points.slice(Math.max(0, (draft.baked || 0) - 1));
-      if (tailPts.length) {
+      let livePts = draft.points;
+      if (draft.pred && draft.pred.length && livePts.length) livePts = livePts.concat(draft.pred);       // the browser's guess of where the pen is heading: the ink keeps up with the pen
+      if (livePts.length) {
         frameCtx.save(); applyView(frameCtx);
-        drawStroke(frameCtx, { ...draft, points: tailPts });
+        if (livePts.length < 2) drawStroke(frameCtx, { ...draft, points: livePts });
+        else drawPenSpan(frameCtx, draft, livePts, Math.max(1, draft.baked || 0), livePts.length - 1, true);
         frameCtx.restore();
       }
     } else if (draft) {
@@ -1086,6 +1118,62 @@ function writeVault() {       // writes run one after another, so an older write
   writeChain = p.catch(() => { });
   return p;
 }
+/* ---------- install as an app (PWA) ----------
+   On Chrome / Chromebook / Android / Edge the browser offers "install": NoteFlow then gets its own window and icon, opens without the
+   address bar, and keeps working with no internet (the service worker keeps a copy of the page). Needs the hosted copy (https) with
+   manifest.webmanifest, sw.js and the icons next to index.html. */
+let installEvt = null;
+const isInstalled = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if (!isInstalled()) $('installBtn') && $('installBtn').classList.remove('hidden'); });
+window.addEventListener('appinstalled', () => { installEvt = null; $('installBtn') && $('installBtn').classList.add('hidden'); toast('ติดตั้งแล้ว เปิดจากไอคอน NoteFlow ได้เลย'); });
+async function installApp() {
+  if (!installEvt) { toast('เปิดเมนู ⋮ ของ Chrome แล้วเลือก "ติดตั้ง NoteFlow" หรือ "เพิ่มลงในหน้าจอหลัก"'); return; }
+  installEvt.prompt();
+  try { await installEvt.userChoice; } catch (e) { }
+  installEvt = null; $('installBtn').classList.add('hidden');
+}
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', () => setTimeout(() => { navigator.serviceWorker.register('sw.js').catch(() => { }); }, 1500));
+}
+
+/* ---------- new version check (hosted copies only) ----------
+   The page is cached by the browser and by GitHub Pages, so a fixed copy can take a long time to reach people. Shortly after opening
+   (and every few minutes) the app asks the server for the newest copy; when its BUILD differs, a small "update" pill appears. It never
+   reloads by itself in the middle of writing. */
+const BUILD = '2026-11-03-b';       // bump with every release: devices compare it with the copy on the server and offer the update
+let updateEtag = null, updateShown = false;
+async function checkForUpdate(first) {
+  if (!/^https?:$/.test(location.protocol) || updateShown) return;
+  try {
+    const url = location.pathname + '?_=' + Math.floor(Date.now() / 30000);
+    if (first || !updateEtag) {
+      const r = await fetch(url, { cache: 'no-store' }); if (!r.ok) return;
+      updateEtag = r.headers.get('etag') || r.headers.get('last-modified') || '';
+      const m = /const BUILD = '([0-9A-Za-z._-]+)'/.exec(await r.text());      // (the class excludes the quote, so this line can never match itself)
+      if (m && m[1] !== BUILD) showUpdate(m[1]);
+    } else {
+      const r = await fetch(url, { method: 'HEAD', cache: 'no-store' }); if (!r.ok) return;
+      const tag = r.headers.get('etag') || r.headers.get('last-modified') || '';
+      if (tag && updateEtag && tag !== updateEtag) { updateEtag = null; checkForUpdate(true); }
+    }
+  } catch (e) { }
+}
+function showUpdate(build) {
+  if (updateShown) return; updateShown = true;
+  const b = document.createElement('button'); b.className = 'update-pill'; b.type = 'button';
+  b.textContent = 'มีเวอร์ชันใหม่ — แตะเพื่ออัปเดต';
+  b.onclick = async () => {
+    if (handBusy()) return;
+    b.textContent = 'กำลังบันทึกแล้วอัปเดต…'; b.disabled = true;
+    try { flushSave(); await Promise.race([writeChain, new Promise(r => setTimeout(r, 4000))]); } catch (e) { }
+    location.replace(location.pathname + '?v=' + encodeURIComponent(build));
+  };
+  document.body.appendChild(b);
+}
+setTimeout(() => checkForUpdate(true), 8000 + Math.floor(Math.random() * 20000));
+setInterval(() => { if (!document.hidden) checkForUpdate(false); }, 5 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(false); });
+
 let writeBlocked = false;      // true = we could not read the saved notes (or another tab owns them): never write, or the saved notes would be overwritten
 async function writeVaultNow() {
   if (writeBlocked) { setSaveState('บันทึกไม่สำเร็จ', true); return; }
@@ -1210,7 +1298,7 @@ async function accessClaim() {                      // -> 'ok' | 'taken' | 'need
     if (r && r.ok) { accessClaimAt = Date.now(); try { localStorage.setItem(ACCESS_CLAIMED, accessClaimKey); } catch (e) { } return 'ok'; }
     try { localStorage.removeItem(ACCESS_CLAIMED); } catch (e) { }
     return 'taken';
-  } catch (e) { return owned ? 'ok' : 'offline'; }       // service unreachable: a device that already owns the code keeps working
+  } catch (e) { if (owned) return 'ok'; return /^http /.test(String(e && e.message)) ? 'svcerr' : 'offline'; }       // service unreachable: a device that already owns the code keeps working; an HTTP error means the service itself is not set up right
 }
 let sessionCode = null;         // the code typed in THIS session — memory only
 let keyIsAccessCode = false;    // true while the notes' key was made from sessionCode
@@ -1282,6 +1370,7 @@ async function accessEvaluate() {
       if (c === 'taken') { accessUser = null; sessionCode = null; return { ok: false, reason: 'claimed' }; }
       if (c === 'needcode') { accessUser = null; return { ok: false, reason: 'needcode' }; }
       if (c === 'offline') { accessUser = null; return { ok: false, reason: 'claimdown' }; }
+      if (c === 'svcerr') { accessUser = null; return { ok: false, reason: 'svcerr' }; }
     }
   }
   return { ok: true };
@@ -1294,6 +1383,7 @@ function accessShow(res) {
     needcode: ['กรอกรหัสเข้าใช้งาน', 'ขอรหัสได้จากผู้ดูแล รหัสนี้ใช้ล็อกโน้ตของคุณด้วย', true, 'ยืนยัน'],
     claimed: ['รหัสนี้ถูกใช้บนเครื่องอื่นแล้ว', 'รหัสหนึ่งใช้ได้เพียงเครื่องเดียว ถ้าได้รับรหัสนี้มาจากผู้ดูแลโดยตรงแล้วใช้ไม่ได้ ให้ขอรหัสใหม่จากผู้ดูแล', true, 'ลองรหัสอื่น'],
     badcode: ['รหัสใช้ไม่ได้', 'รหัสนี้ไม่ถูกต้อง หรือผู้ดูแลเปลี่ยนรหัสของคุณแล้ว กรอกรหัสล่าสุดที่ได้รับ โน้ตเดิมของคุณจะยังเปิดได้ตามปกติ', true, 'ยืนยัน'],
+    svcerr: ['ระบบตรวจรหัสยังไม่พร้อม', 'ตัวจดรหัสของผู้ดูแลตอบกลับผิดพลาด (อาจยังตั้งค่า KV ไม่ครบ) แจ้งผู้ดูแล แล้วลองอีกครั้ง', false, 'ลองอีกครั้ง'],
     nostatus: ['ไม่พบไฟล์ status.json', 'ผู้ดูแลยังไม่ได้อัปโหลด status.json ไว้ข้างไฟล์ index.html ในรีโพ GitHub (ชื่อต้องเป็น status.json ตัวพิมพ์เล็กทั้งหมด)', false, 'ลองอีกครั้ง'],
     claimdown: ['เชื่อมต่อบริการตรวจรหัสไม่ได้', 'ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง ถ้ายังไม่ได้ให้แจ้งผู้ดูแล (ที่อยู่ของบริการตรวจรหัสอาจไม่ถูกต้อง)', false, 'ลองอีกครั้ง'],
     offline: ['ต้องเชื่อมต่ออินเทอร์เน็ต', 'เปิดใช้ครั้งแรกต้องเชื่อมต่อเพื่อยืนยันสิทธิ์ก่อน', false, 'ลองอีกครั้ง'],
@@ -1329,6 +1419,7 @@ async function accessRun(silent) {
   accessOk = false;
   if (wasOk && noteId && !$('editor').classList.contains('hidden')) writeVault().catch(() => { });   // never lose what was being written
   accessShow(res);
+  if (['useroff', 'badcode', 'claimed'].includes(res.reason)) forgetDevice(true);   // this person was switched off / their code withdrawn: the code is needed again
 }
 async function accessButton() {
   if (accessBusy) return;
@@ -1375,6 +1466,53 @@ function accessStart() {
    - locked with the code             -> just unlock
    - locked with an OLD code          -> unlock with the old code (found in status.json "prev"), re-lock with the new one
    - locked with a private password   -> ask for that old password once, then re-lock with the code                      */
+/* ---------- remember this device ----------
+   After the person has entered their code once (or opened their personal link) on this device, the notes' key is kept in this browser as a
+   NON-extractable key (nobody, not even this page, can read the code or the key back out of it). Next time the app opens, the notes unlock
+   by themselves - no code to type. It is forgotten (and the notes lock again) when:
+   - the admin switches THIS person off (or changes / withdraws their code, or the code turns out to belong to another device), or
+   - the person presses "ล็อกตอนนี้". Then the code is needed again, and only then. */
+const DEVKEY = 'devkey';
+let deviceRemembered = false;
+async function idbDel(key) {
+  const d = await openDB();
+  return new Promise((res, rej) => { const tx = d.transaction(STORE, 'readwrite'); tx.objectStore(STORE).delete(key); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+}
+async function persistDeviceKey() {
+  try {
+    if (!keyIsAccessCode || !cryptoKey || !vaultSalt || !codeMode() || !accessHash) return;
+    const salt = _b64(new Uint8Array(vaultSalt));
+    const cur = await idbGet(DEVKEY);
+    if (cur && cur.salt === salt && cur.hash === accessHash) { deviceRemembered = true; return; }
+    await idbSet(DEVKEY, { key: cryptoKey, salt, hash: accessHash });
+    deviceRemembered = true;
+  } catch (e) { }
+}
+async function forgetDevice(relock) {
+  deviceRemembered = false;
+  try { await idbDel(DEVKEY); } catch (e) { }
+  if (!relock) return;
+  accessHash = ''; accessClaimKey = ''; sessionCode = null; keyIsAccessCode = false; legacyPrompt = false;
+  try { localStorage.removeItem(ACCESS_HASH); localStorage.removeItem(ACCESS_CLAIM); localStorage.removeItem(ACCESS_CLAIMED); } catch (e) { }
+  if (!cryptoKey) return;                                       // already locked
+  clearTimeout(saveTimer); saveFirstDirty = 0;
+  try { await writeVault(); } catch (e) { }                     // what was just written is kept, encrypted with the code
+  cryptoKey = null; db = { notes: [] }; noteId = null;
+  closeSecurity();
+  try { showLock(await idbGet(REC)); } catch (e) { }
+}
+async function tryDeviceKey(rec) {                              // -> true when the notes were opened with the remembered key
+  try {
+    if (!accessOn() || !rec || !rec.enc) return false;
+    const dk = await idbGet(DEVKEY);
+    if (!dk || !dk.key || !accessHash || dk.hash !== accessHash || dk.salt !== _b64(new Uint8Array(rec.salt))) return false;
+    const data = await decryptVault(dk.key, rec.iv, rec.cipher);
+    db = data; normalizeDb();
+    cryptoKey = dk.key; vaultSalt = rec.salt; lockedRec = null; legacyPrompt = false; keyIsAccessCode = true; deviceRemembered = true;
+    return true;
+  } catch (e) { return false; }
+}
+
 async function adoptCode() {
   if (!sessionCode) return;
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -1382,6 +1520,7 @@ async function adoptCode() {
   vaultSalt = salt; cryptoKey = key; keyIsAccessCode = true;
   await writeVault();
   armIdleLock();
+  persistDeviceKey();
 }
 async function tryKeyOnVault(rec, pass) {
   try {
@@ -1466,7 +1605,10 @@ async function boot() {
     seed(); showDashboard();
     initCloud(true); bootDone(); return;
   }
-  if (rec.enc) { vaultSalt = rec.salt; showLock(rec); bootDone(); return; }
+  if (rec.enc) {
+    if (await tryDeviceKey(rec)) { showDashboard(); initCloud(false); bootDone(); return; }
+    vaultSalt = rec.salt; showLock(rec); bootDone(); return;
+  }
   db = rec.data || { notes: [] };
   normalizeDb();
   showDashboard();                                // no demo note here: if you deleted every note, they must not come back by themselves
@@ -1489,6 +1631,7 @@ function showDashboard() {
   $('dashboard').classList.remove('hidden');
   renderFilters(); renderBoard(); renderPaperColors();
   armIdleLock();
+  persistDeviceKey();
 }
 
 let lockedRec = null;
@@ -1543,6 +1686,7 @@ function lockNow() {
   if (!cryptoKey) return toast('ยังไม่ได้ตั้งรหัสผ่าน');
   clearTimeout(saveTimer);
   sessionCode = null; keyIsAccessCode = false; legacyPrompt = false;     // the code is asked for again to open the notes
+  forgetDevice(false);
   writeVault().then(async () => {
     cryptoKey = null; db = { notes: [] }; noteId = null;
     closeSecurity();
@@ -1553,7 +1697,7 @@ function lockNow() {
 let idleTimer = null;
 function armIdleLock() {
   clearTimeout(idleTimer);
-  if (!cryptoKey) return;
+  if (!cryptoKey || deviceRemembered) return;                 // a remembered device stays open; only the admin's switch or "lock now" closes it
   idleTimer = setTimeout(lockNow, IDLE_LOCK_MS);
 }
 ['pointerdown', 'keydown'].forEach(ev =>
@@ -2668,7 +2812,7 @@ function planBacking() {
   return plan;
 }
 
-function render(zoomOnly, slideOk) {
+function render(zoomOnly, slideOk, appendStroke) {
   scheduleFillCheck();
   if (fillMode) updateFillHint();
   const dprNow = window.devicePixelRatio || 1;
@@ -2714,6 +2858,12 @@ function render(zoomOnly, slideOk) {
     const raw = Math.min(1, (performance.now() - deleteAnim.start) / deleteAnim.duration);
     deleteAnim.progress = 1 - Math.pow(1 - raw, 3);
     deleteAnim.rawDone = raw >= 1;
+  }
+  /* a pen stroke was just finished and nothing else about the picture changed: lay only that stroke on top of the finished layers
+     instead of repainting every stroke of the page (that repaint is what made each lift of the pen hitch on slower devices) */
+  if (appendStroke && !viewChanged && !layersStale && !deleteAnim && !vertMode && !(fading && fading.length) && pg && pg.strokes.includes(appendStroke)) {
+    for (const c of [inkLayerCtx, baseCtx]) { c.save(); applyView(c); try { drawStroke(c, appendStroke); } finally { c.restore(); } }
+    paintFrame(); positionSelectionBar(); return;
   }
   if (dimsChanged) {
     baseCanvas.width = hlLayerCanvas.width = inkLayerCanvas.width = draftMaskCanvas.width = penBakeCanvas.width = frameCanvas.width = cw;
@@ -2841,7 +2991,7 @@ function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
   if (pg && pg._vert) drawVertBackdrop(c, n, scale, h, view);      // stacked document: every page's own paper / background
   else drawPageBase(c, n, pg);
   if (pg && pg.images) pg.images.forEach(m => {
-    if (m.txt !== undefined) { if (m.id !== textEditId) drawTextItem(c, m); return; }
+    if (m.txt !== undefined) { if (m.id !== textEditId || m.hand) drawTextItem(c, m); return; }
     const el = objImage(m);
     if (!el) return;
     if (m.rot || m.fx || m.fy) {                   // turned / mirrored picture: about its own centre
@@ -4128,6 +4278,25 @@ function getCanvasPoint(e, rect) {
   return [(e.clientX - rect.left) / z, (e.clientY - rect.top) / z];
 }
 
+/* A fast flick reports points far apart. Joined through midpoints they turn a smooth swing into a few flat facets ("steps").
+   When the gap is wide, extra points are laid along a smooth (Hermite) curve between the last two samples, so the line follows the
+   real motion. Slow writing never gets here: its points are already close together. */
+function addPenPoint(q) {
+  const pts = draft.points, n = pts.length;
+  if (n >= 2 && draft.tool === 'pen' && !draft.straight) {
+    const a = pts[n - 2], b = pts[n - 1], gap = Math.hypot(q[0] - b[0], q[1] - b[1]) * zoom;
+    if (gap > 7 && gap < 400) {
+      const k = Math.min(12, Math.round(gap / 4));
+      const m0x = (q[0] - a[0]) / 2, m0y = (q[1] - a[1]) / 2, m1x = q[0] - b[0], m1y = q[1] - b[1];   // tangents: through the neighbours / along the new chord
+      for (let i = 1; i < k; i++) {
+        const t = i / k, t2 = t * t, t3 = t2 * t;
+        const h00 = 2 * t3 - 3 * t2 + 1, h10 = t3 - 2 * t2 + t, h01 = -2 * t3 + 3 * t2, h11 = t3 - t2;
+        pts.push([h00 * b[0] + h10 * m0x + h01 * q[0] + h11 * m1x, h00 * b[1] + h10 * m0y + h01 * q[1] + h11 * m1y]);
+      }
+    }
+  }
+  pts.push(q);
+}
 /* All the sub-frame samples of a pointer event (stylus reports far more often than the screen
    refreshes) - using them all is what keeps handwriting smooth and detailed when zoomed in. */
 function coalescedOf(e) {
@@ -4444,7 +4613,11 @@ canvas.addEventListener('pointermove', e => {
       for (const ce of coalescedOf(e)) {
         const q = getCanvasPoint(ce, rect), last = draft.points[draft.points.length - 1];
         if (hlLock && draft.tool === 'highlighter') { hlLockMove(q); continue; }
-        if (!last || Math.hypot(q[0] - last[0], q[1] - last[1]) * zoom >= 0.4) draft.points.push(q);
+        if (!last || Math.hypot(q[0] - last[0], q[1] - last[1]) * zoom >= 0.4) addPenPoint(q);
+      }
+      draft.pred = null;
+      if (tool === 'pen' && e.pointerType === 'pen' && typeof e.getPredictedEvents === 'function') {
+        try { const pe = e.getPredictedEvents(); if (pe && pe.length) draft.pred = pe.slice(0, 2).map(x => getCanvasPoint(x, rect)); } catch (err) { }
       }
       armShapeHold(e);
     }
@@ -4495,12 +4668,15 @@ function handlePointerUpInner(e) {
     }
     if (draft.points.length > 0) {
       pushUndo();
-      delete draft.baked; delete draft.snapAng;
+      delete draft.baked; delete draft.snapAng; delete draft.pred;
       page().strokes.push(draft);
       touch();
     }
+    const doneStroke = tool === 'pen' && draft.points.length > 0 ? draft : null;
+    const hlDone = tool === 'highlighter' && draft.points.length > 0 && !vertMode ? draft : null;
+    if (hlDone) addDirtyStroke(hlDone);              // a highlighter stroke only changes the patch it covers
     draft = null; shapeRecognized = false; lineLock = null; hlLock = null;
-    render();
+    if (!(hlDone && renderRegion())) render(false, false, doneStroke);
   } else if (tool === 'shape' && draft) {
     commitShape();
   } else if (tool === 'lasso' && lassoPoints) {
@@ -4831,7 +5007,7 @@ function textLines(m) {
   _lineCache.set(m.id, { key, lines: out });
   return out;
 }
-function textFit(m) { m.h = Math.max(m.fs * TXT_LH, textLines(m).length * m.fs * TXT_LH) + TXT_PAD * 2; return m.h; }
+function textFit(m) { m.h = Math.max(m.fs * TXT_LH, textLines(m).length * m.fs * TXT_LH, m.minH || 0) + TXT_PAD * 2; return m.h; }   // minH: extra empty lines the writer pulled out by dragging the bottom edge
 function drawTextItem(c, m) {
   const lines = textLines(m), lh = m.fs * TXT_LH;
   c.save();
@@ -4839,7 +5015,34 @@ function drawTextItem(c, m) {
   c.font = textFont(m); c.fillStyle = m.color || '#222'; c.textBaseline = 'middle'; c.textAlign = 'left';
   if (m.hand) lines.forEach((l, i) => drawHandLine(c, m, l, m.x + TXT_PAD, m.y + TXT_PAD + lh * (i + 0.5)));
   else lines.forEach((l, i) => c.fillText(l, m.x + TXT_PAD, m.y + TXT_PAD + lh * (i + 0.5)));
+  if (m.hand && m.id === textEditId && handCaretOn) {      // live typing in my handwriting: the real caret is hidden, draw one that matches the handwriting
+    const cp = handCaretPos(m, lines), x = m.x + TXT_PAD + cp.x, y = m.y + TXT_PAD + lh * cp.line;
+    c.strokeStyle = m.color || '#222'; c.lineWidth = Math.max(1.5, m.fs * 0.05); c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x, y + lh * 0.12); c.lineTo(x, y + lh * 0.88); c.stroke();
+  }
   c.restore();
+}
+let handCaretOn = true, handCaretTimer = 0;
+function handCaretPos(m, lines) {                          // where the caret sits (line + x offset) for the textarea's selection
+  const ta = $('txtEdit'), txt = String(m.txt), idx = Math.min(ta.selectionEnd == null ? txt.length : ta.selectionEnd, txt.length);
+  let pos = 0;
+  for (let li = 0; li < lines.length; li++) {
+    const l = lines[li], s0 = pos, e0 = s0 + l.length;
+    pos = e0;
+    while (pos < txt.length && (txt[pos] === ' ' || txt[pos] === '\t')) pos++;
+    if (txt[pos] === '\n') pos++;
+    if (li === lines.length - 1 || idx <= e0) return { line: li, x: handWidth(m, l.slice(0, Math.max(0, Math.min(idx - s0, l.length)))) };
+    if (idx < pos) return { line: li, x: handWidth(m, l) };
+  }
+  return { line: 0, x: 0 };
+}
+function handCaretStart() {                                // blink only while a handwriting box is being typed in
+  clearInterval(handCaretTimer); handCaretOn = true;
+  handCaretTimer = setInterval(() => {
+    const m = textEditId && textById(textEditId);
+    if (!m || !m.hand) { clearInterval(handCaretTimer); handCaretTimer = 0; return; }
+    handCaretOn = !handCaretOn; scheduleFrame(true);
+  }, 530);
 }
 /* ---------- my handwriting as a font ----------
    db.hand = { g: { 'ก': { s: [ [[x,y],...], ... ] }, ... }, def: bool }. Each letter was written in a square pad; x, y are fractions of
@@ -4949,6 +5152,8 @@ function positionTextEdit(m) {
   ta.style.padding = TXT_PAD * zoom + 'px'; ta.style.boxSizing = 'border-box';
   ta.style.font = textFont({ fs: m.fs * zoom, bold: m.bold }); ta.style.lineHeight = TXT_LH; ta.style.color = m.color || '#222';
   ta.style.transform = m.rot ? 'rotate(' + m.rot + 'rad)' : '';
+  ta.classList.toggle('hand-live', !!m.hand);              // handwriting is drawn on the page itself, the textarea only collects keystrokes
+  if (m.hand && !handCaretTimer) handCaretStart();
 }
 function finishTextEdit() {
   if (!textEditId) return;
@@ -4970,8 +5175,11 @@ function finishTextEdit() {
       m = textEditNew; pushUndo(); (page().images = page().images || []).push(m); textEditNew = null; textEditPushed = true; selectImage(m.id);
     } else if (m && !textEditPushed) { pushUndo(); textEditPushed = true; }
     if (!m) return;
-    m.txt = ta.value; textFit(m); positionTextEdit(m); positionImageBox(); touch(); scheduleFrame(true);
+    m.txt = ta.value; handCaretOn = true; textFit(m); positionTextEdit(m); positionImageBox(); touch(); scheduleFrame(true);
   });
+  const caretMoved = () => { const m = textEditId && textById(textEditId); if (m && m.hand) { handCaretOn = true; scheduleFrame(true); } };
+  ['keyup', 'click', 'select'].forEach(ev => ta.addEventListener(ev, caretMoved));
+  document.addEventListener('selectionchange', () => { if (document.activeElement === ta) caretMoved(); });
   ta.addEventListener('blur', () => { setTimeout(() => { if (textEditId && document.activeElement !== ta) finishTextEdit(); }, 120); });
   ta.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') { e.preventDefault(); finishTextEdit(); } });
 })();
@@ -5232,6 +5440,11 @@ function positionImageBox() {
   if (!m || (tool !== 'image' && tool !== 'text')) { box.classList.add('hidden'); if (!m) imgSel = null; return; }
   box.classList.toggle('is-text', isTextItem(m));
   if (isTextItem(m)) { $('txtBoldBtn').style.background = m.bold ? 'var(--accent-soft, #e3ead9)' : ''; $('txtHandBtn').style.background = m.hand ? 'var(--accent-soft, #e3ead9)' : ''; }
+  if (isTextItem(m)) {
+    const lhPx = m.fs * TXT_LH * zoom;
+    box.style.backgroundImage = 'linear-gradient(to bottom, transparent calc(100% - 1px), rgba(91,119,87,.28) 0)';
+    box.style.backgroundSize = '100% ' + lhPx + 'px'; box.style.backgroundPosition = '0 ' + (TXT_PAD * zoom) + 'px'; box.style.backgroundRepeat = 'repeat-y';
+  } else box.style.backgroundImage = '';
   box.style.left = m.x * zoom + 'px'; box.style.top = m.y * zoom + 'px';
   box.style.width = m.w * zoom + 'px'; box.style.height = m.h * zoom + 'px';
   box.style.transformOrigin = '50% 50%'; box.style.transform = m.rot ? 'rotate(' + m.rot + 'rad)' : '';
@@ -5259,7 +5472,7 @@ function resetImageRatio() {
 function beginImageDrag(e, mode) {
   const m = imgSel && imageById(imgSel);
   if (!m) return;
-  imgDrag = { mode, pointerId: e.pointerId, sx: e.clientX, sy: e.clientY, r0: { x: m.x, y: m.y, w: m.w, h: m.h, fs: m.fs }, pushed: false };
+  imgDrag = { mode, pointerId: e.pointerId, sx: e.clientX, sy: e.clientY, r0: { x: m.x, y: m.y, w: m.w, h: m.h, fs: m.fs, minH: m.minH || 0 }, pushed: false };
 }
 function moveImageDrag(e) {
   const d = imgDrag, m = imgSel && imageById(imgSel);
@@ -5270,6 +5483,26 @@ function moveImageDrag(e) {
     pushUndo(); d.pushed = true;
   }
   const r = d.r0;
+  if (isTextItem(m) && d.mode !== 'move') {             // text: top / bottom edge = more or fewer lines, sides = width, corner = box and letters together
+    const east = d.mode.includes('e'), west = d.mode.includes('w'), north = d.mode.includes('n'), south = d.mode.includes('s');
+    const lh0 = r.fs * TXT_LH;
+    if (d.mode === 'n' || d.mode === 's') {
+      const n = Math.max(1, Math.round((r.h - TXT_PAD * 2 + (south ? dy : -dy)) / lh0));
+      m.minH = n * lh0; textFit(m);
+      m.y = north ? r.y + r.h - m.h : r.y;
+    } else if (d.mode.length === 2) {
+      const k = Math.max(0.1, 1 + ((east ? dx : -dx) + (south ? dy : -dy)) / (r.w + r.h));
+      m.fs = Math.max(10, Math.min(300, Math.round(r.fs * k * 2) / 2));
+      const k2 = m.fs / r.fs;
+      m.w = Math.max(60, r.w * k2); m.minH = r.minH * k2; textFit(m);
+      m.x = west ? r.x + r.w - m.w : r.x; m.y = north ? r.y + r.h - m.h : r.y;
+    } else {
+      m.w = Math.max(60, r.w + (east ? dx : -dx)); textFit(m);
+      m.x = west ? r.x + r.w - m.w : r.x;
+    }
+    if (textEditId === m.id) positionTextEdit(m);
+    positionImageBox(); scheduleFrame(true); return;
+  }
   let x = r.x, y = r.y, w = r.w, h = r.h;
   if (d.mode === 'move') {
     w = r.w; h = r.h;
@@ -5288,12 +5521,6 @@ function moveImageDrag(e) {
       if (east || west) { w = Math.max(IMG_MIN, r.w + (east ? dx : -dx)); if (west) x = r.x + r.w - w; }
       if (north || south) { h = Math.max(IMG_MIN, r.h + (south ? dy : -dy)); if (north) y = r.y + r.h - h; }
     }
-  }
-  if (isTextItem(m) && d.mode !== 'move') {              // text: the sides change the width, a corner scales box and letters together
-    const k = w / r.w;
-    m.w = Math.max(60, w); if (d.mode.length === 2) m.fs = Math.max(10, Math.min(300, r.fs * k));
-    textFit(m); m.x = d.mode.includes('w') ? r.x + r.w - m.w : r.x; m.y = d.mode.includes('n') ? r.y + r.h - m.h : r.y;
-    positionImageBox(); scheduleFrame(true); return;
   }
   m.x = x; m.y = y; m.w = w; m.h = h;
   positionImageBox();
