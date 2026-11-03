@@ -11,6 +11,6 @@
     { "name": "กันติ๋ม", "on": true, "hash": "a478e2346746f3a46a58052f31e502e326ba603da4a12f311fc15dea2822f2ca" },
     { "name": "ปีใหม่", "on": true, "hash": "23be8e30dfb9072cbc3cb4be42d9ca0c810641a132f50e6c94bf15c47aff2b1f" },
     { "name": "ฟ้า", "on": true, "hash": "ebe9a2c194bebdd03323f6851576211f42a5a7af45a3552de7efa655641290ff" },
-    { "name": "ฮั่นนี่", "on": true, "hash": "4733972404ac674a5b9832c577d018939602e3d66c82b31351ee2d43a36dbfbf" }
+    { "name": "ฮั่นนี่", "on": true, "hash": "80b06ffbad78849bf48c04786da8b23cc0ae860085e0d41e4207010c5660595a", "prev": "Xh6dz6o8qQt6zcmCBMc48gr3gP7/36DHtH9HIh7fEElWD2fl/+s6JA==" }
   ]
 }
