@@ -286,6 +286,13 @@ input.doc-title:hover{border-color:var(--line)}
 .lockwrap .i{width:28px;height:28px;color:var(--muted);margin-bottom:6px}
 .bar{height:4px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:6px}
 .bar i{display:block;height:100%;background:var(--accent);width:0%}
+.prog-scrim{z-index:90}
+.prog-box{text-align:center;max-width:320px}
+.prog-box h3{margin:0 0 2px}
+.prog-pct{font-size:36px;font-weight:600;color:var(--accent);line-height:1.2;font-variant-numeric:tabular-nums}
+.prog-label{font-size:13px;color:var(--muted);min-height:18px;margin-bottom:10px}
+.prog-box .bar{height:8px;margin-top:0}
+.prog-box .bar i{transition:width .15s linear}
 .qp-big{text-align:center;margin-bottom:10px}
 .qp-big b{font-size:30px;font-weight:600;color:var(--accent)}
 .qp-big span{color:var(--muted)}
@@ -387,7 +394,7 @@ input.doc-title:hover{border-color:var(--line)}
 <div id="dashboard" class="view hidden">
   <header class="topbar">
     <h1 class="brand">NoteFlow</h1>
-    <input type="search" id="q" placeholder="ค้นหา" aria-label="ค้นหาชื่อโน้ต" oninput="renderBoard()">
+    <input type="search" id="q" placeholder="ค้นหา" aria-label="ค้นหาชื่อโน้ต" oninput="renderBoardSoon()">
     <button class="btn ghost" onclick="openHelp()"><svg class="i"><use href="#i-help"/></svg>วิธีใช้</button>
     <label class="ib" title="นำเข้าไฟล์" aria-label="นำเข้าไฟล์">
       <svg class="i"><use href="#i-import"/></svg>
@@ -668,6 +675,16 @@ input.doc-title:hover{border-color:var(--line)}
   </div>
 </div>
 
+<!-- ========== PROGRESS (import / export) ========== -->
+<div id="progSheet" class="scrim prog-scrim hidden" role="status" aria-live="polite">
+  <div class="sheet prog-box">
+    <h3 id="progTitle">กำลังทำงาน</h3>
+    <div class="prog-pct" id="progPct">0%</div>
+    <div class="prog-label" id="progLabel"></div>
+    <div class="bar"><i id="progFill"></i></div>
+  </div>
+</div>
+
 <!-- ========== EXPORT SHEET ========== -->
 <div id="exportSheet" class="scrim hidden">
   <div class="sheet">
@@ -813,7 +830,11 @@ const frameCtx = frameCanvas.getContext('2d');
 const viewCanvas = document.createElement('canvas');
 viewCanvas.id = 'viewCanvas'; viewCanvas.width = viewCanvas.height = 1;
 canvas.after(viewCanvas);
-const viewCtx = viewCanvas.getContext('2d');   // NOT desynchronized: the crisp window is re-cut while scrolling and its pixels must change in the same frame as its CSS position
+const viewCtx = viewCanvas.getContext('2d');
+/* Live ink: while the pen is down, only the newly written bit is drawn, straight onto the visible page, and only the small box around the
+   last bit is restored/redrawn each frame (a saved copy of the page + finished part of the line sits in frameCanvas). The work per frame no
+   longer depends on the size of the page or the zoom, which is what kept fast writing smooth on slower devices. */
+let liveKey = '', liveDrawn = 1, liveActive = false, tailBox = null;   // NOT desynchronized: the crisp window is re-cut while scrolling and its pixels must change in the same frame as its CSS position
 
 let renderScale = 1;
 
@@ -944,8 +965,42 @@ function bakePenDraftTail() {
   }
 }
 
+function liveKeyNow() { return [baseCanvas.width, baseCanvas.height, renderScale, viewPx.x, viewPx.y, winMode, zoom].join('|'); }
+function liveClear() { liveActive = false; tailBox = null; liveDrawn = 1; liveKey = ''; }
+function liveInkPaint() {
+  const out = winMode ? viewCtx : ctx, key = liveKeyNow();
+  if (!liveActive || key !== liveKey) {                          // start of a stroke (or the view moved): copy the finished page once
+    liveKey = key; liveActive = true; liveDrawn = 1; tailBox = null;
+    frameCtx.setTransform(1, 0, 0, 1, 0, 0); frameCtx.clearRect(0, 0, frameCanvas.width, frameCanvas.height); frameCtx.drawImage(baseCanvas, 0, 0);
+    out.setTransform(1, 0, 0, 1, 0, 0); out.drawImage(baseCanvas, 0, 0);
+  }
+  const pts = draft.points, n = pts.length, W = frameCanvas.width, H = frameCanvas.height;
+  if (n - 1 > liveDrawn) {                                       // the part of the line that can no longer change
+    for (const c of [frameCtx, out]) { c.save(); applyView(c); drawPenSpan(c, draft, pts, liveDrawn, n - 1, false); c.restore(); }
+    liveDrawn = n - 1;
+  }
+  if (tailBox) {                                                 // wipe the previous last bit: put back the saved copy of that small box
+    const [bx, by, bw, bh] = tailBox;
+    out.setTransform(1, 0, 0, 1, 0, 0); out.drawImage(frameCanvas, bx, by, bw, bh, bx, by, bw, bh); tailBox = null;
+  }
+  let lp = pts;
+  if (draft.pred && draft.pred.length && n) lp = pts.concat(draft.pred);
+  if (!lp.length) return;
+  out.save(); applyView(out);
+  if (lp.length < 2) drawStroke(out, { ...draft, points: lp });
+  else drawPenSpan(out, draft, lp, liveDrawn, lp.length - 1, true);
+  out.restore();
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (let i = Math.max(0, liveDrawn - 2); i < lp.length; i++) { const q = lp[i]; if (q[0] < x0) x0 = q[0]; if (q[0] > x1) x1 = q[0]; if (q[1] < y0) y0 = q[1]; if (q[1] > y1) y1 = q[1]; }
+  const pad = (draft.size / 2 + 3) * renderScale + 2;
+  let bx = Math.max(0, Math.floor(x0 * renderScale - viewPx.x - pad)), by = Math.max(0, Math.floor(y0 * renderScale - viewPx.y - pad));
+  const bx1 = Math.min(W, Math.ceil(x1 * renderScale - viewPx.x + pad)), by1 = Math.min(H, Math.ceil(y1 * renderScale - viewPx.y + pad));
+  tailBox = bx1 > bx && by1 > by ? [bx, by, bx1 - bx, by1 - by] : null;
+}
 function paintFrame() {
   if (layersStale && draft && draft.tool === 'highlighter') { render(); return; }   // layers were left behind by a window slide
+  if (draft && draft.tool === 'pen' && tool === 'pen' && !shapeRecognized && !fading.length && !(typeof fillMode !== 'undefined' && fillMode)) { liveInkPaint(); return; }
+  liveClear();
   /* nothing drawn on top of the page (no stroke in progress, no selection, no eraser ring…): show the page as is */
   if (!draft && !fading.length && !selection && !(tool === 'lasso' && lassoPoints && lassoPoints.length > 1) &&
       !(tool === 'eraser' && eraserCursor) &&
@@ -1140,7 +1195,7 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
    The page is cached by the browser and by GitHub Pages, so a fixed copy can take a long time to reach people. Shortly after opening
    (and every few minutes) the app asks the server for the newest copy; when its BUILD differs, a small "update" pill appears. It never
    reloads by itself in the middle of writing. */
-const BUILD = '2026-11-03-b';       // bump with every release: devices compare it with the copy on the server and offer the update
+const BUILD = '2026-11-03-d';       // bump with every release: devices compare it with the copy on the server and offer the update
 let updateEtag = null, updateShown = false;
 async function checkForUpdate(first) {
   if (!/^https?:$/.test(location.protocol) || updateShown) return;
@@ -1761,6 +1816,32 @@ function renderFilters() {
   mb.onclick = openManageFolders;
   box.appendChild(mb);
 }
+/* Home-screen thumbnails used to be redrawn for EVERY note on every keystroke in the search box, every folder switch and every time a
+   picture finished loading - the more notes, the heavier it got. Now a thumbnail is drawn once and reused until that note's first page
+   really changes (key below); renderBoardSoon() also merges bursts of redraw requests into one. */
+const thumbCache = new Map(), THUMB_CACHE_MAX = 80;
+let boardTimer = 0;
+function renderBoardSoon() { clearTimeout(boardTimer); boardTimer = setTimeout(() => { boardTimer = 0; renderBoard(); }, 140); }
+function thumbKey(n, pg) {
+  return [n.updated, n.paper, n.paperColor, pg ? (pg.bg ? pg.bg.length : 0) : -1, pg && pg.strokes ? pg.strokes.length : 0, pg && pg.images ? pg.images.length : 0].join('|');
+}
+function thumbReady(pg) {          // every picture on the page is decoded, so the drawing is complete and safe to keep
+  if (!pg) return true;
+  if (pg.bg) { const im = imgCache.get(pg.bg); if (!im || !im.ready) return false; }
+  for (const m of (pg.images || [])) { if (m.txt !== undefined) continue; const c = imgObjCache.get(m.id); if (!c || !c.el || !c.el.ready) return false; }
+  return true;
+}
+function drawThumb(thumb, n) {
+  const pg = n.pages[0], key = thumbKey(n, pg), hit = thumbCache.get(n.id);
+  if (hit && hit.key === key) { thumb.getContext('2d').drawImage(hit.canvas, 0, 0); thumbCache.delete(n.id); thumbCache.set(n.id, hit); return; }
+  drawPage(thumb.getContext('2d'), n, pg, 420 / PAGE_W, 420, 300);
+  if (thumbReady(pg)) {
+    const keep = document.createElement('canvas'); keep.width = 420; keep.height = 300;
+    keep.getContext('2d').drawImage(thumb, 0, 0);
+    thumbCache.delete(n.id); thumbCache.set(n.id, { key, canvas: keep });
+    if (thumbCache.size > THUMB_CACHE_MAX) thumbCache.delete(thumbCache.keys().next().value);
+  }
+}
 function renderBoard() {
   const q = $('q').value.trim().toLowerCase();
   const grid = $('grid');
@@ -1784,7 +1865,7 @@ function renderBoard() {
     card.onkeydown = e => { if (e.key === 'Enter') openEditor(n.id); };
     const thumb = document.createElement('canvas');
     thumb.className = 'thumb'; thumb.width = 420; thumb.height = 300;
-    drawPage(thumb.getContext('2d'), n, n.pages[0], 420 / PAGE_W, 420, 300);
+    drawThumb(thumb, n);
     card.appendChild(thumb);
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -2734,7 +2815,7 @@ function objImage(m) {
   let c = imgObjCache.get(m.id);
   if (!c || c.src !== m.src) {
     const el = new Image();
-    el.onload = () => { el.ready = true; if (!$('editor').classList.contains('hidden')) render(); else renderBoard(); };
+    el.onload = () => { el.ready = true; if (!$('editor').classList.contains('hidden')) render(); else renderBoardSoon(); };
     el.src = m.src;
     c = { src: m.src, el };
     imgObjCache.set(m.id, c);
@@ -3011,7 +3092,7 @@ function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
 
 /* Background picture (imported PDF / image page) or the paper pattern of ONE page, at the origin. */
 function drawPageBase(c, n, pg) {
-  const im = pg && pg.bg ? bgImage(pg.bg, () => { if (!$('editor').classList.contains('hidden')) render(); else renderBoard(); }) : null;
+  const im = pg && pg.bg ? bgImage(pg.bg, () => { if (!$('editor').classList.contains('hidden')) render(); else renderBoardSoon(); }) : null;
   if (im) {
     const k = Math.min(PAGE_W / im.width, PAGE_H / im.height);
     const dw = im.width * k, dh = im.height * k;
@@ -4861,24 +4942,64 @@ function openExport() {
 }
 function closeExport() { $('exportSheet').classList.add('hidden'); }
 
+/* ---------- progress overlay (shows % while importing / exporting) ---------- */
+const _tick = () => new Promise(r => setTimeout(r, 0));          // let the browser repaint between steps
+function progShow(title, label) { $('progTitle').textContent = title; progSet(0, label || ''); $('progSheet').classList.remove('hidden'); }
+function progSet(pct, label) {
+  pct = Math.max(0, Math.min(100, Math.round(pct)));
+  $('progPct').textContent = pct + '%';
+  $('progFill').style.width = pct + '%';
+  if (label != null) $('progLabel').textContent = label;
+}
+function progHide() { $('progSheet').classList.add('hidden'); }
+async function progStep(pct, label) { progSet(pct, label); await _tick(); }
+function readFileP(file, mode, onPct) {                          // FileReader with real read progress
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onprogress = ev => { if (ev.lengthComputable && onPct) onPct(ev.loaded / ev.total); };
+    r.onload = () => res(r.result); r.onerror = () => rej(r.error);
+    mode === 'text' ? r.readAsText(file) : r.readAsDataURL(file);
+  });
+}
+function saveBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.download = name; a.href = url;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+async function buildPDF(n, pages, filename) {
+  progShow('กำลังส่งออก PDF', 'กำลังโหลดตัวสร้าง PDF…');
+  try {
+    await progStep(2);
+    await loadLib('jspdf');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    await progStep(8, 'กำลังเตรียมรูปในหน้า…');
+    await preloadPages(pages);
+    for (let i = 0; i < pages.length; i++) {
+      await progStep(10 + 82 * i / pages.length, 'หน้า ' + (i + 1) + ' / ' + pages.length);
+      if (i > 0) doc.addPage();
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+      drawPage(tempCanvas.getContext('2d'), n, pages[i], 2, PAGE_W * 2, PAGE_H * 2);
+      doc.addImage(tempCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 595.28, 841.89);
+    }
+    await progStep(95, 'กำลังบันทึกไฟล์…');
+    doc.save(filename);
+    await progStep(100, 'เสร็จแล้ว');
+    await new Promise(r => setTimeout(r, 250));
+    return true;
+  } catch (err) {
+    toast('ส่งออก PDF ไม่สำเร็จ: ' + (err && err.message || 'ไม่ทราบสาเหตุ'));
+    return false;
+  } finally { progHide(); }
+}
+
 async function exportPDF() {
   syncVert();
-  toast('กำลังเตรียมไฟล์ PDF…');
-  await loadLib('jspdf');
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const n = note();
-  await preloadPages(n.pages);
-  for (let i = 0; i < n.pages.length; i++) {
-    if (i > 0) doc.addPage();
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
-    drawPage(tempCanvas.getContext('2d'), n, n.pages[i], 2, PAGE_W * 2, PAGE_H * 2);
-    const imgData = tempCanvas.toDataURL('image/jpeg', 0.92);
-    doc.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
-  }
-  doc.save(n.title + '.pdf');
-  closeExport(); toast('ส่งออก PDF เรียบร้อย');
+  if (await buildPDF(n, n.pages, n.title + '.pdf')) { closeExport(); toast('ส่งออก PDF เรียบร้อย'); }
 }
 
 async function exportPDFRange() {
@@ -4889,46 +5010,49 @@ async function exportPDFRange() {
   let to = parseInt($('pdfRangeTo').value, 10) || total;
   from = Math.max(1, Math.min(from, total));
   to = Math.max(from, Math.min(to, total));
-  toast('กำลังเตรียมไฟล์ PDF…');
-  await loadLib('jspdf');
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-  const pagesToExport = n.pages.slice(from - 1, to);
-  await preloadPages(pagesToExport);
-  pagesToExport.forEach((pg, i) => {
-    if (i > 0) doc.addPage();
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
-    drawPage(tempCanvas.getContext('2d'), n, pg, 2, PAGE_W * 2, PAGE_H * 2);
-    const imgData = tempCanvas.toDataURL('image/jpeg', 0.92);
-    doc.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
-  });
-  doc.save(n.title + '-หน้า' + from + '-' + to + '.pdf');
-  closeExport(); toast('ส่งออก PDF หน้า ' + from + '–' + to + ' เรียบร้อย');
+  if (await buildPDF(n, n.pages.slice(from - 1, to), n.title + '-หน้า' + from + '-' + to + '.pdf')) {
+    closeExport(); toast('ส่งออก PDF หน้า ' + from + '–' + to + ' เรียบร้อย');
+  }
 }
 
 async function exportPNG() {
   syncVert();
-  const pg = note().pages[pageIndex];      // the real page (in vertical mode: the one in the middle of the screen)
-  await preloadPages([pg]);
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
-  drawPage(tempCanvas.getContext('2d'), note(), pg, 2, PAGE_W * 2, PAGE_H * 2);
-  const a = document.createElement('a');
-  a.download = note().title + '-หน้า-' + (pageIndex + 1) + '.png';
-  a.href = tempCanvas.toDataURL('image/png');
-  a.click();
-  closeExport(); toast('ส่งออก PNG เรียบร้อย');
+  progShow('กำลังส่งออก PNG', 'กำลังเตรียมรูป…');
+  try {
+    await progStep(5);
+    const pg = note().pages[pageIndex];      // the real page (in vertical mode: the one in the middle of the screen)
+    await preloadPages([pg]);
+    await progStep(40, 'กำลังวาดหน้า…');
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+    drawPage(tempCanvas.getContext('2d'), note(), pg, 2, PAGE_W * 2, PAGE_H * 2);
+    await progStep(70, 'กำลังบันทึกไฟล์…');
+    const blob = await new Promise(r => tempCanvas.toBlob(r, 'image/png'));
+    saveBlob(blob, note().title + '-หน้า-' + (pageIndex + 1) + '.png');
+    await progStep(100, 'เสร็จแล้ว');
+    await new Promise(r => setTimeout(r, 250));
+    closeExport(); toast('ส่งออก PNG เรียบร้อย');
+  } catch (err) {
+    toast('ส่งออก PNG ไม่สำเร็จ');
+  } finally { progHide(); }
 }
 
-function exportBackup() {
+async function exportBackup() {
   syncVert();
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-  const a = document.createElement('a');
-  a.download = 'noteflow-backup-' + new Date().toISOString().slice(0, 10) + '.json';
-  a.href = dataStr;
-  a.click();
-  closeExport(); toast('สำรองข้อมูลเรียบร้อย');
+  progShow('กำลังสำรองข้อมูล', 'กำลังรวบรวมโน้ต…');
+  try {
+    await progStep(10);
+    const json = JSON.stringify(db);
+    await progStep(60, 'กำลังสร้างไฟล์…');
+    const blob = new Blob([json], { type: 'application/json' });
+    await progStep(85, 'กำลังบันทึกไฟล์…');
+    saveBlob(blob, 'noteflow-backup-' + new Date().toISOString().slice(0, 10) + '.json');
+    await progStep(100, 'เสร็จแล้ว');
+    await new Promise(r => setTimeout(r, 250));
+    closeExport(); toast('สำรองข้อมูลเรียบร้อย');
+  } catch (err) {
+    toast('สำรองข้อมูลไม่สำเร็จ');
+  } finally { progHide(); }
 }
 
 async function handleImport(e) {
@@ -4936,39 +5060,61 @@ async function handleImport(e) {
   e.target.value = '';
   if (!file) return;
   if (file.name.endsWith('.json')) {
-    const reader = new FileReader();
-    reader.onload = async ev => {
-      try {
-        db = JSON.parse(ev.target.result);
-        normalizeDb();
-        await writeVault();
-        renderFilters(); renderBoard(); toast('นำเข้าข้อมูลสำเร็จ');
-      } catch (err) { toast('ไฟล์ JSON ไม่ถูกต้อง'); }
-    };
-    reader.readAsText(file);
+    progShow('กำลังนำเข้าข้อมูล', 'กำลังอ่านไฟล์…');
+    try {
+      const text = await readFileP(file, 'text', f => progSet(f * 60));
+      await progStep(65, 'กำลังตรวจสอบข้อมูล…');
+      const parsed = JSON.parse(text);
+      db = parsed;
+      normalizeDb();
+      await progStep(80, 'กำลังบันทึกลงเครื่อง…');
+      await writeVault();
+      await progStep(95, 'กำลังแสดงผล…');
+      renderFilters(); renderBoard();
+      await progStep(100, 'เสร็จแล้ว');
+      toast('นำเข้าข้อมูลสำเร็จ');
+    } catch (err) { toast('ไฟล์ JSON ไม่ถูกต้อง'); }
+    finally { progHide(); }
   } else if (file.type === 'application/pdf') {
-    toast('กำลังแปลงไฟล์ PDF…');
-    const arrayBuffer = await file.arrayBuffer();
-    await loadLib('pdfjs');
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    const pages = [];
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const p = await pdf.getPage(i);
-      const vp = p.getViewport({ scale: 3 });
-      const c = document.createElement('canvas');
-      c.width = vp.width; c.height = vp.height;
-      await p.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
-      pages.push({ strokes: [], bg: c.toDataURL('image/jpeg', 0.9) });
-    }
-    const n = blankNote(file.name.replace(/\.pdf$/i, ''), targetFolder(), 'blank', '#ffffff', pages);
-    db.notes.push(n); save(); renderBoard(); openEditor(n.id);
+    progShow('กำลังนำเข้า PDF', 'กำลังอ่านไฟล์…');
+    let n = null;
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      await progStep(5, 'กำลังโหลดตัวอ่าน PDF…');
+      await loadLib('pdfjs');
+      await progStep(10, 'กำลังเปิดไฟล์…');
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        await progStep(10 + 85 * (i - 1) / pdf.numPages, 'กำลังแปลงหน้า ' + i + ' / ' + pdf.numPages);
+        const p = await pdf.getPage(i);
+        const vp = p.getViewport({ scale: 3 });
+        const c = document.createElement('canvas');
+        c.width = vp.width; c.height = vp.height;
+        await p.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+        pages.push({ strokes: [], bg: c.toDataURL('image/jpeg', 0.9) });
+      }
+      await progStep(96, 'กำลังสร้างโน้ต…');
+      n = blankNote(file.name.replace(/\.pdf$/i, ''), targetFolder(), 'blank', '#ffffff', pages);
+      db.notes.push(n); save(); renderBoard();
+      await progStep(100, 'เสร็จแล้ว');
+    } catch (err) {
+      n = null; toast('นำเข้า PDF ไม่สำเร็จ — ไฟล์อาจเสียหายหรือมีรหัสผ่าน');
+    } finally { progHide(); }
+    if (n) openEditor(n.id);
   } else if (file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const n = blankNote(file.name.replace(/\.[^/.]+$/, ''), targetFolder(), 'blank', '#ffffff', [{ strokes: [], bg: ev.target.result }]);
-      db.notes.push(n); save(); renderBoard(); openEditor(n.id);
-    };
-    reader.readAsDataURL(file);
+    progShow('กำลังนำเข้ารูปภาพ', 'กำลังอ่านไฟล์…');
+    let n = null;
+    try {
+      const url = await readFileP(file, 'url', f => progSet(f * 90));
+      await progStep(95, 'กำลังสร้างโน้ต…');
+      n = blankNote(file.name.replace(/\.[^/.]+$/, ''), targetFolder(), 'blank', '#ffffff', [{ strokes: [], bg: url }]);
+      db.notes.push(n); save(); renderBoard();
+      await progStep(100, 'เสร็จแล้ว');
+    } catch (err) {
+      n = null; toast('นำเข้ารูปภาพไม่สำเร็จ');
+    } finally { progHide(); }
+    if (n) openEditor(n.id);
   }
 }
 
