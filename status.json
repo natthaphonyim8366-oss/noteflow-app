@@ -8,6 +8,7 @@
     { "name": "บังง", "on": true, "hash": "5eb0c8b4530e82371eada194e430d6ed3976b7f0687a7acc228eb86f25f01719", "prev": "ShiP3zZIWsp/Cjaee8vOFStV65+DTqRlz8//1TZGWcjQ40n6nAw4dfSjmXDlZXdkYh8r" },
     { "name": "นัส", "on": true, "hash": "24bc30ed68b96da1f8fd004baa7077b60ea1d25c11465dddb7ff43d69da738e9" },
     { "name": "ณัช", "on": true, "hash": "c478d2a13a9e52e775dfb4d309e778fc904e45304288e7dac2b96f6cd0079413" },
-    { "name": "กันติ๋ม", "on": true, "hash": "a478e2346746f3a46a58052f31e502e326ba603da4a12f311fc15dea2822f2ca" }
+    { "name": "กันติ๋ม", "on": true, "hash": "a478e2346746f3a46a58052f31e502e326ba603da4a12f311fc15dea2822f2ca" },
+    { "name": "ปีใหม่", "on": true, "hash": "23be8e30dfb9072cbc3cb4be42d9ca0c810641a132f50e6c94bf15c47aff2b1f" }
   ]
 }
