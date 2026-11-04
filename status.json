@@ -9,6 +9,7 @@
     { "name": "นัส", "on": true, "hash": "24bc30ed68b96da1f8fd004baa7077b60ea1d25c11465dddb7ff43d69da738e9" },
     { "name": "กันติ๋ม", "on": true, "hash": "a478e2346746f3a46a58052f31e502e326ba603da4a12f311fc15dea2822f2ca" },
     { "name": "ปีใหม่", "on": true, "hash": "23be8e30dfb9072cbc3cb4be42d9ca0c810641a132f50e6c94bf15c47aff2b1f" },
-    { "name": "ฟ้า", "on": true, "hash": "ebe9a2c194bebdd03323f6851576211f42a5a7af45a3552de7efa655641290ff" }
+    { "name": "ฟ้า", "on": true, "hash": "ebe9a2c194bebdd03323f6851576211f42a5a7af45a3552de7efa655641290ff" },
+    { "name": "ณัช", "on": true, "hash": "5efe2c37ed7b41be35746c82ae9d10c28a78945e29f35261f233489312ac3c7c" }
   ]
 }
