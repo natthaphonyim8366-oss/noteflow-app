@@ -4,13 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>NoteFlow — สมุดโน้ตลายมือ</title>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#5b7757">
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="NoteFlow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -222,11 +215,10 @@ input.doc-title:hover{border-color:var(--line)}
 .txt-ctl{display:none;gap:2px;align-items:center}
 .img-box.is-text .txt-ctl{display:flex}
 .img-box.is-text .img-ratio{display:none}
-@media (pointer:coarse){.img-box .hd{width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:8px}.img-box .hd::after{inset:-10px}}
-.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:44px;height:14px;margin:-7px 0 0 -22px;border-radius:7px}
-@media (pointer:coarse){.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:64px;height:20px;margin:-10px 0 0 -32px;border-radius:10px}}
-.img-box.is-text .hd[data-h=e],.img-box.is-text .hd[data-h=w]{height:44px;width:14px;margin:-22px 0 0 -7px;border-radius:7px}
-@media (pointer:coarse){.img-box.is-text .hd[data-h=e],.img-box.is-text .hd[data-h=w]{height:64px;width:20px;margin:-32px 0 0 -10px;border-radius:10px}}
+@media (pointer:coarse){.img-box .hd{width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:6px}.img-box .hd::after{inset:-14px}}
+.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:28px;height:10px;margin:-5px 0 0 -14px;border-radius:5px}
+@media (pointer:coarse){.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:40px;height:14px;margin:-7px 0 0 -20px}}
+.img-box.is-text .hd[data-h=e],.img-box.is-text .hd[data-h=w]{height:26px;width:10px;margin:-13px 0 0 -5px}
 #txtEdit{position:absolute;z-index:6;margin:0;border:0;outline:0;background:transparent;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;caret-color:var(--accent);touch-action:manipulation;transform-origin:50% 50%}
 #txtEdit.hidden{display:none}
 #txtEdit.hand-live{color:transparent!important;caret-color:transparent}
@@ -237,8 +229,8 @@ input.doc-title:hover{border-color:var(--line)}
 .img-bar{position:absolute;left:0;top:-8px;transform:translateY(-100%);display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--shadow);pointer-events:auto;white-space:nowrap}
 .img-bar button{padding:6px 10px;font-size:12px;border-radius:7px}
 .img-box.bar-below .img-bar{top:auto;bottom:-8px;transform:translateY(100%)}
-.hd{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;background:var(--panel);border:1.5px solid var(--accent);border-radius:3px;pointer-events:auto;touch-action:none}
-.hd::after{content:"";position:absolute;inset:-14px}
+.hd{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;background:var(--panel);border:1.5px solid var(--accent);border-radius:3px;pointer-events:auto;touch-action:none}
+.hd::after{content:"";position:absolute;inset:-12px}
 .hd[data-h=nw]{left:0;top:0;cursor:nwse-resize}
 .hd[data-h=n]{left:50%;top:0;cursor:ns-resize}
 .hd[data-h=ne]{left:100%;top:0;cursor:nesw-resize}
@@ -247,19 +239,6 @@ input.doc-title:hover{border-color:var(--line)}
 .hd[data-h=s]{left:50%;top:100%;cursor:ns-resize}
 .hd[data-h=sw]{left:0;top:100%;cursor:nesw-resize}
 .hd[data-h=w]{left:0;top:50%;cursor:ew-resize}
-.img-box .hd.mv{background:transparent;border:0;border-radius:0;margin:0;cursor:move;display:none}
-.img-box .hd.mv::after{display:none}
-.img-box.is-text .hd.mv{display:block}
-.img-box .hd.mv-t{left:18px;right:18px;top:-18px;width:auto;height:18px}
-.img-box .hd.mv-b{left:18px;right:18px;top:100%;width:auto;height:18px}
-.img-box .hd.mv-l{top:18px;bottom:18px;left:-18px;width:18px;height:auto}
-.img-box .hd.mv-r{top:18px;bottom:18px;left:100%;width:18px;height:auto}
-.img-box .hd.mv-grip{left:50%;top:100%;width:52px;height:28px;margin:12px 0 0 -26px;border-radius:14px;background:var(--accent);color:#fff;font-size:16px;line-height:1;align-items:center;justify-content:center;box-shadow:var(--shadow);user-select:none}
-.img-box.is-text .hd.mv-grip{display:flex}
-.img-box.bar-below .hd.mv-grip{top:0;margin:-40px 0 0 -26px}
-.img-box.rotated.is-text .hd.mv{display:block}
-.img-box.rotated.is-text .hd.mv-grip{display:flex}
-@media (pointer:coarse){.img-box .hd.mv-grip{width:64px;height:36px;margin:14px 0 0 -32px;border-radius:18px;font-size:19px}.img-box.bar-below .hd.mv-grip{margin:-50px 0 0 -32px}.img-box .hd.mv-t{top:-22px;height:22px}.img-box .hd.mv-b{height:22px}.img-box .hd.mv-l{left:-22px;width:22px}.img-box .hd.mv-r{width:22px}}
 .zoombar{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;display:flex;align-items:center;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:var(--shadow);z-index:10}
 .zoombar .ib{width:34px;height:34px;border-radius:999px}
 .zoombar .num{font-size:12px;min-width:46px;text-align:center;color:var(--muted)}
@@ -300,13 +279,6 @@ input.doc-title:hover{border-color:var(--line)}
 .lockwrap .i{width:28px;height:28px;color:var(--muted);margin-bottom:6px}
 .bar{height:4px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:6px}
 .bar i{display:block;height:100%;background:var(--accent);width:0%}
-.prog-scrim{z-index:90}
-.prog-box{text-align:center;max-width:320px}
-.prog-box h3{margin:0 0 2px}
-.prog-pct{font-size:36px;font-weight:600;color:var(--accent);line-height:1.2;font-variant-numeric:tabular-nums}
-.prog-label{font-size:13px;color:var(--muted);min-height:18px;margin-bottom:10px}
-.prog-box .bar{height:8px;margin-top:0}
-.prog-box .bar i{transition:width .15s linear}
 .qp-big{text-align:center;margin-bottom:10px}
 .qp-big b{font-size:30px;font-weight:600;color:var(--accent)}
 .qp-big span{color:var(--muted)}
@@ -378,7 +350,7 @@ input.doc-title:hover{border-color:var(--line)}
     <h3 id="accTitle"></h3>
     <p class="lede" id="accMsg"></p>
     <div class="field" id="accCodeRow">
-      <input id="accCode" type="text" placeholder="รหัสเข้าใช้งาน" autocomplete="off" autocapitalize="off" spellcheck="false"
+      <input id="accCode" type="text" placeholder="รหัสเข้าใช้งาน" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
              onkeydown="if(event.key==='Enter')accessButton()">
     </div>
     <div class="sheet-actions" style="justify-content:stretch">
@@ -408,7 +380,7 @@ input.doc-title:hover{border-color:var(--line)}
 <div id="dashboard" class="view hidden">
   <header class="topbar">
     <h1 class="brand">NoteFlow</h1>
-    <input type="search" id="q" placeholder="ค้นหา" aria-label="ค้นหาชื่อโน้ต" oninput="renderBoardSoon()">
+    <input type="search" id="q" placeholder="ค้นหา" aria-label="ค้นหาชื่อโน้ต" oninput="renderBoard()">
     <button class="btn ghost" onclick="openHelp()"><svg class="i"><use href="#i-help"/></svg>วิธีใช้</button>
     <label class="ib" title="นำเข้าไฟล์" aria-label="นำเข้าไฟล์">
       <svg class="i"><use href="#i-import"/></svg>
@@ -416,7 +388,6 @@ input.doc-title:hover{border-color:var(--line)}
     </label>
     <button class="ib" id="cloudBtn" title="ซิงก์" aria-label="ซิงก์" onclick="openCloudSheet()"><svg class="i"><use href="#i-cloud"/></svg></button>
     <button class="ib" title="ความปลอดภัย" aria-label="ความปลอดภัย" onclick="openSecurity()"><svg class="i"><use href="#i-lock"/></svg></button>
-    <button class="btn hidden" id="installBtn" onclick="installApp()" title="ติดตั้งเป็นแอป ใช้ได้แม้ไม่มีอินเทอร์เน็ต">ติดตั้งแอป</button>
     <button class="btn primary" onclick="openNew()"><svg class="i"><use href="#i-plus"/></svg>สมุดโน้ตใหม่</button>
   </header>
   <div class="board">
@@ -447,7 +418,7 @@ input.doc-title:hover{border-color:var(--line)}
     <div class="actions">
       <button class="ib" onclick="undo()" title="เลิกทำ" aria-label="เลิกทำ"><svg class="i"><use href="#i-undo"/></svg></button>
       <button class="ib" onclick="redo()" title="ทำซ้ำ" aria-label="ทำซ้ำ"><svg class="i"><use href="#i-redo"/></svg></button>
-      <button class="ib" onclick="openAddPage()" title="เพิ่มหน้า" aria-label="เพิ่มหน้า"><svg class="i"><use href="#i-page-plus"/></svg></button>
+      <button class="ib" onclick="addPage()" title="เพิ่มหน้า" aria-label="เพิ่มหน้า"><svg class="i"><use href="#i-page-plus"/></svg></button>
       <button class="ib danger" onclick="deletePage()" title="ลบหน้านี้ (เลิกทำเพื่อนำกลับ)" aria-label="ลบหน้านี้"><svg class="i"><use href="#i-page-minus"/></svg></button>
       <label class="ib" title="แทรกรูปภาพ" aria-label="แทรกรูปภาพ">
         <svg class="i"><use href="#i-image-plus"/></svg>
@@ -534,10 +505,8 @@ input.doc-title:hover{border-color:var(--line)}
           <button class="btn ghost danger" onclick="deleteImage()">ลบ</button>
           <button class="btn ghost" title="เสร็จ" aria-label="เสร็จ" onclick="selectImage(null)"><svg class="i" style="width:14px;height:14px"><use href="#i-x"/></svg></button>
         </div>
-        <i class="hd mv mv-t" data-h="move"></i><i class="hd mv mv-b" data-h="move"></i><i class="hd mv mv-l" data-h="move"></i><i class="hd mv mv-r" data-h="move"></i>
         <i class="hd" data-h="n"></i><i class="hd" data-h="e"></i><i class="hd" data-h="s"></i><i class="hd" data-h="w"></i>
         <i class="hd" data-h="nw"></i><i class="hd" data-h="ne"></i><i class="hd" data-h="se"></i><i class="hd" data-h="sw"></i>
-        <i class="hd mv mv-grip" data-h="move" title="ลากเพื่อย้ายข้อความ" aria-label="ลากเพื่อย้ายข้อความ">✥</i>
       </div>
       <textarea id="txtEdit" class="hidden" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="พิมพ์ข้อความ" placeholder="พิมพ์ข้อความ…"></textarea>
     </div>
@@ -665,32 +634,6 @@ input.doc-title:hover{border-color:var(--line)}
   </div>
 </div>
 
-<!-- ========== ADD PAGE SHEET ========== -->
-<div id="apSheet" class="scrim hidden">
-  <div class="sheet">
-    <h3>เพิ่มหน้าใหม่</h3>
-    <p class="lede">เลือกกระดาษของหน้าใหม่ จะเปลี่ยนเฉพาะหน้านี้ ไม่กระทบหน้าอื่น</p>
-    <div class="field">
-      <label>รูปแบบกระดาษ</label>
-      <div class="opts" id="apOpts">
-        <button class="opt" data-paper="blank" aria-pressed="true" onclick="apPaper='blank';renderAddPageOpts()">เปล่า</button>
-        <button class="opt" data-paper="lined" aria-pressed="false" onclick="apPaper='lined';renderAddPageOpts()">เส้นบรรทัด</button>
-        <button class="opt" data-paper="grid" aria-pressed="false" onclick="apPaper='grid';renderAddPageOpts()">ตาราง</button>
-        <button class="opt" data-paper="dots" aria-pressed="false" onclick="apPaper='dots';renderAddPageOpts()">จุด</button>
-      </div>
-    </div>
-    <div class="field">
-      <label>สีกระดาษ</label>
-      <div class="swatches" id="apColors"></div>
-    </div>
-    <div class="sheet-actions">
-      <button class="btn ghost" onclick="closeAddPage()">ยกเลิก</button>
-      <button class="btn ghost" onclick="applyPaperToThisPage()">เปลี่ยนหน้านี้แทน</button>
-      <button class="btn primary" onclick="confirmAddPage()">เพิ่มหน้า</button>
-    </div>
-  </div>
-</div>
-
 <!-- ========== HANDWRITING FONT SHEET ========== -->
 <div id="handSheet" class="scrim hidden">
   <div class="sheet hand-sheet">
@@ -714,16 +657,6 @@ input.doc-title:hover{border-color:var(--line)}
       <button class="btn ghost danger" onclick="handResetAll()">ล้างลายมือทั้งหมด</button>
       <button class="btn" onclick="closeHandSheet()">เสร็จ</button>
     </div>
-  </div>
-</div>
-
-<!-- ========== PROGRESS (import / export) ========== -->
-<div id="progSheet" class="scrim prog-scrim hidden" role="status" aria-live="polite">
-  <div class="sheet prog-box">
-    <h3 id="progTitle">กำลังทำงาน</h3>
-    <div class="prog-pct" id="progPct">0%</div>
-    <div class="prog-label" id="progLabel"></div>
-    <div class="bar"><i id="progFill"></i></div>
   </div>
 </div>
 
@@ -816,9 +749,6 @@ let palette = ['#3d3627', '#5b7a63', '#a85c45', '#6f7f9e', '#c08a3e', '#ffffff']
 let hlPalette = ['#ffe066', '#7ce27c', '#7ec8ff', '#ff9ecb', '#ffb85c']; // bright, saturated — highlighters read best vivid, not muted like ink
 let hlInk = hlPalette[0];
 const PAPER_COLORS = ['#ffffff', '#fdf6d8', '#f1f2f4', '#20262e'];
-/* A page can carry its own paper ({paper, paperColor}); without them it follows the notebook's paper. */
-const pgPaperKind = (n, pg) => (pg && pg.paper) || n.paper;
-const pgPaperColor = (n, pg) => (pg && pg.paperColor) || n.paperColor || '#ffffff';
 const KDF_ITER = 310000;
 const IDLE_LOCK_MS = 10 * 60 * 1000;
 
@@ -875,11 +805,7 @@ const frameCtx = frameCanvas.getContext('2d');
 const viewCanvas = document.createElement('canvas');
 viewCanvas.id = 'viewCanvas'; viewCanvas.width = viewCanvas.height = 1;
 canvas.after(viewCanvas);
-const viewCtx = viewCanvas.getContext('2d');
-/* Live ink: while the pen is down, only the newly written bit is drawn, straight onto the visible page, and only the small box around the
-   last bit is restored/redrawn each frame (a saved copy of the page + finished part of the line sits in frameCanvas). The work per frame no
-   longer depends on the size of the page or the zoom, which is what kept fast writing smooth on slower devices. */
-let liveKey = '', liveDrawn = 1, liveActive = false, tailBox = null;   // NOT desynchronized: the crisp window is re-cut while scrolling and its pixels must change in the same frame as its CSS position
+const viewCtx = viewCanvas.getContext('2d');   // NOT desynchronized: the crisp window is re-cut while scrolling and its pixels must change in the same frame as its CSS position
 
 let renderScale = 1;
 
@@ -969,22 +895,6 @@ function renderRegion() {
   return true;
 }
 
-/* A pen line is drawn as quadratic curves through the midpoints of its points. To draw a long line in pieces (the finished part is kept
-   on a spare layer, only the newest tail is redrawn each frame) the pieces must join exactly where the single full line would pass:
-   quad i runs from mid(p[i-1],p[i]) (p0 for i = 1) to mid(p[i],p[i+1]). A piece = quads a..b-1, optionally ending with the straight run
-   to the last point. Cutting pieces any other way left tiny steps at the seams, visible on fast flicks. */
-function drawPenSpan(c, s, pts, a, b, tail) {
-  const n = pts.length;
-  if (n < 2) return;
-  a = Math.max(1, a); b = Math.min(b, n - 1);
-  const sx = a === 1 ? pts[0][0] : (pts[a - 1][0] + pts[a][0]) / 2, sy = a === 1 ? pts[0][1] : (pts[a - 1][1] + pts[a][1]) / 2;
-  c.save();
-  c.lineCap = 'round'; c.lineJoin = 'round'; c.strokeStyle = s.color; c.lineWidth = s.size; c.globalAlpha = 1;
-  c.beginPath(); c.moveTo(sx, sy);
-  for (let i = a; i < b; i++) c.quadraticCurveTo(pts[i][0], pts[i][1], (pts[i][0] + pts[i + 1][0]) / 2, (pts[i][1] + pts[i + 1][1]) / 2);
-  if (tail) c.lineTo(pts[n - 1][0], pts[n - 1][1]);
-  c.stroke(); c.restore();
-}
 const LIVE_TAIL = 48;
 function bakeDraftTail() {
   const keepFrom = draft.points.length - LIVE_TAIL;
@@ -1001,51 +911,18 @@ function bakeDraftTail() {
 const PEN_LIVE_TAIL = 48;
 function bakePenDraftTail() {
   const keepFrom = draft.points.length - PEN_LIVE_TAIL;
-  const from = Math.max(1, draft.baked || 0);
-  if (keepFrom > from) {
+  const from = Math.max(0, (draft.baked || 0) - 1);
+  const segPts = draft.points.slice(from, keepFrom + 1);
+  if (segPts.length > 1) {
     penBakeCtx.save(); applyView(penBakeCtx);
-    drawPenSpan(penBakeCtx, draft, draft.points, from, keepFrom, false);
+    drawStroke(penBakeCtx, { ...draft, points: segPts });
     penBakeCtx.restore();
-    draft.baked = keepFrom;
   }
+  draft.baked = keepFrom;
 }
 
-function liveKeyNow() { return [baseCanvas.width, baseCanvas.height, renderScale, viewPx.x, viewPx.y, winMode, zoom].join('|'); }
-function liveClear() { liveActive = false; tailBox = null; liveDrawn = 1; liveKey = ''; }
-function liveInkPaint() {
-  const out = winMode ? viewCtx : ctx, key = liveKeyNow();
-  if (!liveActive || key !== liveKey) {                          // start of a stroke (or the view moved): copy the finished page once
-    liveKey = key; liveActive = true; liveDrawn = 1; tailBox = null;
-    frameCtx.setTransform(1, 0, 0, 1, 0, 0); frameCtx.clearRect(0, 0, frameCanvas.width, frameCanvas.height); frameCtx.drawImage(baseCanvas, 0, 0);
-    out.setTransform(1, 0, 0, 1, 0, 0); out.drawImage(baseCanvas, 0, 0);
-  }
-  const pts = draft.points, n = pts.length, W = frameCanvas.width, H = frameCanvas.height;
-  if (n - 1 > liveDrawn) {                                       // the part of the line that can no longer change
-    for (const c of [frameCtx, out]) { c.save(); applyView(c); drawPenSpan(c, draft, pts, liveDrawn, n - 1, false); c.restore(); }
-    liveDrawn = n - 1;
-  }
-  if (tailBox) {                                                 // wipe the previous last bit: put back the saved copy of that small box
-    const [bx, by, bw, bh] = tailBox;
-    out.setTransform(1, 0, 0, 1, 0, 0); out.drawImage(frameCanvas, bx, by, bw, bh, bx, by, bw, bh); tailBox = null;
-  }
-  let lp = pts;
-  if (draft.pred && draft.pred.length && n) lp = pts.concat(draft.pred);
-  if (!lp.length) return;
-  out.save(); applyView(out);
-  if (lp.length < 2) drawStroke(out, { ...draft, points: lp });
-  else drawPenSpan(out, draft, lp, liveDrawn, lp.length - 1, true);
-  out.restore();
-  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-  for (let i = Math.max(0, liveDrawn - 2); i < lp.length; i++) { const q = lp[i]; if (q[0] < x0) x0 = q[0]; if (q[0] > x1) x1 = q[0]; if (q[1] < y0) y0 = q[1]; if (q[1] > y1) y1 = q[1]; }
-  const pad = (draft.size / 2 + 3) * renderScale + 2;
-  let bx = Math.max(0, Math.floor(x0 * renderScale - viewPx.x - pad)), by = Math.max(0, Math.floor(y0 * renderScale - viewPx.y - pad));
-  const bx1 = Math.min(W, Math.ceil(x1 * renderScale - viewPx.x + pad)), by1 = Math.min(H, Math.ceil(y1 * renderScale - viewPx.y + pad));
-  tailBox = bx1 > bx && by1 > by ? [bx, by, bx1 - bx, by1 - by] : null;
-}
 function paintFrame() {
   if (layersStale && draft && draft.tool === 'highlighter') { render(); return; }   // layers were left behind by a window slide
-  if (draft && draft.tool === 'pen' && tool === 'pen' && !shapeRecognized && !fading.length && !(typeof fillMode !== 'undefined' && fillMode)) { liveInkPaint(); return; }
-  liveClear();
   /* nothing drawn on top of the page (no stroke in progress, no selection, no eraser ring…): show the page as is */
   if (!draft && !fading.length && !selection && !(tool === 'lasso' && lassoPoints && lassoPoints.length > 1) &&
       !(tool === 'eraser' && eraserCursor) &&
@@ -1078,12 +955,11 @@ function paintFrame() {
     if (draft && draft.tool === 'pen' && !shapeRecognized) {
       if (draft.points.length - (draft.baked || 0) > PEN_LIVE_TAIL * 2) bakePenDraftTail();
       if (draft.baked) frameCtx.drawImage(penBakeCanvas, 0, 0);
-      let livePts = draft.points;
-      if (draft.pred && draft.pred.length && livePts.length) livePts = livePts.concat(draft.pred);       // the browser's guess of where the pen is heading: the ink keeps up with the pen
-      if (livePts.length) {
+      let tailPts = draft.points.slice(Math.max(0, (draft.baked || 0) - 1));
+      if (draft.pred && draft.pred.length && tailPts.length) tailPts = tailPts.concat(draft.pred);       // the browser's guess of where the pen is heading: the ink keeps up with the pen
+      if (tailPts.length) {
         frameCtx.save(); applyView(frameCtx);
-        if (livePts.length < 2) drawStroke(frameCtx, { ...draft, points: livePts });
-        else drawPenSpan(frameCtx, draft, livePts, Math.max(1, draft.baked || 0), livePts.length - 1, true);
+        drawStroke(frameCtx, { ...draft, points: tailPts });
         frameCtx.restore();
       }
     } else if (draft) {
@@ -1218,29 +1094,11 @@ function writeVault() {       // writes run one after another, so an older write
   writeChain = p.catch(() => { });
   return p;
 }
-/* ---------- install as an app (PWA) ----------
-   On Chrome / Chromebook / Android / Edge the browser offers "install": NoteFlow then gets its own window and icon, opens without the
-   address bar, and keeps working with no internet (the service worker keeps a copy of the page). Needs the hosted copy (https) with
-   manifest.webmanifest, sw.js and the icons next to index.html. */
-let installEvt = null;
-const isInstalled = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if (!isInstalled()) $('installBtn') && $('installBtn').classList.remove('hidden'); });
-window.addEventListener('appinstalled', () => { installEvt = null; $('installBtn') && $('installBtn').classList.add('hidden'); toast('ติดตั้งแล้ว เปิดจากไอคอน NoteFlow ได้เลย'); });
-async function installApp() {
-  if (!installEvt) { toast('เปิดเมนู ⋮ ของ Chrome แล้วเลือก "ติดตั้ง NoteFlow" หรือ "เพิ่มลงในหน้าจอหลัก"'); return; }
-  installEvt.prompt();
-  try { await installEvt.userChoice; } catch (e) { }
-  installEvt = null; $('installBtn').classList.add('hidden');
-}
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-  window.addEventListener('load', () => setTimeout(() => { navigator.serviceWorker.register('sw.js').catch(() => { }); }, 1500));
-}
-
 /* ---------- new version check (hosted copies only) ----------
    The page is cached by the browser and by GitHub Pages, so a fixed copy can take a long time to reach people. Shortly after opening
    (and every few minutes) the app asks the server for the newest copy; when its BUILD differs, a small "update" pill appears. It never
    reloads by itself in the middle of writing. */
-const BUILD = '2026-11-04-a';       // bump with every release: devices compare it with the copy on the server and offer the update
+const BUILD = '2026-11-02-d';       // bump with every release: devices compare it with the copy on the server and offer the update
 let updateEtag = null, updateShown = false;
 async function checkForUpdate(first) {
   if (!/^https?:$/.test(location.protocol) || updateShown) return;
@@ -1344,13 +1202,7 @@ const ACCESS_CACHE = 'noteflow.access.status', ACCESS_HASH = 'noteflow.access.ha
 const APP_ID = ACCESS.appId;                                  // must match APP_ID in noteflow_admin.html
 
 /*SHARED-CRYPTO-START (identical in noteflow_admin.html — keep the two copies in sync)*/
-const normCode = c => String(c || '').trim().toLowerCase();
-/* what a person may have typed/pasted: as-is first, then cleaned of spaces, zero-width characters and stray punctuation at the ends */
-function codeVariants(raw) {
-  const a = normCode(raw);
-  const b = normCode(String(raw || '').normalize('NFKC').replace(/[\s\u200B-\u200D\u2060\uFEFF]+/g, '')).replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '');
-  return [...new Set([a, b])].filter(Boolean);
-}
+const normCode = c => String(c || '').normalize('NFKC').replace(/[\u200B-\u200D\u2060\uFEFF\u00AD\u200E\u200F\u202A-\u202E]/g, '').trim().toLowerCase();   // NFKC + invisible characters: a code copied from a chat app still matches (same result as before for a plainly typed code)
 const _te = new TextEncoder();
 const _hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 const _b64 = u8 => { let s = ''; u8.forEach(b => { s += String.fromCharCode(b); }); return btoa(s); };
@@ -1382,6 +1234,7 @@ async function openPrev(code, s) {                            // -> array of old
 /*SHARED-CRYPTO-END*/
 
 let accessOk = true, accessBusy = false, accessMode = 'retry';
+let accessAlt = null;           // {hash, code} of the typed code with inner spaces removed, tried if the typed form is not found
 let accessUser = null;          // status.json record of the person using this device (only in personal-code mode)
 let accessHash = '';            // hash of the code this device last entered (a hash, not the code)
 let accessClaimKey = '', accessClaimAt = 0;
@@ -1430,7 +1283,7 @@ async function fetchJson(url, opts) {
   } finally { clearTimeout(timer); }
 }
 let apiBackoffUntil = 0, apiLastAt = 0;
-async function accessFetchStatus(fresh) {
+async function accessFetchStatus() {
   const repo = (Date.now() < apiBackoffUntil || Date.now() - apiLastAt < ACCESS.apiEveryMs) ? '' : accessRepo();
   if (repo) {                                                  // 1) GitHub API: shows a change within seconds
     apiLastAt = Date.now();
@@ -1446,15 +1299,15 @@ async function accessFetchStatus(fresh) {
   }
   accessViaApi = false;
   const sep = ACCESS.statusUrl.includes('?') ? '&' : '?';       // 2) the hosted file itself
-  const st = await fetchJson(ACCESS.statusUrl + sep + 't=' + (fresh ? Date.now() + '-' + Math.floor(Math.random() * 1e6) : Math.floor(Date.now() / ACCESS.bucketMs)), { cache: 'no-store' });   // same address for everyone within a 30 s window, so the CDN answers most people from its copy
+  const st = await fetchJson(ACCESS.statusUrl + sep + 't=' + Math.floor(Date.now() / ACCESS.bucketMs), { cache: 'no-store' });   // same address for everyone within a 30 s window, so the CDN answers most people from its copy
   if (!st || typeof st !== 'object') throw new Error('bad status');
   return st;
 }
 function accessReadCache() { try { return JSON.parse(localStorage.getItem(ACCESS_CACHE)); } catch (e) { return null; } }
-async function accessEvaluate(fresh) {
+async function accessEvaluate() {
   let st = null, fromCache = false;
   try {
-    st = await accessFetchStatus(fresh);
+    st = await accessFetchStatus();
     try { localStorage.setItem(ACCESS_CACHE, JSON.stringify({ st, at: Date.now() })); } catch (e) { }
   } catch (e) {
     const c = accessReadCache();
@@ -1467,8 +1320,19 @@ async function accessEvaluate(fresh) {
   const users = Array.isArray(st.users) ? st.users.filter(u => u && typeof u.hash === 'string') : [];
   if (users.length) {                                      // personal-code mode: everybody needs their own code
     if (!accessHash) return { ok: false, reason: 'needcode' };
-    const u = users.find(x => x.hash === accessHash);
-    if (!u) { if (fromCache) return { ok: false, reason: 'offline' }; /* an old saved copy may simply not list a NEW person yet: that is not 'wrong code' */ return { ok: false, reason: 'badcode' }; }
+    const sameHash = (a, b) => String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+    let u = users.find(x => sameHash(x.hash, accessHash));
+    if (!u && accessAlt && !fromCache) {                   // typed with a space inside (e.g. copied as "abcd efgh"): try it without the space
+      const u2 = users.find(x => sameHash(x.hash, accessAlt.hash));
+      if (u2) {
+        u = u2; accessHash = accessAlt.hash; sessionCode = accessAlt.code; keyIsAccessCode = false;
+        try { localStorage.setItem(ACCESS_HASH, accessHash); } catch (e) { }
+        if (claimOn()) { accessClaimKey = await claimKeyOf(accessAlt.code); try { localStorage.setItem(ACCESS_CLAIM, accessClaimKey); localStorage.removeItem(ACCESS_CLAIMED); } catch (e) { } }
+      }
+    }
+    if (!u && fromCache) return { ok: false, reason: 'offline' };   // the saved answer may be older than the code: never call a code wrong from a stale copy, ask again online
+    if (!u) { sessionCode = null; return { ok: false, reason: 'badcode' }; }
+    accessAlt = null;
     if (u.on === false) return { ok: false, reason: 'useroff', message: u.message || st.message };
     accessUser = u;
     if (claimOn()) {
@@ -1487,8 +1351,8 @@ function accessShow(res) {
     disabled: ['ปิดการใช้งานชั่วคราว', (res && res.message) || 'ผู้ดูแลปิดการใช้งานอยู่ โน้ตของคุณยังอยู่ครบในเครื่องนี้ กลับมาใหม่เมื่อเปิดใช้งาน', false, 'ลองอีกครั้ง'],
     useroff: ['ปิดการใช้งานสำหรับคุณ', (res && res.message) || 'ผู้ดูแลปิดสิทธิ์ของคุณไว้ชั่วคราว ติดต่อผู้ดูแลเพื่อขอเปิดใช้งาน โน้ตของคุณยังอยู่ครบในเครื่องนี้', false, 'ลองอีกครั้ง'],
     needcode: ['กรอกรหัสเข้าใช้งาน', 'ขอรหัสได้จากผู้ดูแล รหัสนี้ใช้ล็อกโน้ตของคุณด้วย', true, 'ยืนยัน'],
-    claimed: ['รหัสนี้ถูกผูกกับอีกเครื่อง/อีกเบราว์เซอร์แล้ว', 'รหัสหนึ่งใช้ได้เพียงที่เดียว เช่น ถ้าเปิดลิงก์ในแอปแชต (LINE/Facebook) ไปแล้ว หรือเคยล้างข้อมูลเบราว์เซอร์ หรือเปิดจากไอคอนบนหน้าจอหลักของ iPhone รหัสจะถูกนับเป็นอีกเครื่อง ให้ขอรหัสใหม่จากผู้ดูแล', true, 'ลองรหัสอื่น'],
-    badcode: ['รหัสใช้ไม่ได้', 'ตรวจตัวอักษรอีกครั้ง (ไม่ต้องเว้นวรรค) ถ้าเพิ่งได้รับรหัสใหม่ ให้รอ 1–2 นาทีให้ระบบอัปเดต แล้วกดยืนยันอีกครั้ง ถ้ายังไม่ได้ ผู้ดูแลอาจเปลี่ยนรหัสของคุณแล้ว กรอกรหัสล่าสุด โน้ตเดิมจะยังเปิดได้ตามปกติ', true, 'ยืนยัน'],
+    claimed: ['รหัสนี้ถูกใช้บนเครื่องอื่นแล้ว', 'รหัสหนึ่งใช้ได้เพียงเครื่องเดียว ถ้าได้รับรหัสนี้มาจากผู้ดูแลโดยตรงแล้วใช้ไม่ได้ ให้ขอรหัสใหม่จากผู้ดูแล', true, 'ลองรหัสอื่น'],
+    badcode: ['รหัสใช้ไม่ได้', 'รหัสนี้ไม่ถูกต้อง หรือผู้ดูแลเปลี่ยนรหัสของคุณแล้ว กรอกรหัสล่าสุดที่ได้รับ โน้ตเดิมของคุณจะยังเปิดได้ตามปกติ', true, 'ยืนยัน'],
     svcerr: ['ระบบตรวจรหัสยังไม่พร้อม', 'ตัวจดรหัสของผู้ดูแลตอบกลับผิดพลาด (อาจยังตั้งค่า KV ไม่ครบ) แจ้งผู้ดูแล แล้วลองอีกครั้ง', false, 'ลองอีกครั้ง'],
     nostatus: ['ไม่พบไฟล์ status.json', 'ผู้ดูแลยังไม่ได้อัปโหลด status.json ไว้ข้างไฟล์ index.html ในรีโพ GitHub (ชื่อต้องเป็น status.json ตัวพิมพ์เล็กทั้งหมด)', false, 'ลองอีกครั้ง'],
     claimdown: ['เชื่อมต่อบริการตรวจรหัสไม่ได้', 'ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง ถ้ายังไม่ได้ให้แจ้งผู้ดูแล (ที่อยู่ของบริการตรวจรหัสอาจไม่ถูกต้อง)', false, 'ลองอีกครั้ง'],
@@ -1505,21 +1369,17 @@ function accessShow(res) {
   $('accessSheet').classList.remove('hidden');
   if (code) setTimeout(() => $('accCode').focus(), 50);
 }
-async function accessRun(silent, fresh) {
+async function accessRun(silent) {
   if (!accessOn() || accessBusy) return;
   if (silent && accessOk && !$('editor').classList.contains('hidden') && Date.now() - accessLastAt < 60 * 1000) return;   // while a note is open: ask at most once a minute, so nothing competes with the pen
   if (silent && !accessOk && accessMode === 'code') return;     // the person is typing a code: don't disturb
   accessBusy = true;
   if (!silent) accessShow('checking');
   let res;
-  try { res = await accessEvaluate(fresh); } catch (e) { res = { ok: false, reason: 'offline' }; }
-  if (!res.ok && silent && accessOk && res.reason === 'badcode') {      // one odd answer (CDN copy mid-update) must not lock someone out while writing: ask once more, fresh
-    await new Promise(r => setTimeout(r, 4000));
-    try { res = await accessEvaluate(true); } catch (e) { res = { ok: false, reason: 'offline' }; }
-  }
+  try { res = await accessEvaluate(); } catch (e) { res = { ok: false, reason: 'offline' }; }
   accessBusy = false; accessLastAt = Date.now();
   if (res.ok) {
-    accessOk = true; $('accessSheet').classList.add('hidden'); try { $('accCode').value = ''; } catch (e) { }
+    accessOk = true; $('accessSheet').classList.add('hidden');
     if (lockedRec) lockCopy(legacyPrompt);
     reconcileVault();
     return;
@@ -1529,21 +1389,18 @@ async function accessRun(silent, fresh) {
   accessOk = false;
   if (wasOk && noteId && !$('editor').classList.contains('hidden')) writeVault().catch(() => { });   // never lose what was being written
   accessShow(res);
-  if (['useroff', 'badcode', 'claimed'].includes(res.reason)) forgetDevice(true);   // this person was switched off / their code withdrawn: the code is needed again
 }
 async function accessButton() {
   if (accessBusy) return;
   if (accessMode === 'code') {
-    const vs = codeVariants($('accCode').value);
-    if (!vs.length) return;
-    let v = vs[0];
+    const v = normCode($('accCode').value);
+    if (!v) return;
+    $('accCode').value = '';
     accessBusy = true; accessShow('checking');
     try {
-      if (vs.length > 1) {                                        // pasted text often carries invisible characters: use the spelling status.json really knows
-        let st0 = null; try { st0 = await accessFetchStatus(true); } catch (e) { }
-        if (st0 && Array.isArray(st0.users)) for (const c of vs) { const hc = await hashCode(c); if (st0.users.some(u => u && u.hash === hc)) { v = c; break; } }
-      }
       const h = await hashCode(v);
+      const vNoSp = v.replace(/\s+/g, '');
+      accessAlt = (vNoSp && vNoSp !== v) ? { hash: await hashCode(vNoSp), code: vNoSp } : null;
       accessHash = h;
       try { localStorage.setItem(ACCESS_HASH, h); } catch (e) { }
       if (claimOn()) { accessClaimKey = await claimKeyOf(v); accessClaimAt = 0; try { localStorage.setItem(ACCESS_CLAIM, accessClaimKey); localStorage.removeItem(ACCESS_CLAIMED); } catch (e) { } }
@@ -1552,14 +1409,14 @@ async function accessButton() {
     } catch (e) { }
     accessBusy = false;
   }
-  accessRun(false, accessMode === 'code');
+  accessRun(false);
 }
 function accessStart() {
   if (!accessOn()) return;
   /* personal link: https://.../index.html#code=THEIRCODE enters the code by itself. The code is taken out of the address bar at once; the
      claim service then ties it to the first device that opens it, so the same link opened on another device is refused. */
   let linkCode = '';
-  try { const m = /[#&]code=([^&]+)/.exec(location.hash); if (m) { linkCode = decodeURIComponent(m[1]); history.replaceState(null, '', location.pathname + location.search); } } catch (e) { }
+  try { const m = /[#&]code=([^&?\s]+)/.exec(location.hash); if (m) { linkCode = decodeURIComponent(m[1]); history.replaceState(null, '', location.pathname + location.search); } } catch (e) { }
   if (normCode(linkCode)) { accessMode = 'code'; $('accCode').value = linkCode; accessButton(); }
   else accessRun(false);
   setInterval(() => {
@@ -1580,53 +1437,6 @@ function accessStart() {
    - locked with the code             -> just unlock
    - locked with an OLD code          -> unlock with the old code (found in status.json "prev"), re-lock with the new one
    - locked with a private password   -> ask for that old password once, then re-lock with the code                      */
-/* ---------- remember this device ----------
-   After the person has entered their code once (or opened their personal link) on this device, the notes' key is kept in this browser as a
-   NON-extractable key (nobody, not even this page, can read the code or the key back out of it). Next time the app opens, the notes unlock
-   by themselves - no code to type. It is forgotten (and the notes lock again) when:
-   - the admin switches THIS person off (or changes / withdraws their code, or the code turns out to belong to another device), or
-   - the person presses "ล็อกตอนนี้". Then the code is needed again, and only then. */
-const DEVKEY = 'devkey';
-let deviceRemembered = false;
-async function idbDel(key) {
-  const d = await openDB();
-  return new Promise((res, rej) => { const tx = d.transaction(STORE, 'readwrite'); tx.objectStore(STORE).delete(key); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
-}
-async function persistDeviceKey() {
-  try {
-    if (!keyIsAccessCode || !cryptoKey || !vaultSalt || !codeMode() || !accessHash) return;
-    const salt = _b64(new Uint8Array(vaultSalt));
-    const cur = await idbGet(DEVKEY);
-    if (cur && cur.salt === salt && cur.hash === accessHash) { deviceRemembered = true; return; }
-    await idbSet(DEVKEY, { key: cryptoKey, salt, hash: accessHash });
-    deviceRemembered = true;
-  } catch (e) { }
-}
-async function forgetDevice(relock) {
-  deviceRemembered = false;
-  try { await idbDel(DEVKEY); } catch (e) { }
-  if (!relock) return;
-  accessHash = ''; accessClaimKey = ''; sessionCode = null; keyIsAccessCode = false; legacyPrompt = false;
-  try { localStorage.removeItem(ACCESS_HASH); localStorage.removeItem(ACCESS_CLAIM); localStorage.removeItem(ACCESS_CLAIMED); } catch (e) { }
-  if (!cryptoKey) return;                                       // already locked
-  clearTimeout(saveTimer); saveFirstDirty = 0;
-  try { await writeVault(); } catch (e) { }                     // what was just written is kept, encrypted with the code
-  cryptoKey = null; db = { notes: [] }; noteId = null;
-  closeSecurity();
-  try { showLock(await idbGet(REC)); } catch (e) { }
-}
-async function tryDeviceKey(rec) {                              // -> true when the notes were opened with the remembered key
-  try {
-    if (!accessOn() || !rec || !rec.enc) return false;
-    const dk = await idbGet(DEVKEY);
-    if (!dk || !dk.key || !accessHash || dk.hash !== accessHash || dk.salt !== _b64(new Uint8Array(rec.salt))) return false;
-    const data = await decryptVault(dk.key, rec.iv, rec.cipher);
-    db = data; normalizeDb();
-    cryptoKey = dk.key; vaultSalt = rec.salt; lockedRec = null; legacyPrompt = false; keyIsAccessCode = true; deviceRemembered = true;
-    return true;
-  } catch (e) { return false; }
-}
-
 async function adoptCode() {
   if (!sessionCode) return;
   const salt = crypto.getRandomValues(new Uint8Array(16));
@@ -1634,7 +1444,6 @@ async function adoptCode() {
   vaultSalt = salt; cryptoKey = key; keyIsAccessCode = true;
   await writeVault();
   armIdleLock();
-  persistDeviceKey();
 }
 async function tryKeyOnVault(rec, pass) {
   try {
@@ -1703,11 +1512,6 @@ function showBlocked(title, msg) {
   o.querySelector('#blkT').textContent = title; o.querySelector('#blkM').textContent = msg;
 }
 async function boot() {
-  const wd = setTimeout(() => { if (!vaultReady && !document.getElementById('blockedBox')) showBlocked('แอปเปิดช้ากว่าปกติ', 'โน้ตของคุณไม่หาย แค่แอปยังเปิดไม่เสร็จ กด "ลองอีกครั้ง" เพื่อโหลดใหม่ ถ้ายังเป็นอีกให้ปิดแท็บอื่นแล้วลองใหม่'); }, 15000);
-  try { await bootMain(); } catch (e) { console.error(e); showBlocked('เปิดแอปไม่สำเร็จ', 'โน้ตของคุณยังอยู่ในเครื่อง กด "ลองอีกครั้ง" เพื่อโหลดใหม่ ถ้ายังไม่ได้ให้ปิดแท็บอื่นของแอปนี้ก่อน'); }
-  clearTimeout(wd);
-}
-async function bootMain() {
   accessStart();
   let got = null;
   for (let i = 0; i < 3 && !(await claimWriterLock()); i++) { if (i === 2) got = 'tab'; else await new Promise(r => setTimeout(r, 700)); }
@@ -1724,10 +1528,7 @@ async function bootMain() {
     seed(); showDashboard();
     initCloud(true); bootDone(); return;
   }
-  if (rec.enc) {
-    if (await tryDeviceKey(rec)) { showDashboard(); initCloud(false); bootDone(); return; }
-    vaultSalt = rec.salt; showLock(rec); bootDone(); return;
-  }
+  if (rec.enc) { vaultSalt = rec.salt; showLock(rec); bootDone(); return; }
   db = rec.data || { notes: [] };
   normalizeDb();
   showDashboard();                                // no demo note here: if you deleted every note, they must not come back by themselves
@@ -1750,7 +1551,6 @@ function showDashboard() {
   $('dashboard').classList.remove('hidden');
   renderFilters(); renderBoard(); renderPaperColors();
   armIdleLock();
-  persistDeviceKey();
 }
 
 let lockedRec = null;
@@ -1805,7 +1605,6 @@ function lockNow() {
   if (!cryptoKey) return toast('ยังไม่ได้ตั้งรหัสผ่าน');
   clearTimeout(saveTimer);
   sessionCode = null; keyIsAccessCode = false; legacyPrompt = false;     // the code is asked for again to open the notes
-  forgetDevice(false);
   writeVault().then(async () => {
     cryptoKey = null; db = { notes: [] }; noteId = null;
     closeSecurity();
@@ -1816,7 +1615,7 @@ function lockNow() {
 let idleTimer = null;
 function armIdleLock() {
   clearTimeout(idleTimer);
-  if (!cryptoKey || deviceRemembered) return;                 // a remembered device stays open; only the admin's switch or "lock now" closes it
+  if (!cryptoKey) return;
   idleTimer = setTimeout(lockNow, IDLE_LOCK_MS);
 }
 ['pointerdown', 'keydown'].forEach(ev =>
@@ -1880,32 +1679,6 @@ function renderFilters() {
   mb.onclick = openManageFolders;
   box.appendChild(mb);
 }
-/* Home-screen thumbnails used to be redrawn for EVERY note on every keystroke in the search box, every folder switch and every time a
-   picture finished loading - the more notes, the heavier it got. Now a thumbnail is drawn once and reused until that note's first page
-   really changes (key below); renderBoardSoon() also merges bursts of redraw requests into one. */
-const thumbCache = new Map(), THUMB_CACHE_MAX = 80;
-let boardTimer = 0;
-function renderBoardSoon() { clearTimeout(boardTimer); boardTimer = setTimeout(() => { boardTimer = 0; renderBoard(); }, 140); }
-function thumbKey(n, pg) {
-  return [n.updated, pg && pg.paper || n.paper, pg && pg.paperColor || n.paperColor, pg ? (pg.bg ? pg.bg.length : 0) : -1, pg && pg.strokes ? pg.strokes.length : 0, pg && pg.images ? pg.images.length : 0].join('|');
-}
-function thumbReady(pg) {          // every picture on the page is decoded, so the drawing is complete and safe to keep
-  if (!pg) return true;
-  if (pg.bg) { const im = imgCache.get(pg.bg); if (!im || !im.ready) return false; }
-  for (const m of (pg.images || [])) { if (m.txt !== undefined) continue; const c = imgObjCache.get(m.id); if (!c || !c.el || !c.el.ready) return false; }
-  return true;
-}
-function drawThumb(thumb, n) {
-  const pg = n.pages[0], key = thumbKey(n, pg), hit = thumbCache.get(n.id);
-  if (hit && hit.key === key) { thumb.getContext('2d').drawImage(hit.canvas, 0, 0); thumbCache.delete(n.id); thumbCache.set(n.id, hit); return; }
-  drawPage(thumb.getContext('2d'), n, pg, 420 / PAGE_W, 420, 300);
-  if (thumbReady(pg)) {
-    const keep = document.createElement('canvas'); keep.width = 420; keep.height = 300;
-    keep.getContext('2d').drawImage(thumb, 0, 0);
-    thumbCache.delete(n.id); thumbCache.set(n.id, { key, canvas: keep });
-    if (thumbCache.size > THUMB_CACHE_MAX) thumbCache.delete(thumbCache.keys().next().value);
-  }
-}
 function renderBoard() {
   const q = $('q').value.trim().toLowerCase();
   const grid = $('grid');
@@ -1929,7 +1702,7 @@ function renderBoard() {
     card.onkeydown = e => { if (e.key === 'Enter') openEditor(n.id); };
     const thumb = document.createElement('canvas');
     thumb.className = 'thumb'; thumb.width = 420; thumb.height = 300;
-    drawThumb(thumb, n);
+    drawPage(thumb.getContext('2d'), n, n.pages[0], 420 / PAGE_W, 420, 300);
     card.appendChild(thumb);
     const meta = document.createElement('div');
     meta.className = 'meta';
@@ -2224,11 +1997,10 @@ function gotoPage(i) {
   resetSelectionState(); clearImageSelection(); draft = null;
   refreshPager(); render();
 }
-function addPage(props) {
-  const fresh = () => Object.assign({ strokes: [], bg: null }, props || {});
+function addPage() {
   if (vertMode) {
     syncVert();
-    note().pages.splice(pageIndex + 1, 0, fresh());
+    note().pages.splice(pageIndex + 1, 0, { strokes: [], bg: null });
     buildVpage();                                           // the stack is one page taller now
     undoStack.length = 0; redoStack.length = 0;
     resetSelectionState(); clearImageSelection(); draft = null;
@@ -2239,43 +2011,8 @@ function addPage(props) {
     render(); toast('เพิ่มหน้าแล้ว');
     return;
   }
-  note().pages.splice(pageIndex + 1, 0, fresh());
+  note().pages.splice(pageIndex + 1, 0, { strokes: [], bg: null });
   touch(); gotoPage(pageIndex + 1); toast('เพิ่มหน้าแล้ว');
-}
-/* ---------- "add page" sheet: pick the paper (blank / lined / grid / dots) and its colour for the new page ---------- */
-let apPaper = 'blank', apColor = '#ffffff';
-function openAddPage() {
-  const n = note(); if (!n) return;
-  const cur = n.pages[pageIndex];
-  apPaper = pgPaperKind(n, cur) || 'blank'; apColor = pgPaperColor(n, cur);      // starts like the page you are on
-  renderAddPageOpts();
-  $('apSheet').classList.remove('hidden');
-}
-function closeAddPage() { $('apSheet').classList.add('hidden'); }
-function renderAddPageOpts() {
-  document.querySelectorAll('#apOpts .opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.paper === apPaper)));
-  const box = $('apColors'); box.innerHTML = '';
-  PAPER_COLORS.forEach(c => {
-    const b = document.createElement('button');
-    b.className = 'sw'; b.style.background = c; b.setAttribute('aria-label', 'สีกระดาษ');
-    b.setAttribute('aria-pressed', String(c === apColor));
-    b.onclick = () => { apColor = c; renderAddPageOpts(); };
-    box.appendChild(b);
-  });
-}
-function apProps() {                                   // only what differs from the notebook's own paper is stored on the page
-  const n = note(), p = {};
-  if (apPaper !== n.paper) p.paper = apPaper;
-  if (apColor !== (n.paperColor || '#ffffff')) p.paperColor = apColor;
-  return p;
-}
-function confirmAddPage() { const p = apProps(); closeAddPage(); addPage(p); }
-function applyPaperToThisPage() {                      // same choices, but for the page that is open instead of a new one
-  const n = note(); syncVert();
-  const pg = n && n.pages[pageIndex]; if (!pg) return;
-  delete pg.paper; delete pg.paperColor;
-  Object.assign(pg, apProps());
-  closeAddPage(); touch(); render(); toast('เปลี่ยนกระดาษหน้านี้แล้ว');
 }
 /* ---------- delete a page (undoable) ----------
    The deleted page is kept aside with its position; "undo" (button or 2-finger tap) puts it back exactly there,
@@ -2723,26 +2460,6 @@ function renderSwatches() {
   add.onclick = () => $('customColorInput').click();
   box.appendChild(add);
 }
-/* The pen's default brown is almost the same shade as the dark paper, so a line written there looked like it had vanished.
-   When the pen colour would be hard to see on the page that is open, it switches to white (dark paper) or back to the default
-   brown (light paper). A colour that already stands out is never touched. */
-const _lum = hex => {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return null;
-  const v = parseInt(m[1], 16), ch = [v >> 16, (v >> 8) & 255, v & 255].map(x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
-  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
-};
-const _contrast = (a, b) => { const la = _lum(a), lb = _lum(b); if (la === null || lb === null) return 21; return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
-function autoInkForPaper() {
-  const n = note(); if (!n || !n.pages || strokeInProgress || draft) return;
-  const paper = pgPaperColor(n, n.pages[pageIndex]);
-  if (_contrast(ink, paper) >= 2.2) return;
-  const dark = (_lum(paper) || 1) < 0.2;
-  const next = dark ? '#ffffff' : palette[0];
-  if (next === ink || _contrast(next, paper) < 2.2) return;
-  ink = next;
-  try { renderSwatches(); } catch (e) { }
-  toast(dark ? 'กระดาษสีเข้ม — เปลี่ยนสีปากกาเป็นสีขาวให้แล้ว' : 'เปลี่ยนสีปากกากลับเป็นสีเข้มให้แล้ว');
-}
 function curPalette() { return tool === 'highlighter' ? hlPalette : palette; }
 function curInk() { return tool === 'highlighter' ? hlInk : ink; }
 function setInk(c) {
@@ -2935,7 +2652,7 @@ function objImage(m) {
   let c = imgObjCache.get(m.id);
   if (!c || c.src !== m.src) {
     const el = new Image();
-    el.onload = () => { el.ready = true; if (!$('editor').classList.contains('hidden')) render(); else renderBoardSoon(); };
+    el.onload = () => { el.ready = true; if (!$('editor').classList.contains('hidden')) render(); else renderBoard(); };
     el.src = m.src;
     c = { src: m.src, el };
     imgObjCache.set(m.id, c);
@@ -3013,9 +2730,8 @@ function planBacking() {
   return plan;
 }
 
-function render(zoomOnly, slideOk, appendStroke) {
+function render(zoomOnly, slideOk) {
   scheduleFillCheck();
-  if (!zoomOnly && !appendStroke) autoInkForPaper();
   if (fillMode) updateFillHint();
   const dprNow = window.devicePixelRatio || 1;
   layoutCanvas();
@@ -3047,7 +2763,7 @@ function render(zoomOnly, slideOk, appendStroke) {
     viewCanvas.style.width = (cw / k) + 'px'; viewCanvas.style.height = (ch / k) + 'px';
     viewCanvas.style.display = 'block';
     if (canvas.width !== 1 || canvas.height !== 1) { canvas.width = 1; canvas.height = 1; }
-    canvas.style.backgroundColor = n ? pgPaperColor(n, pg) : '#ffffff';
+    canvas.style.backgroundColor = (n && n.paperColor) || '#ffffff';
   } else {
     viewCanvas.style.display = 'none';
     if (viewCanvas.width !== 1) { viewCanvas.width = 1; viewCanvas.height = 1; }
@@ -3060,12 +2776,6 @@ function render(zoomOnly, slideOk, appendStroke) {
     const raw = Math.min(1, (performance.now() - deleteAnim.start) / deleteAnim.duration);
     deleteAnim.progress = 1 - Math.pow(1 - raw, 3);
     deleteAnim.rawDone = raw >= 1;
-  }
-  /* a pen stroke was just finished and nothing else about the picture changed: lay only that stroke on top of the finished layers
-     instead of repainting every stroke of the page (that repaint is what made each lift of the pen hitch on slower devices) */
-  if (appendStroke && !viewChanged && !layersStale && !deleteAnim && !vertMode && !(fading && fading.length) && pg && pg.strokes.includes(appendStroke)) {
-    for (const c of [inkLayerCtx, baseCtx]) { c.save(); applyView(c); try { drawStroke(c, appendStroke); } finally { c.restore(); } }
-    paintFrame(); positionSelectionBar(); return;
   }
   if (dimsChanged) {
     baseCanvas.width = hlLayerCanvas.width = inkLayerCanvas.width = draftMaskCanvas.width = penBakeCanvas.width = frameCanvas.width = cw;
@@ -3185,11 +2895,11 @@ function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
   c.setTransform(1, 0, 0, 1, 0, 0);
   c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
   c.clearRect(0, 0, w, h);
-  c.fillStyle = pgPaperColor(n, pg);
+  c.fillStyle = n.paperColor || '#ffffff';
   c.fillRect(0, 0, w, h);
   c.save();
   if (view) c.setTransform(scale, 0, 0, scale, -view.x, -view.y); else c.scale(scale, scale);
-  currentPaperDark = pgPaperColor(n, pg && pg._vert ? n.pages[pageIndex] : pg) === '#20262e';
+  currentPaperDark = n.paperColor === '#20262e';
   if (pg && pg._vert) drawVertBackdrop(c, n, scale, h, view);      // stacked document: every page's own paper / background
   else drawPageBase(c, n, pg);
   if (pg && pg.images) pg.images.forEach(m => {
@@ -3213,14 +2923,13 @@ function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
 
 /* Background picture (imported PDF / image page) or the paper pattern of ONE page, at the origin. */
 function drawPageBase(c, n, pg) {
-  if (pg && pg.paperColor) { c.fillStyle = pg.paperColor; c.fillRect(0, 0, PAGE_W, PAGE_H); }      // this page's own paper colour (stacked pages each show theirs)
-  const im = pg && pg.bg ? bgImage(pg.bg, () => { if (!$('editor').classList.contains('hidden')) render(); else renderBoardSoon(); }) : null;
+  const im = pg && pg.bg ? bgImage(pg.bg, () => { if (!$('editor').classList.contains('hidden')) render(); else renderBoard(); }) : null;
   if (im) {
     const k = Math.min(PAGE_W / im.width, PAGE_H / im.height);
     const dw = im.width * k, dh = im.height * k;
     c.drawImage(im, (PAGE_W - dw) / 2, 0, dw, dh);
   } else {
-    drawPattern(c, pgPaperKind(n, pg), pgPaperColor(n, pg));
+    drawPattern(c, n.paper, n.paperColor);
   }
 }
 /* Vertical mode: the pages are stacked with no gap, so a stroke can run straight over a page break. Only the
@@ -4481,25 +4190,6 @@ function getCanvasPoint(e, rect) {
   return [(e.clientX - rect.left) / z, (e.clientY - rect.top) / z];
 }
 
-/* A fast flick reports points far apart. Joined through midpoints they turn a smooth swing into a few flat facets ("steps").
-   When the gap is wide, extra points are laid along a smooth (Hermite) curve between the last two samples, so the line follows the
-   real motion. Slow writing never gets here: its points are already close together. */
-function addPenPoint(q) {
-  const pts = draft.points, n = pts.length;
-  if (n >= 2 && draft.tool === 'pen' && !draft.straight) {
-    const a = pts[n - 2], b = pts[n - 1], gap = Math.hypot(q[0] - b[0], q[1] - b[1]) * zoom;
-    if (gap > 7 && gap < 400) {
-      const k = Math.min(12, Math.round(gap / 4));
-      const m0x = (q[0] - a[0]) / 2, m0y = (q[1] - a[1]) / 2, m1x = q[0] - b[0], m1y = q[1] - b[1];   // tangents: through the neighbours / along the new chord
-      for (let i = 1; i < k; i++) {
-        const t = i / k, t2 = t * t, t3 = t2 * t;
-        const h00 = 2 * t3 - 3 * t2 + 1, h10 = t3 - 2 * t2 + t, h01 = -2 * t3 + 3 * t2, h11 = t3 - t2;
-        pts.push([h00 * b[0] + h10 * m0x + h01 * q[0] + h11 * m1x, h00 * b[1] + h10 * m0y + h01 * q[1] + h11 * m1y]);
-      }
-    }
-  }
-  pts.push(q);
-}
 /* All the sub-frame samples of a pointer event (stylus reports far more often than the screen
    refreshes) - using them all is what keeps handwriting smooth and detailed when zoomed in. */
 function coalescedOf(e) {
@@ -4816,11 +4506,11 @@ canvas.addEventListener('pointermove', e => {
       for (const ce of coalescedOf(e)) {
         const q = getCanvasPoint(ce, rect), last = draft.points[draft.points.length - 1];
         if (hlLock && draft.tool === 'highlighter') { hlLockMove(q); continue; }
-        if (!last || Math.hypot(q[0] - last[0], q[1] - last[1]) * zoom >= 0.4) addPenPoint(q);
+        if (!last || Math.hypot(q[0] - last[0], q[1] - last[1]) * zoom >= 0.4) draft.points.push(q);
       }
       draft.pred = null;
       if (tool === 'pen' && e.pointerType === 'pen' && typeof e.getPredictedEvents === 'function') {
-        try { const pe = e.getPredictedEvents(); if (pe && pe.length) draft.pred = pe.slice(0, 2).map(x => getCanvasPoint(x, rect)); } catch (err) { }
+        try { const pe = e.getPredictedEvents(); if (pe && pe.length) draft.pred = pe.slice(0, 3).map(x => getCanvasPoint(x, rect)); } catch (err) { }
       }
       armShapeHold(e);
     }
@@ -4875,11 +4565,8 @@ function handlePointerUpInner(e) {
       page().strokes.push(draft);
       touch();
     }
-    const doneStroke = tool === 'pen' && draft.points.length > 0 ? draft : null;
-    const hlDone = tool === 'highlighter' && draft.points.length > 0 && !vertMode ? draft : null;
-    if (hlDone) addDirtyStroke(hlDone);              // a highlighter stroke only changes the patch it covers
     draft = null; shapeRecognized = false; lineLock = null; hlLock = null;
-    if (!(hlDone && renderRegion())) render(false, false, doneStroke);
+    render();
   } else if (tool === 'shape' && draft) {
     commitShape();
   } else if (tool === 'lasso' && lassoPoints) {
@@ -5064,64 +4751,24 @@ function openExport() {
 }
 function closeExport() { $('exportSheet').classList.add('hidden'); }
 
-/* ---------- progress overlay (shows % while importing / exporting) ---------- */
-const _tick = () => new Promise(r => setTimeout(r, 0));          // let the browser repaint between steps
-function progShow(title, label) { $('progTitle').textContent = title; progSet(0, label || ''); $('progSheet').classList.remove('hidden'); }
-function progSet(pct, label) {
-  pct = Math.max(0, Math.min(100, Math.round(pct)));
-  $('progPct').textContent = pct + '%';
-  $('progFill').style.width = pct + '%';
-  if (label != null) $('progLabel').textContent = label;
-}
-function progHide() { $('progSheet').classList.add('hidden'); }
-async function progStep(pct, label) { progSet(pct, label); await _tick(); }
-function readFileP(file, mode, onPct) {                          // FileReader with real read progress
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onprogress = ev => { if (ev.lengthComputable && onPct) onPct(ev.loaded / ev.total); };
-    r.onload = () => res(r.result); r.onerror = () => rej(r.error);
-    mode === 'text' ? r.readAsText(file) : r.readAsDataURL(file);
-  });
-}
-function saveBlob(blob, name) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.download = name; a.href = url;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
-}
-
-async function buildPDF(n, pages, filename) {
-  progShow('กำลังส่งออก PDF', 'กำลังโหลดตัวสร้าง PDF…');
-  try {
-    await progStep(2);
-    await loadLib('jspdf');
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
-    await progStep(8, 'กำลังเตรียมรูปในหน้า…');
-    await preloadPages(pages);
-    for (let i = 0; i < pages.length; i++) {
-      await progStep(10 + 82 * i / pages.length, 'หน้า ' + (i + 1) + ' / ' + pages.length);
-      if (i > 0) doc.addPage();
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
-      drawPage(tempCanvas.getContext('2d'), n, pages[i], 2, PAGE_W * 2, PAGE_H * 2);
-      doc.addImage(tempCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 595.28, 841.89);
-    }
-    await progStep(95, 'กำลังบันทึกไฟล์…');
-    doc.save(filename);
-    await progStep(100, 'เสร็จแล้ว');
-    await new Promise(r => setTimeout(r, 250));
-    return true;
-  } catch (err) {
-    toast('ส่งออก PDF ไม่สำเร็จ: ' + (err && err.message || 'ไม่ทราบสาเหตุ'));
-    return false;
-  } finally { progHide(); }
-}
-
 async function exportPDF() {
   syncVert();
+  toast('กำลังเตรียมไฟล์ PDF…');
+  await loadLib('jspdf');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const n = note();
-  if (await buildPDF(n, n.pages, n.title + '.pdf')) { closeExport(); toast('ส่งออก PDF เรียบร้อย'); }
+  await preloadPages(n.pages);
+  for (let i = 0; i < n.pages.length; i++) {
+    if (i > 0) doc.addPage();
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+    drawPage(tempCanvas.getContext('2d'), n, n.pages[i], 2, PAGE_W * 2, PAGE_H * 2);
+    const imgData = tempCanvas.toDataURL('image/jpeg', 0.92);
+    doc.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
+  }
+  doc.save(n.title + '.pdf');
+  closeExport(); toast('ส่งออก PDF เรียบร้อย');
 }
 
 async function exportPDFRange() {
@@ -5132,49 +4779,46 @@ async function exportPDFRange() {
   let to = parseInt($('pdfRangeTo').value, 10) || total;
   from = Math.max(1, Math.min(from, total));
   to = Math.max(from, Math.min(to, total));
-  if (await buildPDF(n, n.pages.slice(from - 1, to), n.title + '-หน้า' + from + '-' + to + '.pdf')) {
-    closeExport(); toast('ส่งออก PDF หน้า ' + from + '–' + to + ' เรียบร้อย');
-  }
+  toast('กำลังเตรียมไฟล์ PDF…');
+  await loadLib('jspdf');
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+  const pagesToExport = n.pages.slice(from - 1, to);
+  await preloadPages(pagesToExport);
+  pagesToExport.forEach((pg, i) => {
+    if (i > 0) doc.addPage();
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+    drawPage(tempCanvas.getContext('2d'), n, pg, 2, PAGE_W * 2, PAGE_H * 2);
+    const imgData = tempCanvas.toDataURL('image/jpeg', 0.92);
+    doc.addImage(imgData, 'JPEG', 0, 0, 595.28, 841.89);
+  });
+  doc.save(n.title + '-หน้า' + from + '-' + to + '.pdf');
+  closeExport(); toast('ส่งออก PDF หน้า ' + from + '–' + to + ' เรียบร้อย');
 }
 
 async function exportPNG() {
   syncVert();
-  progShow('กำลังส่งออก PNG', 'กำลังเตรียมรูป…');
-  try {
-    await progStep(5);
-    const pg = note().pages[pageIndex];      // the real page (in vertical mode: the one in the middle of the screen)
-    await preloadPages([pg]);
-    await progStep(40, 'กำลังวาดหน้า…');
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
-    drawPage(tempCanvas.getContext('2d'), note(), pg, 2, PAGE_W * 2, PAGE_H * 2);
-    await progStep(70, 'กำลังบันทึกไฟล์…');
-    const blob = await new Promise(r => tempCanvas.toBlob(r, 'image/png'));
-    saveBlob(blob, note().title + '-หน้า-' + (pageIndex + 1) + '.png');
-    await progStep(100, 'เสร็จแล้ว');
-    await new Promise(r => setTimeout(r, 250));
-    closeExport(); toast('ส่งออก PNG เรียบร้อย');
-  } catch (err) {
-    toast('ส่งออก PNG ไม่สำเร็จ');
-  } finally { progHide(); }
+  const pg = note().pages[pageIndex];      // the real page (in vertical mode: the one in the middle of the screen)
+  await preloadPages([pg]);
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = PAGE_W * 2; tempCanvas.height = PAGE_H * 2;   // exported at 2x resolution
+  drawPage(tempCanvas.getContext('2d'), note(), pg, 2, PAGE_W * 2, PAGE_H * 2);
+  const a = document.createElement('a');
+  a.download = note().title + '-หน้า-' + (pageIndex + 1) + '.png';
+  a.href = tempCanvas.toDataURL('image/png');
+  a.click();
+  closeExport(); toast('ส่งออก PNG เรียบร้อย');
 }
 
-async function exportBackup() {
+function exportBackup() {
   syncVert();
-  progShow('กำลังสำรองข้อมูล', 'กำลังรวบรวมโน้ต…');
-  try {
-    await progStep(10);
-    const json = JSON.stringify(db);
-    await progStep(60, 'กำลังสร้างไฟล์…');
-    const blob = new Blob([json], { type: 'application/json' });
-    await progStep(85, 'กำลังบันทึกไฟล์…');
-    saveBlob(blob, 'noteflow-backup-' + new Date().toISOString().slice(0, 10) + '.json');
-    await progStep(100, 'เสร็จแล้ว');
-    await new Promise(r => setTimeout(r, 250));
-    closeExport(); toast('สำรองข้อมูลเรียบร้อย');
-  } catch (err) {
-    toast('สำรองข้อมูลไม่สำเร็จ');
-  } finally { progHide(); }
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+  const a = document.createElement('a');
+  a.download = 'noteflow-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.href = dataStr;
+  a.click();
+  closeExport(); toast('สำรองข้อมูลเรียบร้อย');
 }
 
 async function handleImport(e) {
@@ -5182,61 +4826,39 @@ async function handleImport(e) {
   e.target.value = '';
   if (!file) return;
   if (file.name.endsWith('.json')) {
-    progShow('กำลังนำเข้าข้อมูล', 'กำลังอ่านไฟล์…');
-    try {
-      const text = await readFileP(file, 'text', f => progSet(f * 60));
-      await progStep(65, 'กำลังตรวจสอบข้อมูล…');
-      const parsed = JSON.parse(text);
-      db = parsed;
-      normalizeDb();
-      await progStep(80, 'กำลังบันทึกลงเครื่อง…');
-      await writeVault();
-      await progStep(95, 'กำลังแสดงผล…');
-      renderFilters(); renderBoard();
-      await progStep(100, 'เสร็จแล้ว');
-      toast('นำเข้าข้อมูลสำเร็จ');
-    } catch (err) { toast('ไฟล์ JSON ไม่ถูกต้อง'); }
-    finally { progHide(); }
+    const reader = new FileReader();
+    reader.onload = async ev => {
+      try {
+        db = JSON.parse(ev.target.result);
+        normalizeDb();
+        await writeVault();
+        renderFilters(); renderBoard(); toast('นำเข้าข้อมูลสำเร็จ');
+      } catch (err) { toast('ไฟล์ JSON ไม่ถูกต้อง'); }
+    };
+    reader.readAsText(file);
   } else if (file.type === 'application/pdf') {
-    progShow('กำลังนำเข้า PDF', 'กำลังอ่านไฟล์…');
-    let n = null;
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      await progStep(5, 'กำลังโหลดตัวอ่าน PDF…');
-      await loadLib('pdfjs');
-      await progStep(10, 'กำลังเปิดไฟล์…');
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const pages = [];
-      for (let i = 1; i <= pdf.numPages; i++) {
-        await progStep(10 + 85 * (i - 1) / pdf.numPages, 'กำลังแปลงหน้า ' + i + ' / ' + pdf.numPages);
-        const p = await pdf.getPage(i);
-        const vp = p.getViewport({ scale: 3 });
-        const c = document.createElement('canvas');
-        c.width = vp.width; c.height = vp.height;
-        await p.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
-        pages.push({ strokes: [], bg: c.toDataURL('image/jpeg', 0.9) });
-      }
-      await progStep(96, 'กำลังสร้างโน้ต…');
-      n = blankNote(file.name.replace(/\.pdf$/i, ''), targetFolder(), 'blank', '#ffffff', pages);
-      db.notes.push(n); save(); renderBoard();
-      await progStep(100, 'เสร็จแล้ว');
-    } catch (err) {
-      n = null; toast('นำเข้า PDF ไม่สำเร็จ — ไฟล์อาจเสียหายหรือมีรหัสผ่าน');
-    } finally { progHide(); }
-    if (n) openEditor(n.id);
+    toast('กำลังแปลงไฟล์ PDF…');
+    const arrayBuffer = await file.arrayBuffer();
+    await loadLib('pdfjs');
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pages = [];
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const p = await pdf.getPage(i);
+      const vp = p.getViewport({ scale: 3 });
+      const c = document.createElement('canvas');
+      c.width = vp.width; c.height = vp.height;
+      await p.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+      pages.push({ strokes: [], bg: c.toDataURL('image/jpeg', 0.9) });
+    }
+    const n = blankNote(file.name.replace(/\.pdf$/i, ''), targetFolder(), 'blank', '#ffffff', pages);
+    db.notes.push(n); save(); renderBoard(); openEditor(n.id);
   } else if (file.type.startsWith('image/')) {
-    progShow('กำลังนำเข้ารูปภาพ', 'กำลังอ่านไฟล์…');
-    let n = null;
-    try {
-      const url = await readFileP(file, 'url', f => progSet(f * 90));
-      await progStep(95, 'กำลังสร้างโน้ต…');
-      n = blankNote(file.name.replace(/\.[^/.]+$/, ''), targetFolder(), 'blank', '#ffffff', [{ strokes: [], bg: url }]);
-      db.notes.push(n); save(); renderBoard();
-      await progStep(100, 'เสร็จแล้ว');
-    } catch (err) {
-      n = null; toast('นำเข้ารูปภาพไม่สำเร็จ');
-    } finally { progHide(); }
-    if (n) openEditor(n.id);
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const n = blankNote(file.name.replace(/\.[^/.]+$/, ''), targetFolder(), 'blank', '#ffffff', [{ strokes: [], bg: ev.target.result }]);
+      db.notes.push(n); save(); renderBoard(); openEditor(n.id);
+    };
+    reader.readAsDataURL(file);
   }
 }
 
@@ -5759,11 +5381,7 @@ function moveImageDrag(e) {
       m.minH = n * lh0; textFit(m);
       m.y = north ? r.y + r.h - m.h : r.y;
     } else if (d.mode.length === 2) {
-      /* the corner follows the pointer: size grows by how far the pointer has moved along the box's diagonal, measured from the corner
-         that stays put (before, the change was divided by width + height, so a wide box needed a very long drag) */
-      const ax = west ? r.x + r.w : r.x, ay = north ? r.y + r.h : r.y, cx = east ? r.x + r.w : r.x, cy = south ? r.y + r.h : r.y;
-      const d0 = Math.hypot(cx - ax, cy - ay) || 1;
-      const k = Math.max(0.1, ((cx + dx - ax) * (cx - ax) + (cy + dy - ay) * (cy - ay)) / (d0 * d0));
+      const k = Math.max(0.1, 1 + ((east ? dx : -dx) + (south ? dy : -dy)) / (r.w + r.h));
       m.fs = Math.max(10, Math.min(300, Math.round(r.fs * k * 2) / 2));
       const k2 = m.fs / r.fs;
       m.w = Math.max(60, r.w * k2); m.minH = r.minH * k2; textFit(m);
@@ -5795,7 +5413,6 @@ function moveImageDrag(e) {
     }
   }
   m.x = x; m.y = y; m.w = w; m.h = h;
-  if (textEditId === m.id) positionTextEdit(m);
   positionImageBox();
   scheduleFrame(true);
 }
