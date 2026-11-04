@@ -222,10 +222,11 @@ input.doc-title:hover{border-color:var(--line)}
 .txt-ctl{display:none;gap:2px;align-items:center}
 .img-box.is-text .txt-ctl{display:flex}
 .img-box.is-text .img-ratio{display:none}
-@media (pointer:coarse){.img-box .hd{width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:6px}.img-box .hd::after{inset:-14px}}
-.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:28px;height:10px;margin:-5px 0 0 -14px;border-radius:5px}
-@media (pointer:coarse){.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:40px;height:14px;margin:-7px 0 0 -20px}}
-.img-box.is-text .hd[data-h=e],.img-box.is-text .hd[data-h=w]{height:26px;width:10px;margin:-13px 0 0 -5px}
+@media (pointer:coarse){.img-box .hd{width:28px;height:28px;margin:-14px 0 0 -14px;border-radius:8px}.img-box .hd::after{inset:-10px}}
+.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:44px;height:14px;margin:-7px 0 0 -22px;border-radius:7px}
+@media (pointer:coarse){.img-box.is-text .hd[data-h=n],.img-box.is-text .hd[data-h=s]{width:64px;height:20px;margin:-10px 0 0 -32px;border-radius:10px}}
+.img-box.is-text .hd[data-h=e],.img-box.is-text .hd[data-h=w]{height:44px;width:14px;margin:-22px 0 0 -7px;border-radius:7px}
+@media (pointer:coarse){.img-box.is-text .hd[data-h=e],.img-box.is-text .hd[data-h=w]{height:64px;width:20px;margin:-32px 0 0 -10px;border-radius:10px}}
 #txtEdit{position:absolute;z-index:6;margin:0;border:0;outline:0;background:transparent;resize:none;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;font-family:'IBM Plex Sans Thai',system-ui,sans-serif;caret-color:var(--accent);touch-action:manipulation;transform-origin:50% 50%}
 #txtEdit.hidden{display:none}
 #txtEdit.hand-live{color:transparent!important;caret-color:transparent}
@@ -236,8 +237,8 @@ input.doc-title:hover{border-color:var(--line)}
 .img-bar{position:absolute;left:0;top:-8px;transform:translateY(-100%);display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:var(--shadow);pointer-events:auto;white-space:nowrap}
 .img-bar button{padding:6px 10px;font-size:12px;border-radius:7px}
 .img-box.bar-below .img-bar{top:auto;bottom:-8px;transform:translateY(100%)}
-.hd{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;background:var(--panel);border:1.5px solid var(--accent);border-radius:3px;pointer-events:auto;touch-action:none}
-.hd::after{content:"";position:absolute;inset:-12px}
+.hd{position:absolute;width:16px;height:16px;margin:-8px 0 0 -8px;background:var(--panel);border:1.5px solid var(--accent);border-radius:3px;pointer-events:auto;touch-action:none}
+.hd::after{content:"";position:absolute;inset:-14px}
 .hd[data-h=nw]{left:0;top:0;cursor:nwse-resize}
 .hd[data-h=n]{left:50%;top:0;cursor:ns-resize}
 .hd[data-h=ne]{left:100%;top:0;cursor:nesw-resize}
@@ -246,6 +247,19 @@ input.doc-title:hover{border-color:var(--line)}
 .hd[data-h=s]{left:50%;top:100%;cursor:ns-resize}
 .hd[data-h=sw]{left:0;top:100%;cursor:nesw-resize}
 .hd[data-h=w]{left:0;top:50%;cursor:ew-resize}
+.img-box .hd.mv{background:transparent;border:0;border-radius:0;margin:0;cursor:move;display:none}
+.img-box .hd.mv::after{display:none}
+.img-box.is-text .hd.mv{display:block}
+.img-box .hd.mv-t{left:18px;right:18px;top:-18px;width:auto;height:18px}
+.img-box .hd.mv-b{left:18px;right:18px;top:100%;width:auto;height:18px}
+.img-box .hd.mv-l{top:18px;bottom:18px;left:-18px;width:18px;height:auto}
+.img-box .hd.mv-r{top:18px;bottom:18px;left:100%;width:18px;height:auto}
+.img-box .hd.mv-grip{left:50%;top:100%;width:52px;height:28px;margin:12px 0 0 -26px;border-radius:14px;background:var(--accent);color:#fff;font-size:16px;line-height:1;align-items:center;justify-content:center;box-shadow:var(--shadow);user-select:none}
+.img-box.is-text .hd.mv-grip{display:flex}
+.img-box.bar-below .hd.mv-grip{top:0;margin:-40px 0 0 -26px}
+.img-box.rotated.is-text .hd.mv{display:block}
+.img-box.rotated.is-text .hd.mv-grip{display:flex}
+@media (pointer:coarse){.img-box .hd.mv-grip{width:64px;height:36px;margin:14px 0 0 -32px;border-radius:18px;font-size:19px}.img-box.bar-below .hd.mv-grip{margin:-50px 0 0 -32px}.img-box .hd.mv-t{top:-22px;height:22px}.img-box .hd.mv-b{height:22px}.img-box .hd.mv-l{left:-22px;width:22px}.img-box .hd.mv-r{width:22px}}
 .zoombar{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;display:flex;align-items:center;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:var(--shadow);z-index:10}
 .zoombar .ib{width:34px;height:34px;border-radius:999px}
 .zoombar .num{font-size:12px;min-width:46px;text-align:center;color:var(--muted)}
@@ -433,7 +447,7 @@ input.doc-title:hover{border-color:var(--line)}
     <div class="actions">
       <button class="ib" onclick="undo()" title="เลิกทำ" aria-label="เลิกทำ"><svg class="i"><use href="#i-undo"/></svg></button>
       <button class="ib" onclick="redo()" title="ทำซ้ำ" aria-label="ทำซ้ำ"><svg class="i"><use href="#i-redo"/></svg></button>
-      <button class="ib" onclick="addPage()" title="เพิ่มหน้า" aria-label="เพิ่มหน้า"><svg class="i"><use href="#i-page-plus"/></svg></button>
+      <button class="ib" onclick="openAddPage()" title="เพิ่มหน้า" aria-label="เพิ่มหน้า"><svg class="i"><use href="#i-page-plus"/></svg></button>
       <button class="ib danger" onclick="deletePage()" title="ลบหน้านี้ (เลิกทำเพื่อนำกลับ)" aria-label="ลบหน้านี้"><svg class="i"><use href="#i-page-minus"/></svg></button>
       <label class="ib" title="แทรกรูปภาพ" aria-label="แทรกรูปภาพ">
         <svg class="i"><use href="#i-image-plus"/></svg>
@@ -520,8 +534,10 @@ input.doc-title:hover{border-color:var(--line)}
           <button class="btn ghost danger" onclick="deleteImage()">ลบ</button>
           <button class="btn ghost" title="เสร็จ" aria-label="เสร็จ" onclick="selectImage(null)"><svg class="i" style="width:14px;height:14px"><use href="#i-x"/></svg></button>
         </div>
+        <i class="hd mv mv-t" data-h="move"></i><i class="hd mv mv-b" data-h="move"></i><i class="hd mv mv-l" data-h="move"></i><i class="hd mv mv-r" data-h="move"></i>
         <i class="hd" data-h="n"></i><i class="hd" data-h="e"></i><i class="hd" data-h="s"></i><i class="hd" data-h="w"></i>
         <i class="hd" data-h="nw"></i><i class="hd" data-h="ne"></i><i class="hd" data-h="se"></i><i class="hd" data-h="sw"></i>
+        <i class="hd mv mv-grip" data-h="move" title="ลากเพื่อย้ายข้อความ" aria-label="ลากเพื่อย้ายข้อความ">✥</i>
       </div>
       <textarea id="txtEdit" class="hidden" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="พิมพ์ข้อความ" placeholder="พิมพ์ข้อความ…"></textarea>
     </div>
@@ -645,6 +661,32 @@ input.doc-title:hover{border-color:var(--line)}
     <div class="sheet-actions">
       <button class="btn ghost" onclick="closeNew()">ยกเลิก</button>
       <button class="btn primary" onclick="createNote()">สร้าง</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ADD PAGE SHEET ========== -->
+<div id="apSheet" class="scrim hidden">
+  <div class="sheet">
+    <h3>เพิ่มหน้าใหม่</h3>
+    <p class="lede">เลือกกระดาษของหน้าใหม่ จะเปลี่ยนเฉพาะหน้านี้ ไม่กระทบหน้าอื่น</p>
+    <div class="field">
+      <label>รูปแบบกระดาษ</label>
+      <div class="opts" id="apOpts">
+        <button class="opt" data-paper="blank" aria-pressed="true" onclick="apPaper='blank';renderAddPageOpts()">เปล่า</button>
+        <button class="opt" data-paper="lined" aria-pressed="false" onclick="apPaper='lined';renderAddPageOpts()">เส้นบรรทัด</button>
+        <button class="opt" data-paper="grid" aria-pressed="false" onclick="apPaper='grid';renderAddPageOpts()">ตาราง</button>
+        <button class="opt" data-paper="dots" aria-pressed="false" onclick="apPaper='dots';renderAddPageOpts()">จุด</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>สีกระดาษ</label>
+      <div class="swatches" id="apColors"></div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn ghost" onclick="closeAddPage()">ยกเลิก</button>
+      <button class="btn ghost" onclick="applyPaperToThisPage()">เปลี่ยนหน้านี้แทน</button>
+      <button class="btn primary" onclick="confirmAddPage()">เพิ่มหน้า</button>
     </div>
   </div>
 </div>
@@ -774,6 +816,9 @@ let palette = ['#3d3627', '#5b7a63', '#a85c45', '#6f7f9e', '#c08a3e', '#ffffff']
 let hlPalette = ['#ffe066', '#7ce27c', '#7ec8ff', '#ff9ecb', '#ffb85c']; // bright, saturated — highlighters read best vivid, not muted like ink
 let hlInk = hlPalette[0];
 const PAPER_COLORS = ['#ffffff', '#fdf6d8', '#f1f2f4', '#20262e'];
+/* A page can carry its own paper ({paper, paperColor}); without them it follows the notebook's paper. */
+const pgPaperKind = (n, pg) => (pg && pg.paper) || n.paper;
+const pgPaperColor = (n, pg) => (pg && pg.paperColor) || n.paperColor || '#ffffff';
 const KDF_ITER = 310000;
 const IDLE_LOCK_MS = 10 * 60 * 1000;
 
@@ -1195,7 +1240,7 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
    The page is cached by the browser and by GitHub Pages, so a fixed copy can take a long time to reach people. Shortly after opening
    (and every few minutes) the app asks the server for the newest copy; when its BUILD differs, a small "update" pill appears. It never
    reloads by itself in the middle of writing. */
-const BUILD = '2026-11-03-d';       // bump with every release: devices compare it with the copy on the server and offer the update
+const BUILD = '2026-11-04-a';       // bump with every release: devices compare it with the copy on the server and offer the update
 let updateEtag = null, updateShown = false;
 async function checkForUpdate(first) {
   if (!/^https?:$/.test(location.protocol) || updateShown) return;
@@ -1300,6 +1345,12 @@ const APP_ID = ACCESS.appId;                                  // must match APP_
 
 /*SHARED-CRYPTO-START (identical in noteflow_admin.html — keep the two copies in sync)*/
 const normCode = c => String(c || '').trim().toLowerCase();
+/* what a person may have typed/pasted: as-is first, then cleaned of spaces, zero-width characters and stray punctuation at the ends */
+function codeVariants(raw) {
+  const a = normCode(raw);
+  const b = normCode(String(raw || '').normalize('NFKC').replace(/[\s\u200B-\u200D\u2060\uFEFF]+/g, '')).replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, '');
+  return [...new Set([a, b])].filter(Boolean);
+}
 const _te = new TextEncoder();
 const _hex = buf => [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 const _b64 = u8 => { let s = ''; u8.forEach(b => { s += String.fromCharCode(b); }); return btoa(s); };
@@ -1379,7 +1430,7 @@ async function fetchJson(url, opts) {
   } finally { clearTimeout(timer); }
 }
 let apiBackoffUntil = 0, apiLastAt = 0;
-async function accessFetchStatus() {
+async function accessFetchStatus(fresh) {
   const repo = (Date.now() < apiBackoffUntil || Date.now() - apiLastAt < ACCESS.apiEveryMs) ? '' : accessRepo();
   if (repo) {                                                  // 1) GitHub API: shows a change within seconds
     apiLastAt = Date.now();
@@ -1395,21 +1446,21 @@ async function accessFetchStatus() {
   }
   accessViaApi = false;
   const sep = ACCESS.statusUrl.includes('?') ? '&' : '?';       // 2) the hosted file itself
-  const st = await fetchJson(ACCESS.statusUrl + sep + 't=' + Math.floor(Date.now() / ACCESS.bucketMs), { cache: 'no-store' });   // same address for everyone within a 30 s window, so the CDN answers most people from its copy
+  const st = await fetchJson(ACCESS.statusUrl + sep + 't=' + (fresh ? Date.now() + '-' + Math.floor(Math.random() * 1e6) : Math.floor(Date.now() / ACCESS.bucketMs)), { cache: 'no-store' });   // same address for everyone within a 30 s window, so the CDN answers most people from its copy
   if (!st || typeof st !== 'object') throw new Error('bad status');
   return st;
 }
 function accessReadCache() { try { return JSON.parse(localStorage.getItem(ACCESS_CACHE)); } catch (e) { return null; } }
-async function accessEvaluate() {
-  let st = null;
+async function accessEvaluate(fresh) {
+  let st = null, fromCache = false;
   try {
-    st = await accessFetchStatus();
+    st = await accessFetchStatus(fresh);
     try { localStorage.setItem(ACCESS_CACHE, JSON.stringify({ st, at: Date.now() })); } catch (e) { }
   } catch (e) {
     const c = accessReadCache();
     if (!c || !c.st) return { ok: false, reason: (e && e.status === 404) ? 'nostatus' : 'offline' };
     if (Date.now() - c.at > ACCESS.graceDays * 864e5) return { ok: false, reason: 'stale' };
-    st = c.st;                                   // offline: keep obeying the last answer we got
+    st = c.st; fromCache = true;                 // offline: keep obeying the last answer we got
   }
   accessUser = null;
   if (st.enabled === false) return { ok: false, reason: 'disabled', message: st.message };
@@ -1417,7 +1468,7 @@ async function accessEvaluate() {
   if (users.length) {                                      // personal-code mode: everybody needs their own code
     if (!accessHash) return { ok: false, reason: 'needcode' };
     const u = users.find(x => x.hash === accessHash);
-    if (!u) { sessionCode = null; return { ok: false, reason: 'badcode' }; }
+    if (!u) { if (fromCache) return { ok: false, reason: 'offline' }; /* an old saved copy may simply not list a NEW person yet: that is not 'wrong code' */ return { ok: false, reason: 'badcode' }; }
     if (u.on === false) return { ok: false, reason: 'useroff', message: u.message || st.message };
     accessUser = u;
     if (claimOn()) {
@@ -1436,8 +1487,8 @@ function accessShow(res) {
     disabled: ['ปิดการใช้งานชั่วคราว', (res && res.message) || 'ผู้ดูแลปิดการใช้งานอยู่ โน้ตของคุณยังอยู่ครบในเครื่องนี้ กลับมาใหม่เมื่อเปิดใช้งาน', false, 'ลองอีกครั้ง'],
     useroff: ['ปิดการใช้งานสำหรับคุณ', (res && res.message) || 'ผู้ดูแลปิดสิทธิ์ของคุณไว้ชั่วคราว ติดต่อผู้ดูแลเพื่อขอเปิดใช้งาน โน้ตของคุณยังอยู่ครบในเครื่องนี้', false, 'ลองอีกครั้ง'],
     needcode: ['กรอกรหัสเข้าใช้งาน', 'ขอรหัสได้จากผู้ดูแล รหัสนี้ใช้ล็อกโน้ตของคุณด้วย', true, 'ยืนยัน'],
-    claimed: ['รหัสนี้ถูกใช้บนเครื่องอื่นแล้ว', 'รหัสหนึ่งใช้ได้เพียงเครื่องเดียว ถ้าได้รับรหัสนี้มาจากผู้ดูแลโดยตรงแล้วใช้ไม่ได้ ให้ขอรหัสใหม่จากผู้ดูแล', true, 'ลองรหัสอื่น'],
-    badcode: ['รหัสใช้ไม่ได้', 'รหัสนี้ไม่ถูกต้อง หรือผู้ดูแลเปลี่ยนรหัสของคุณแล้ว กรอกรหัสล่าสุดที่ได้รับ โน้ตเดิมของคุณจะยังเปิดได้ตามปกติ', true, 'ยืนยัน'],
+    claimed: ['รหัสนี้ถูกผูกกับอีกเครื่อง/อีกเบราว์เซอร์แล้ว', 'รหัสหนึ่งใช้ได้เพียงที่เดียว เช่น ถ้าเปิดลิงก์ในแอปแชต (LINE/Facebook) ไปแล้ว หรือเคยล้างข้อมูลเบราว์เซอร์ หรือเปิดจากไอคอนบนหน้าจอหลักของ iPhone รหัสจะถูกนับเป็นอีกเครื่อง ให้ขอรหัสใหม่จากผู้ดูแล', true, 'ลองรหัสอื่น'],
+    badcode: ['รหัสใช้ไม่ได้', 'ตรวจตัวอักษรอีกครั้ง (ไม่ต้องเว้นวรรค) ถ้าเพิ่งได้รับรหัสใหม่ ให้รอ 1–2 นาทีให้ระบบอัปเดต แล้วกดยืนยันอีกครั้ง ถ้ายังไม่ได้ ผู้ดูแลอาจเปลี่ยนรหัสของคุณแล้ว กรอกรหัสล่าสุด โน้ตเดิมจะยังเปิดได้ตามปกติ', true, 'ยืนยัน'],
     svcerr: ['ระบบตรวจรหัสยังไม่พร้อม', 'ตัวจดรหัสของผู้ดูแลตอบกลับผิดพลาด (อาจยังตั้งค่า KV ไม่ครบ) แจ้งผู้ดูแล แล้วลองอีกครั้ง', false, 'ลองอีกครั้ง'],
     nostatus: ['ไม่พบไฟล์ status.json', 'ผู้ดูแลยังไม่ได้อัปโหลด status.json ไว้ข้างไฟล์ index.html ในรีโพ GitHub (ชื่อต้องเป็น status.json ตัวพิมพ์เล็กทั้งหมด)', false, 'ลองอีกครั้ง'],
     claimdown: ['เชื่อมต่อบริการตรวจรหัสไม่ได้', 'ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง ถ้ายังไม่ได้ให้แจ้งผู้ดูแล (ที่อยู่ของบริการตรวจรหัสอาจไม่ถูกต้อง)', false, 'ลองอีกครั้ง'],
@@ -1454,17 +1505,21 @@ function accessShow(res) {
   $('accessSheet').classList.remove('hidden');
   if (code) setTimeout(() => $('accCode').focus(), 50);
 }
-async function accessRun(silent) {
+async function accessRun(silent, fresh) {
   if (!accessOn() || accessBusy) return;
   if (silent && accessOk && !$('editor').classList.contains('hidden') && Date.now() - accessLastAt < 60 * 1000) return;   // while a note is open: ask at most once a minute, so nothing competes with the pen
   if (silent && !accessOk && accessMode === 'code') return;     // the person is typing a code: don't disturb
   accessBusy = true;
   if (!silent) accessShow('checking');
   let res;
-  try { res = await accessEvaluate(); } catch (e) { res = { ok: false, reason: 'offline' }; }
+  try { res = await accessEvaluate(fresh); } catch (e) { res = { ok: false, reason: 'offline' }; }
+  if (!res.ok && silent && accessOk && res.reason === 'badcode') {      // one odd answer (CDN copy mid-update) must not lock someone out while writing: ask once more, fresh
+    await new Promise(r => setTimeout(r, 4000));
+    try { res = await accessEvaluate(true); } catch (e) { res = { ok: false, reason: 'offline' }; }
+  }
   accessBusy = false; accessLastAt = Date.now();
   if (res.ok) {
-    accessOk = true; $('accessSheet').classList.add('hidden');
+    accessOk = true; $('accessSheet').classList.add('hidden'); try { $('accCode').value = ''; } catch (e) { }
     if (lockedRec) lockCopy(legacyPrompt);
     reconcileVault();
     return;
@@ -1479,11 +1534,15 @@ async function accessRun(silent) {
 async function accessButton() {
   if (accessBusy) return;
   if (accessMode === 'code') {
-    const v = normCode($('accCode').value);
-    if (!v) return;
-    $('accCode').value = '';
+    const vs = codeVariants($('accCode').value);
+    if (!vs.length) return;
+    let v = vs[0];
     accessBusy = true; accessShow('checking');
     try {
+      if (vs.length > 1) {                                        // pasted text often carries invisible characters: use the spelling status.json really knows
+        let st0 = null; try { st0 = await accessFetchStatus(true); } catch (e) { }
+        if (st0 && Array.isArray(st0.users)) for (const c of vs) { const hc = await hashCode(c); if (st0.users.some(u => u && u.hash === hc)) { v = c; break; } }
+      }
       const h = await hashCode(v);
       accessHash = h;
       try { localStorage.setItem(ACCESS_HASH, h); } catch (e) { }
@@ -1493,7 +1552,7 @@ async function accessButton() {
     } catch (e) { }
     accessBusy = false;
   }
-  accessRun(false);
+  accessRun(false, accessMode === 'code');
 }
 function accessStart() {
   if (!accessOn()) return;
@@ -1644,6 +1703,11 @@ function showBlocked(title, msg) {
   o.querySelector('#blkT').textContent = title; o.querySelector('#blkM').textContent = msg;
 }
 async function boot() {
+  const wd = setTimeout(() => { if (!vaultReady && !document.getElementById('blockedBox')) showBlocked('แอปเปิดช้ากว่าปกติ', 'โน้ตของคุณไม่หาย แค่แอปยังเปิดไม่เสร็จ กด "ลองอีกครั้ง" เพื่อโหลดใหม่ ถ้ายังเป็นอีกให้ปิดแท็บอื่นแล้วลองใหม่'); }, 15000);
+  try { await bootMain(); } catch (e) { console.error(e); showBlocked('เปิดแอปไม่สำเร็จ', 'โน้ตของคุณยังอยู่ในเครื่อง กด "ลองอีกครั้ง" เพื่อโหลดใหม่ ถ้ายังไม่ได้ให้ปิดแท็บอื่นของแอปนี้ก่อน'); }
+  clearTimeout(wd);
+}
+async function bootMain() {
   accessStart();
   let got = null;
   for (let i = 0; i < 3 && !(await claimWriterLock()); i++) { if (i === 2) got = 'tab'; else await new Promise(r => setTimeout(r, 700)); }
@@ -1823,7 +1887,7 @@ const thumbCache = new Map(), THUMB_CACHE_MAX = 80;
 let boardTimer = 0;
 function renderBoardSoon() { clearTimeout(boardTimer); boardTimer = setTimeout(() => { boardTimer = 0; renderBoard(); }, 140); }
 function thumbKey(n, pg) {
-  return [n.updated, n.paper, n.paperColor, pg ? (pg.bg ? pg.bg.length : 0) : -1, pg && pg.strokes ? pg.strokes.length : 0, pg && pg.images ? pg.images.length : 0].join('|');
+  return [n.updated, pg && pg.paper || n.paper, pg && pg.paperColor || n.paperColor, pg ? (pg.bg ? pg.bg.length : 0) : -1, pg && pg.strokes ? pg.strokes.length : 0, pg && pg.images ? pg.images.length : 0].join('|');
 }
 function thumbReady(pg) {          // every picture on the page is decoded, so the drawing is complete and safe to keep
   if (!pg) return true;
@@ -2160,10 +2224,11 @@ function gotoPage(i) {
   resetSelectionState(); clearImageSelection(); draft = null;
   refreshPager(); render();
 }
-function addPage() {
+function addPage(props) {
+  const fresh = () => Object.assign({ strokes: [], bg: null }, props || {});
   if (vertMode) {
     syncVert();
-    note().pages.splice(pageIndex + 1, 0, { strokes: [], bg: null });
+    note().pages.splice(pageIndex + 1, 0, fresh());
     buildVpage();                                           // the stack is one page taller now
     undoStack.length = 0; redoStack.length = 0;
     resetSelectionState(); clearImageSelection(); draft = null;
@@ -2174,8 +2239,43 @@ function addPage() {
     render(); toast('เพิ่มหน้าแล้ว');
     return;
   }
-  note().pages.splice(pageIndex + 1, 0, { strokes: [], bg: null });
+  note().pages.splice(pageIndex + 1, 0, fresh());
   touch(); gotoPage(pageIndex + 1); toast('เพิ่มหน้าแล้ว');
+}
+/* ---------- "add page" sheet: pick the paper (blank / lined / grid / dots) and its colour for the new page ---------- */
+let apPaper = 'blank', apColor = '#ffffff';
+function openAddPage() {
+  const n = note(); if (!n) return;
+  const cur = n.pages[pageIndex];
+  apPaper = pgPaperKind(n, cur) || 'blank'; apColor = pgPaperColor(n, cur);      // starts like the page you are on
+  renderAddPageOpts();
+  $('apSheet').classList.remove('hidden');
+}
+function closeAddPage() { $('apSheet').classList.add('hidden'); }
+function renderAddPageOpts() {
+  document.querySelectorAll('#apOpts .opt').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.paper === apPaper)));
+  const box = $('apColors'); box.innerHTML = '';
+  PAPER_COLORS.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'sw'; b.style.background = c; b.setAttribute('aria-label', 'สีกระดาษ');
+    b.setAttribute('aria-pressed', String(c === apColor));
+    b.onclick = () => { apColor = c; renderAddPageOpts(); };
+    box.appendChild(b);
+  });
+}
+function apProps() {                                   // only what differs from the notebook's own paper is stored on the page
+  const n = note(), p = {};
+  if (apPaper !== n.paper) p.paper = apPaper;
+  if (apColor !== (n.paperColor || '#ffffff')) p.paperColor = apColor;
+  return p;
+}
+function confirmAddPage() { const p = apProps(); closeAddPage(); addPage(p); }
+function applyPaperToThisPage() {                      // same choices, but for the page that is open instead of a new one
+  const n = note(); syncVert();
+  const pg = n && n.pages[pageIndex]; if (!pg) return;
+  delete pg.paper; delete pg.paperColor;
+  Object.assign(pg, apProps());
+  closeAddPage(); touch(); render(); toast('เปลี่ยนกระดาษหน้านี้แล้ว');
 }
 /* ---------- delete a page (undoable) ----------
    The deleted page is kept aside with its position; "undo" (button or 2-finger tap) puts it back exactly there,
@@ -2623,6 +2723,26 @@ function renderSwatches() {
   add.onclick = () => $('customColorInput').click();
   box.appendChild(add);
 }
+/* The pen's default brown is almost the same shade as the dark paper, so a line written there looked like it had vanished.
+   When the pen colour would be hard to see on the page that is open, it switches to white (dark paper) or back to the default
+   brown (light paper). A colour that already stands out is never touched. */
+const _lum = hex => {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return null;
+  const v = parseInt(m[1], 16), ch = [v >> 16, (v >> 8) & 255, v & 255].map(x => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+};
+const _contrast = (a, b) => { const la = _lum(a), lb = _lum(b); if (la === null || lb === null) return 21; return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
+function autoInkForPaper() {
+  const n = note(); if (!n || !n.pages || strokeInProgress || draft) return;
+  const paper = pgPaperColor(n, n.pages[pageIndex]);
+  if (_contrast(ink, paper) >= 2.2) return;
+  const dark = (_lum(paper) || 1) < 0.2;
+  const next = dark ? '#ffffff' : palette[0];
+  if (next === ink || _contrast(next, paper) < 2.2) return;
+  ink = next;
+  try { renderSwatches(); } catch (e) { }
+  toast(dark ? 'กระดาษสีเข้ม — เปลี่ยนสีปากกาเป็นสีขาวให้แล้ว' : 'เปลี่ยนสีปากกากลับเป็นสีเข้มให้แล้ว');
+}
 function curPalette() { return tool === 'highlighter' ? hlPalette : palette; }
 function curInk() { return tool === 'highlighter' ? hlInk : ink; }
 function setInk(c) {
@@ -2895,6 +3015,7 @@ function planBacking() {
 
 function render(zoomOnly, slideOk, appendStroke) {
   scheduleFillCheck();
+  if (!zoomOnly && !appendStroke) autoInkForPaper();
   if (fillMode) updateFillHint();
   const dprNow = window.devicePixelRatio || 1;
   layoutCanvas();
@@ -2926,7 +3047,7 @@ function render(zoomOnly, slideOk, appendStroke) {
     viewCanvas.style.width = (cw / k) + 'px'; viewCanvas.style.height = (ch / k) + 'px';
     viewCanvas.style.display = 'block';
     if (canvas.width !== 1 || canvas.height !== 1) { canvas.width = 1; canvas.height = 1; }
-    canvas.style.backgroundColor = (n && n.paperColor) || '#ffffff';
+    canvas.style.backgroundColor = n ? pgPaperColor(n, pg) : '#ffffff';
   } else {
     viewCanvas.style.display = 'none';
     if (viewCanvas.width !== 1) { viewCanvas.width = 1; viewCanvas.height = 1; }
@@ -3064,11 +3185,11 @@ function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
   c.setTransform(1, 0, 0, 1, 0, 0);
   c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
   c.clearRect(0, 0, w, h);
-  c.fillStyle = n.paperColor || '#ffffff';
+  c.fillStyle = pgPaperColor(n, pg);
   c.fillRect(0, 0, w, h);
   c.save();
   if (view) c.setTransform(scale, 0, 0, scale, -view.x, -view.y); else c.scale(scale, scale);
-  currentPaperDark = n.paperColor === '#20262e';
+  currentPaperDark = pgPaperColor(n, pg && pg._vert ? n.pages[pageIndex] : pg) === '#20262e';
   if (pg && pg._vert) drawVertBackdrop(c, n, scale, h, view);      // stacked document: every page's own paper / background
   else drawPageBase(c, n, pg);
   if (pg && pg.images) pg.images.forEach(m => {
@@ -3092,13 +3213,14 @@ function drawPage(c, n, pg, scale, w, h, extra, interactive, view) {
 
 /* Background picture (imported PDF / image page) or the paper pattern of ONE page, at the origin. */
 function drawPageBase(c, n, pg) {
+  if (pg && pg.paperColor) { c.fillStyle = pg.paperColor; c.fillRect(0, 0, PAGE_W, PAGE_H); }      // this page's own paper colour (stacked pages each show theirs)
   const im = pg && pg.bg ? bgImage(pg.bg, () => { if (!$('editor').classList.contains('hidden')) render(); else renderBoardSoon(); }) : null;
   if (im) {
     const k = Math.min(PAGE_W / im.width, PAGE_H / im.height);
     const dw = im.width * k, dh = im.height * k;
     c.drawImage(im, (PAGE_W - dw) / 2, 0, dw, dh);
   } else {
-    drawPattern(c, n.paper, n.paperColor);
+    drawPattern(c, pgPaperKind(n, pg), pgPaperColor(n, pg));
   }
 }
 /* Vertical mode: the pages are stacked with no gap, so a stroke can run straight over a page break. Only the
@@ -5637,7 +5759,11 @@ function moveImageDrag(e) {
       m.minH = n * lh0; textFit(m);
       m.y = north ? r.y + r.h - m.h : r.y;
     } else if (d.mode.length === 2) {
-      const k = Math.max(0.1, 1 + ((east ? dx : -dx) + (south ? dy : -dy)) / (r.w + r.h));
+      /* the corner follows the pointer: size grows by how far the pointer has moved along the box's diagonal, measured from the corner
+         that stays put (before, the change was divided by width + height, so a wide box needed a very long drag) */
+      const ax = west ? r.x + r.w : r.x, ay = north ? r.y + r.h : r.y, cx = east ? r.x + r.w : r.x, cy = south ? r.y + r.h : r.y;
+      const d0 = Math.hypot(cx - ax, cy - ay) || 1;
+      const k = Math.max(0.1, ((cx + dx - ax) * (cx - ax) + (cy + dy - ay) * (cy - ay)) / (d0 * d0));
       m.fs = Math.max(10, Math.min(300, Math.round(r.fs * k * 2) / 2));
       const k2 = m.fs / r.fs;
       m.w = Math.max(60, r.w * k2); m.minH = r.minH * k2; textFit(m);
@@ -5669,6 +5795,7 @@ function moveImageDrag(e) {
     }
   }
   m.x = x; m.y = y; m.w = w; m.h = h;
+  if (textEditId === m.id) positionTextEdit(m);
   positionImageBox();
   scheduleFrame(true);
 }

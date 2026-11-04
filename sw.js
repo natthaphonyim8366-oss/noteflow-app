@@ -1,7 +1,8 @@
 /* NoteFlow service worker: lets the app open instantly and without internet once it has been opened/installed.
-   - the page itself: network first (so a new version arrives at once), the saved copy when the network is slow or missing
+   - the page itself: the saved copy opens at once while a fresh copy is fetched in the background (the app's own "new version" pill offers it);
+     when the address carries ?v= (the person just tapped "update") the network is asked first
    - status.json, the claim service and every other address: never touched (the access check must always ask the real server) */
-const CACHE = 'noteflow-shell-v1';
+const CACHE = 'noteflow-shell-v2';
 const SHELL = ['./', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => Promise.all(SHELL.map(u => c.add(new Request(u, { cache: 'reload' })).catch(() => { })))).then(() => self.skipWaiting()));
@@ -18,13 +19,17 @@ self.addEventListener('fetch', e => {
   if (isPage) {
     e.respondWith((async () => {
       const cache = await caches.open(CACHE), key = new URL('./', self.registration.scope).href;
-      try {
-        const r = await withTimeout(fetch(req), 4000);
+      const forceNet = /[?&]v=/.test(url.search);
+      const net = fetch(req).then(r => {
         if (r && r.ok && req.mode === 'navigate' && !url.search.includes('_=')) cache.put(key, r.clone());
         return r;
-      } catch (err) {
-        const hit = await cache.match(key) || await cache.match(req, { ignoreSearch: true });
-        if (hit) return hit;
+      });
+      const hit = await cache.match(key);
+      if (hit && !forceNet) { e.waitUntil(net.catch(() => { })); return hit; }   // instant start: never leave the person staring at the launch screen while the network is slow
+      try { return await net; }
+      catch (err) {
+        const old = hit || await cache.match(req, { ignoreSearch: true });
+        if (old) return old;
         throw err;
       }
     })());
